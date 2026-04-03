@@ -3,4 +3,8 @@ export default {
   root: "src",
   output: "dist",
   theme: "light",
+  pages: [
+    {name: "KDE Poblacional", path: "/"},
+    {name: "Explorador de Pantos", path: "/pantos"},
+  ],
 };

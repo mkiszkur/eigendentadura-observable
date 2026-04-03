@@ -52,6 +52,18 @@ display(odonto);
 
 ## Mapa de densidad (KDE)
 
+<details>
+<summary><strong>Universo de datos</strong> — ${metadata.total_teeth.toLocaleString()} dientes de ${metadata.unique_pantos.toLocaleString()} pantomografías <em>(clic para expandir)</em></summary>
+
+Se incluyen todos los dientes permanentes (FDI 11–48) que cumplen simultáneamente:
+1. Tienen el **número FDI anotado** por un revisor humano
+2. Tienen **coordenadas landmark-normalized** disponibles (la pantomografía tiene landmarks condíleos completos)
+
+No se restringe a dentaduras completas (32/32): cada diente aporta independientemente a la KDE de su pieza.
+Coordenadas normalizadas por marco condíleo (origen = punto medio intercondíleo, escala = distancia intercondílea).
+
+</details>
+
 ```js
 const plot = kdePlot({
   selectedFdi: selectedFdi,
@@ -68,6 +80,20 @@ display(plot);
 ```js
 const selectedSet2 = new Set(selectedFdi);
 const selectedStats = toothStats.filter(s => selectedSet2.has(s.fdi));
+```
+
+```js
+if (selectedStats.length > 0) {
+  const nMin = d3.min(selectedStats, s => s.n);
+  const nMax = d3.max(selectedStats, s => s.n);
+  display(html`<p style="color:#555; font-size:13px;">
+    Mostrando <strong>${selectedStats.length}</strong> pieza(s).
+    Muestras por pieza: entre <strong>${nMin.toLocaleString()}</strong> y <strong>${nMax.toLocaleString()}</strong> dientes.
+  </p>`);
+}
+```
+
+```js
 display(Inputs.table(selectedStats, {
   columns: ["fdi", "n", "mean_x", "mean_y", "std_x", "std_y", "mean_angle", "std_angle"],
   header: {
