@@ -5,6 +5,8 @@ export default {
   theme: "light",
   pages: [
     {name: "KDE Poblacional", path: "/"},
+    {name: "Subpoblaciones", path: "/subpoblaciones"},
+    {name: "Individuo vs Población", path: "/individuo"},
     {name: "Explorador de Pantos", path: "/pantos"},
   ],
 };
