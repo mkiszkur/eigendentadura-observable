@@ -59,7 +59,8 @@ export function kdePlot({selectedFdi, kdeGrids, toothStats, width = 800, height 
   };
 
   const xScale0 = d3.scaleLinear().domain([viewExtent.x_min, viewExtent.x_max]).range([0, innerW]);
-  const yScale0 = d3.scaleLinear().domain([viewExtent.y_min, viewExtent.y_max]).range([innerH, 0]);
+  // Y crece hacia abajo (como en imagen): superiores (y≈0.15) arriba, inferiores (y≈0.27) abajo
+  const yScale0 = d3.scaleLinear().domain([viewExtent.y_min, viewExtent.y_max]).range([0, innerH]);
   let xScale = xScale0.copy();
   let yScale = yScale0.copy();
 
