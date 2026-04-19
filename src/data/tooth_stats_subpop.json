@@ -4,384 +4,384 @@
     "group": "ecodoc",
     "fdi": 11,
     "n": 1407,
-    "cx_mean": -0.024578,
-    "cy_mean": 0.168373,
-    "cx_std": 0.014301,
-    "cy_std": 0.035686,
-    "angle_mean": 90.3047,
-    "angle_std": 2.7303
+    "cx_mean": -0.024727,
+    "cy_mean": 0.1685,
+    "cx_std": 0.012987,
+    "cy_std": 0.035543,
+    "angle_mean": 90.4845,
+    "angle_std": 2.9457
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 12,
     "n": 1383,
-    "cx_mean": -0.060541,
-    "cy_mean": 0.163955,
-    "cx_std": 0.015769,
-    "cy_std": 0.035225,
-    "angle_mean": 88.2373,
-    "angle_std": 4.4458
+    "cx_mean": -0.060685,
+    "cy_mean": 0.164074,
+    "cx_std": 0.01465,
+    "cy_std": 0.035107,
+    "angle_mean": 88.4222,
+    "angle_std": 4.5785
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 13,
     "n": 1407,
-    "cx_mean": -0.099438,
-    "cy_mean": 0.147244,
-    "cx_std": 0.016394,
-    "cy_std": 0.041434,
-    "angle_mean": 89.8245,
-    "angle_std": 8.6738
+    "cx_mean": -0.099573,
+    "cy_mean": 0.147348,
+    "cx_std": 0.015443,
+    "cy_std": 0.0414,
+    "angle_mean": 90.0129,
+    "angle_std": 8.7699
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 14,
     "n": 1358,
-    "cx_mean": -0.132374,
-    "cy_mean": 0.15624,
-    "cx_std": 0.018222,
-    "cy_std": 0.034526,
-    "angle_mean": 86.3029,
-    "angle_std": 7.0645
+    "cx_mean": -0.13251,
+    "cy_mean": 0.156337,
+    "cx_std": 0.017363,
+    "cy_std": 0.034491,
+    "angle_mean": 86.4908,
+    "angle_std": 7.2235
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 15,
     "n": 1287,
-    "cx_mean": -0.167997,
-    "cy_mean": 0.153008,
-    "cx_std": 0.017615,
-    "cy_std": 0.034286,
-    "angle_mean": 85.3281,
-    "angle_std": 7.8993
+    "cx_mean": -0.168135,
+    "cy_mean": 0.153097,
+    "cx_std": 0.016734,
+    "cy_std": 0.034296,
+    "angle_mean": 85.5088,
+    "angle_std": 7.9778
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 16,
     "n": 1286,
-    "cx_mean": -0.215289,
-    "cy_mean": 0.150279,
-    "cx_std": 0.024888,
-    "cy_std": 0.029381,
-    "angle_mean": 86.6669,
-    "angle_std": 8.265
+    "cx_mean": -0.215416,
+    "cy_mean": 0.150354,
+    "cx_std": 0.024348,
+    "cy_std": 0.029396,
+    "angle_mean": 86.8382,
+    "angle_std": 8.37
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 17,
     "n": 1315,
-    "cx_mean": -0.266242,
-    "cy_mean": 0.132922,
-    "cx_std": 0.027812,
-    "cy_std": 0.034058,
-    "angle_mean": 76.6885,
-    "angle_std": 12.9384
+    "cx_mean": -0.266354,
+    "cy_mean": 0.132978,
+    "cx_std": 0.027432,
+    "cy_std": 0.0341,
+    "angle_mean": 76.8694,
+    "angle_std": 13.0082
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 18,
     "n": 960,
-    "cx_mean": -0.303393,
-    "cy_mean": 0.09585,
-    "cx_std": 0.018646,
-    "cy_std": 0.039872,
-    "angle_mean": 64.8342,
-    "angle_std": 19.8742
+    "cx_mean": -0.303527,
+    "cy_mean": 0.095907,
+    "cx_std": 0.018102,
+    "cy_std": 0.039954,
+    "angle_mean": 65.0089,
+    "angle_std": 19.9422
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 21,
     "n": 1401,
-    "cx_mean": 0.019438,
-    "cy_mean": 0.168101,
-    "cx_std": 0.014142,
-    "cy_std": 0.035731,
-    "angle_mean": 89.7785,
-    "angle_std": 2.3508
+    "cx_mean": 0.019282,
+    "cy_mean": 0.16824,
+    "cx_std": 0.01275,
+    "cy_std": 0.035548,
+    "angle_mean": 89.9577,
+    "angle_std": 2.5779
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 22,
     "n": 1391,
-    "cx_mean": 0.055687,
-    "cy_mean": 0.163191,
-    "cx_std": 0.015004,
-    "cy_std": 0.035306,
-    "angle_mean": 92.5177,
-    "angle_std": 5.2277
+    "cx_mean": 0.055527,
+    "cy_mean": 0.163344,
+    "cx_std": 0.013688,
+    "cy_std": 0.035046,
+    "angle_mean": 92.7031,
+    "angle_std": 5.4001
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 23,
     "n": 1409,
-    "cx_mean": 0.095568,
-    "cy_mean": 0.146797,
-    "cx_std": 0.016096,
-    "cy_std": 0.040886,
-    "angle_mean": 90.7871,
-    "angle_std": 8.2243
+    "cx_mean": 0.095405,
+    "cy_mean": 0.14696,
+    "cx_std": 0.01485,
+    "cy_std": 0.040665,
+    "angle_mean": 90.981,
+    "angle_std": 8.3377
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 24,
     "n": 1354,
-    "cx_mean": 0.128931,
-    "cy_mean": 0.155685,
-    "cx_std": 0.018979,
-    "cy_std": 0.034296,
-    "angle_mean": 94.1858,
-    "angle_std": 7.4311
+    "cx_mean": 0.128755,
+    "cy_mean": 0.155865,
+    "cx_std": 0.017842,
+    "cy_std": 0.033935,
+    "angle_mean": 94.3758,
+    "angle_std": 7.5673
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 25,
     "n": 1292,
-    "cx_mean": 0.166356,
-    "cy_mean": 0.152672,
-    "cx_std": 0.017593,
-    "cy_std": 0.034706,
-    "angle_mean": 95.0662,
-    "angle_std": 8.2807
+    "cx_mean": 0.166166,
+    "cy_mean": 0.152874,
+    "cx_std": 0.016221,
+    "cy_std": 0.034286,
+    "angle_mean": 95.2559,
+    "angle_std": 8.3933
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 26,
     "n": 1271,
-    "cx_mean": 0.214705,
-    "cy_mean": 0.149717,
-    "cx_std": 0.02285,
-    "cy_std": 0.029855,
-    "angle_mean": 93.6046,
-    "angle_std": 8.438
+    "cx_mean": 0.214509,
+    "cy_mean": 0.149941,
+    "cx_std": 0.021792,
+    "cy_std": 0.029121,
+    "angle_mean": 93.7651,
+    "angle_std": 8.5824
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 27,
     "n": 1306,
-    "cx_mean": 0.266314,
-    "cy_mean": 0.132634,
-    "cx_std": 0.019187,
-    "cy_std": 0.03443,
-    "angle_mean": 103.4215,
-    "angle_std": 13.056
+    "cx_mean": 0.266116,
+    "cy_mean": 0.13287,
+    "cx_std": 0.017858,
+    "cy_std": 0.033771,
+    "angle_mean": 103.6059,
+    "angle_std": 13.1429
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 28,
     "n": 977,
-    "cx_mean": 0.303497,
-    "cy_mean": 0.094553,
-    "cx_std": 0.019555,
-    "cy_std": 0.041015,
-    "angle_mean": 115.8926,
-    "angle_std": 19.77
+    "cx_mean": 0.303228,
+    "cy_mean": 0.094895,
+    "cx_std": 0.017581,
+    "cy_std": 0.040321,
+    "angle_mean": 116.0781,
+    "angle_std": 19.7784
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 31,
     "n": 1397,
-    "cx_mean": 0.011547,
-    "cy_mean": 0.286603,
-    "cx_std": 0.01452,
-    "cy_std": 0.038634,
-    "angle_mean": 90.0817,
-    "angle_std": 4.0003
+    "cx_mean": 0.011354,
+    "cy_mean": 0.286723,
+    "cx_std": 0.012397,
+    "cy_std": 0.038513,
+    "angle_mean": 90.2519,
+    "angle_std": 4.1897
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 32,
     "n": 1399,
-    "cx_mean": 0.039032,
-    "cy_mean": 0.289185,
-    "cx_std": 0.015241,
-    "cy_std": 0.038256,
-    "angle_mean": 88.9929,
-    "angle_std": 5.1162
+    "cx_mean": 0.038836,
+    "cy_mean": 0.289313,
+    "cx_std": 0.013231,
+    "cy_std": 0.038094,
+    "angle_mean": 89.1775,
+    "angle_std": 5.3296
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 33,
     "n": 1426,
-    "cx_mean": 0.075835,
-    "cy_mean": 0.301286,
-    "cx_std": 0.017566,
-    "cy_std": 0.039489,
-    "angle_mean": 95.4189,
-    "angle_std": 7.4221
+    "cx_mean": 0.075633,
+    "cy_mean": 0.301421,
+    "cx_std": 0.015766,
+    "cy_std": 0.0393,
+    "angle_mean": 95.6086,
+    "angle_std": 7.6274
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 34,
     "n": 1388,
-    "cx_mean": 0.113651,
-    "cy_mean": 0.290783,
-    "cx_std": 0.017505,
-    "cy_std": 0.036225,
-    "angle_mean": 99.3866,
-    "angle_std": 9.6131
+    "cx_mean": 0.113445,
+    "cy_mean": 0.290933,
+    "cx_std": 0.015812,
+    "cy_std": 0.035938,
+    "angle_mean": 99.5709,
+    "angle_std": 9.7598
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 35,
     "n": 1353,
-    "cx_mean": 0.155052,
-    "cy_mean": 0.285815,
-    "cx_std": 0.024116,
-    "cy_std": 0.034615,
-    "angle_mean": 107.8816,
-    "angle_std": 10.6776
+    "cx_mean": 0.154837,
+    "cy_mean": 0.285981,
+    "cx_std": 0.022927,
+    "cy_std": 0.034247,
+    "angle_mean": 108.0676,
+    "angle_std": 10.7705
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 36,
     "n": 1240,
-    "cx_mean": 0.210042,
-    "cy_mean": 0.272905,
-    "cx_std": 0.027901,
-    "cy_std": 0.032956,
-    "angle_mean": 109.8291,
-    "angle_std": 8.5972
+    "cx_mean": 0.209801,
+    "cy_mean": 0.273105,
+    "cx_std": 0.026757,
+    "cy_std": 0.03245,
+    "angle_mean": 110.0026,
+    "angle_std": 8.7298
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 37,
     "n": 1253,
-    "cx_mean": 0.277182,
-    "cy_mean": 0.255659,
-    "cx_std": 0.030219,
-    "cy_std": 0.03043,
-    "angle_mean": 115.1441,
-    "angle_std": 11.7264
+    "cx_mean": 0.276937,
+    "cy_mean": 0.255883,
+    "cx_std": 0.029167,
+    "cy_std": 0.029727,
+    "angle_mean": 115.3218,
+    "angle_std": 11.8041
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 38,
     "n": 994,
-    "cx_mean": 0.339532,
-    "cy_mean": 0.238733,
-    "cx_std": 0.025703,
-    "cy_std": 0.031516,
-    "angle_mean": 121.0318,
-    "angle_std": 24.0237
+    "cx_mean": 0.339221,
+    "cy_mean": 0.239049,
+    "cx_std": 0.024069,
+    "cy_std": 0.03029,
+    "angle_mean": 121.212,
+    "angle_std": 24.0293
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 41,
     "n": 1396,
-    "cx_mean": -0.014909,
-    "cy_mean": 0.286577,
-    "cx_std": 0.014678,
-    "cy_std": 0.038813,
-    "angle_mean": 89.8604,
-    "angle_std": 3.9436
+    "cx_mean": -0.015099,
+    "cy_mean": 0.286691,
+    "cx_std": 0.012581,
+    "cy_std": 0.038717,
+    "angle_mean": 90.0334,
+    "angle_std": 4.148
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 42,
     "n": 1400,
-    "cx_mean": -0.042281,
-    "cy_mean": 0.288983,
-    "cx_std": 0.015782,
-    "cy_std": 0.038184,
-    "angle_mean": 90.8972,
-    "angle_std": 5.4285
+    "cx_mean": -0.042465,
+    "cy_mean": 0.289089,
+    "cx_std": 0.013908,
+    "cy_std": 0.038091,
+    "angle_mean": 91.0697,
+    "angle_std": 5.606
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 43,
     "n": 1422,
-    "cx_mean": -0.078893,
-    "cy_mean": 0.301753,
-    "cx_std": 0.017336,
-    "cy_std": 0.039191,
-    "angle_mean": 84.5904,
-    "angle_std": 7.6554
+    "cx_mean": -0.079073,
+    "cy_mean": 0.301844,
+    "cx_std": 0.015667,
+    "cy_std": 0.039129,
+    "angle_mean": 84.7712,
+    "angle_std": 7.8089
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 44,
     "n": 1397,
-    "cx_mean": -0.115898,
-    "cy_mean": 0.290853,
-    "cx_std": 0.019715,
-    "cy_std": 0.036276,
-    "angle_mean": 81.368,
-    "angle_std": 8.5591
+    "cx_mean": -0.11607,
+    "cy_mean": 0.290938,
+    "cx_std": 0.01836,
+    "cy_std": 0.03621,
+    "angle_mean": 81.5535,
+    "angle_std": 8.6616
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 45,
     "n": 1329,
-    "cx_mean": -0.15605,
-    "cy_mean": 0.285815,
-    "cx_std": 0.024008,
-    "cy_std": 0.034265,
-    "angle_mean": 74.1818,
-    "angle_std": 10.2054
+    "cx_mean": -0.156225,
+    "cy_mean": 0.285893,
+    "cx_std": 0.022863,
+    "cy_std": 0.034231,
+    "angle_mean": 74.3721,
+    "angle_std": 10.2747
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 46,
     "n": 1261,
-    "cx_mean": -0.210218,
-    "cy_mean": 0.273596,
-    "cx_std": 0.022675,
-    "cy_std": 0.032156,
-    "angle_mean": 70.3668,
-    "angle_std": 7.8826
+    "cx_mean": -0.210392,
+    "cy_mean": 0.273659,
+    "cx_std": 0.021514,
+    "cy_std": 0.032163,
+    "angle_mean": 70.5462,
+    "angle_std": 7.9189
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 47,
     "n": 1249,
-    "cx_mean": -0.277232,
-    "cy_mean": 0.256709,
-    "cx_std": 0.025546,
-    "cy_std": 0.029272,
-    "angle_mean": 65.2224,
-    "angle_std": 12.0251
+    "cx_mean": -0.277393,
+    "cy_mean": 0.256752,
+    "cx_std": 0.024629,
+    "cy_std": 0.029306,
+    "angle_mean": 65.4239,
+    "angle_std": 12.0659
   },
   {
     "axis": "origin",
     "group": "ecodoc",
     "fdi": 48,
     "n": 1009,
-    "cx_mean": -0.336146,
-    "cy_mean": 0.23859,
-    "cx_std": 0.048349,
-    "cy_std": 0.029888,
-    "angle_mean": 58.1277,
-    "angle_std": 23.9097
+    "cx_mean": -0.336321,
+    "cy_mean": 0.23862,
+    "cx_std": 0.047888,
+    "cy_std": 0.029918,
+    "angle_mean": 58.3283,
+    "angle_std": 23.9281
   },
   {
     "axis": "origin",
@@ -392,8 +392,8 @@
     "cy_mean": 0.14368,
     "cx_std": 0.017121,
     "cy_std": 0.044124,
-    "angle_mean": 90.7587,
-    "angle_std": 3.1019
+    "angle_mean": 91.1022,
+    "angle_std": 3.4949
   },
   {
     "axis": "origin",
@@ -404,8 +404,8 @@
     "cy_mean": 0.141047,
     "cx_std": 0.019707,
     "cy_std": 0.043125,
-    "angle_mean": 88.9199,
-    "angle_std": 4.9695
+    "angle_mean": 89.2792,
+    "angle_std": 5.2822
   },
   {
     "axis": "origin",
@@ -416,8 +416,8 @@
     "cy_mean": 0.128023,
     "cx_std": 0.020113,
     "cy_std": 0.044281,
-    "angle_mean": 90.7846,
-    "angle_std": 8.5395
+    "angle_mean": 91.13,
+    "angle_std": 8.7045
   },
   {
     "axis": "origin",
@@ -428,8 +428,8 @@
     "cy_mean": 0.13792,
     "cx_std": 0.022516,
     "cy_std": 0.038757,
-    "angle_mean": 87.8263,
-    "angle_std": 7.8191
+    "angle_mean": 88.1299,
+    "angle_std": 8.012
   },
   {
     "axis": "origin",
@@ -440,8 +440,8 @@
     "cy_mean": 0.135021,
     "cx_std": 0.021826,
     "cy_std": 0.036915,
-    "angle_mean": 86.8899,
-    "angle_std": 8.4458
+    "angle_mean": 87.1662,
+    "angle_std": 8.636
   },
   {
     "axis": "origin",
@@ -452,8 +452,8 @@
     "cy_mean": 0.13292,
     "cx_std": 0.034048,
     "cy_std": 0.032766,
-    "angle_mean": 89.1892,
-    "angle_std": 9.4418
+    "angle_mean": 89.5006,
+    "angle_std": 9.7013
   },
   {
     "axis": "origin",
@@ -464,8 +464,8 @@
     "cy_mean": 0.121758,
     "cx_std": 0.029892,
     "cy_std": 0.033301,
-    "angle_mean": 80.3025,
-    "angle_std": 13.9284
+    "angle_mean": 80.6101,
+    "angle_std": 14.1334
   },
   {
     "axis": "origin",
@@ -476,8 +476,8 @@
     "cy_mean": 0.086416,
     "cx_std": 0.021887,
     "cy_std": 0.039231,
-    "angle_mean": 67.2344,
-    "angle_std": 20.5829
+    "angle_mean": 67.4786,
+    "angle_std": 20.6959
   },
   {
     "axis": "origin",
@@ -488,8 +488,8 @@
     "cy_mean": 0.142894,
     "cx_std": 0.01786,
     "cy_std": 0.044272,
-    "angle_mean": 89.6148,
-    "angle_std": 3.2494
+    "angle_mean": 89.9781,
+    "angle_std": 3.6463
   },
   {
     "axis": "origin",
@@ -500,8 +500,8 @@
     "cy_mean": 0.13991,
     "cx_std": 0.018594,
     "cy_std": 0.04282,
-    "angle_mean": 92.0858,
-    "angle_std": 5.4552
+    "angle_mean": 92.4385,
+    "angle_std": 5.6715
   },
   {
     "axis": "origin",
@@ -512,8 +512,8 @@
     "cy_mean": 0.126341,
     "cx_std": 0.020561,
     "cy_std": 0.043886,
-    "angle_mean": 90.2853,
-    "angle_std": 8.4467
+    "angle_mean": 90.6466,
+    "angle_std": 8.6381
   },
   {
     "axis": "origin",
@@ -524,8 +524,8 @@
     "cy_mean": 0.136291,
     "cx_std": 0.022422,
     "cy_std": 0.038952,
-    "angle_mean": 93.0288,
-    "angle_std": 8.1414
+    "angle_mean": 93.3472,
+    "angle_std": 8.2513
   },
   {
     "axis": "origin",
@@ -536,8 +536,8 @@
     "cy_mean": 0.134488,
     "cx_std": 0.021548,
     "cy_std": 0.036595,
-    "angle_mean": 93.9996,
-    "angle_std": 8.6468
+    "angle_mean": 94.3056,
+    "angle_std": 8.7321
   },
   {
     "axis": "origin",
@@ -548,8 +548,8 @@
     "cy_mean": 0.132615,
     "cx_std": 0.027211,
     "cy_std": 0.032325,
-    "angle_mean": 91.3911,
-    "angle_std": 10.1894
+    "angle_mean": 91.6945,
+    "angle_std": 10.3142
   },
   {
     "axis": "origin",
@@ -560,8 +560,8 @@
     "cy_mean": 0.120171,
     "cx_std": 0.023357,
     "cy_std": 0.032799,
-    "angle_mean": 101.2908,
-    "angle_std": 14.4895
+    "angle_mean": 101.576,
+    "angle_std": 14.5403
   },
   {
     "axis": "origin",
@@ -572,8 +572,8 @@
     "cy_mean": 0.084758,
     "cx_std": 0.021326,
     "cy_std": 0.040212,
-    "angle_mean": 115.9541,
-    "angle_std": 21.1566
+    "angle_mean": 116.2066,
+    "angle_std": 21.1347
   },
   {
     "axis": "origin",
@@ -584,8 +584,8 @@
     "cy_mean": 0.257692,
     "cx_std": 0.015787,
     "cy_std": 0.047766,
-    "angle_mean": 90.4403,
-    "angle_std": 4.2827
+    "angle_mean": 90.7663,
+    "angle_std": 4.6524
   },
   {
     "axis": "origin",
@@ -596,8 +596,8 @@
     "cy_mean": 0.260699,
     "cx_std": 0.018003,
     "cy_std": 0.047033,
-    "angle_mean": 89.6481,
-    "angle_std": 5.4156
+    "angle_mean": 90.0019,
+    "angle_std": 5.8078
   },
   {
     "axis": "origin",
@@ -608,8 +608,8 @@
     "cy_mean": 0.271863,
     "cx_std": 0.021231,
     "cy_std": 0.046159,
-    "angle_mean": 94.9517,
-    "angle_std": 8.1593
+    "angle_mean": 95.3023,
+    "angle_std": 8.4226
   },
   {
     "axis": "origin",
@@ -620,8 +620,8 @@
     "cy_mean": 0.263899,
     "cx_std": 0.021879,
     "cy_std": 0.0427,
-    "angle_mean": 99.3241,
-    "angle_std": 10.6493
+    "angle_mean": 99.6747,
+    "angle_std": 10.8009
   },
   {
     "axis": "origin",
@@ -632,8 +632,8 @@
     "cy_mean": 0.261191,
     "cx_std": 0.026934,
     "cy_std": 0.040166,
-    "angle_mean": 106.8702,
-    "angle_std": 11.7473
+    "angle_mean": 107.1885,
+    "angle_std": 11.8499
   },
   {
     "axis": "origin",
@@ -644,8 +644,8 @@
     "cy_mean": 0.252388,
     "cx_std": 0.032203,
     "cy_std": 0.036602,
-    "angle_mean": 108.867,
-    "angle_std": 9.8884
+    "angle_mean": 109.1554,
+    "angle_std": 9.9432
   },
   {
     "axis": "origin",
@@ -656,8 +656,8 @@
     "cy_mean": 0.23712,
     "cx_std": 0.029901,
     "cy_std": 0.031791,
-    "angle_mean": 116.1096,
-    "angle_std": 13.4275
+    "angle_mean": 116.4101,
+    "angle_std": 13.5628
   },
   {
     "axis": "origin",
@@ -668,8 +668,8 @@
     "cy_mean": 0.221432,
     "cx_std": 0.029376,
     "cy_std": 0.030465,
-    "angle_mean": 120.4373,
-    "angle_std": 22.5077
+    "angle_mean": 120.7021,
+    "angle_std": 22.549
   },
   {
     "axis": "origin",
@@ -680,8 +680,8 @@
     "cy_mean": 0.257864,
     "cx_std": 0.0156,
     "cy_std": 0.04807,
-    "angle_mean": 90.1162,
-    "angle_std": 4.3202
+    "angle_mean": 90.446,
+    "angle_std": 4.7165
   },
   {
     "axis": "origin",
@@ -692,8 +692,8 @@
     "cy_mean": 0.260411,
     "cx_std": 0.017276,
     "cy_std": 0.047385,
-    "angle_mean": 90.7071,
-    "angle_std": 5.601
+    "angle_mean": 91.0526,
+    "angle_std": 5.9033
   },
   {
     "axis": "origin",
@@ -704,8 +704,8 @@
     "cy_mean": 0.272422,
     "cx_std": 0.021003,
     "cy_std": 0.046763,
-    "angle_mean": 85.1669,
-    "angle_std": 8.0421
+    "angle_mean": 85.5215,
+    "angle_std": 8.2685
   },
   {
     "axis": "origin",
@@ -716,8 +716,8 @@
     "cy_mean": 0.264175,
     "cx_std": 0.02198,
     "cy_std": 0.042988,
-    "angle_mean": 81.463,
-    "angle_std": 9.5895
+    "angle_mean": 81.825,
+    "angle_std": 9.7808
   },
   {
     "axis": "origin",
@@ -728,8 +728,8 @@
     "cy_mean": 0.260432,
     "cx_std": 0.027602,
     "cy_std": 0.040254,
-    "angle_mean": 76.0335,
-    "angle_std": 11.2314
+    "angle_mean": 76.3729,
+    "angle_std": 11.4176
   },
   {
     "axis": "origin",
@@ -740,8 +740,8 @@
     "cy_mean": 0.251647,
     "cx_std": 0.031254,
     "cy_std": 0.036403,
-    "angle_mean": 71.7331,
-    "angle_std": 9.3214
+    "angle_mean": 72.0154,
+    "angle_std": 9.4942
   },
   {
     "axis": "origin",
@@ -752,8 +752,8 @@
     "cy_mean": 0.236299,
     "cx_std": 0.029643,
     "cy_std": 0.033043,
-    "angle_mean": 64.7441,
-    "angle_std": 13.1908
+    "angle_mean": 65.0832,
+    "angle_std": 13.2831
   },
   {
     "axis": "origin",
@@ -764,8 +764,8 @@
     "cy_mean": 0.222295,
     "cx_std": 0.029917,
     "cy_std": 0.031738,
-    "angle_mean": 58.6629,
-    "angle_std": 23.2258
+    "angle_mean": 58.9636,
+    "angle_std": 23.2813
   },
   {
     "axis": "sex",
@@ -776,8 +776,8 @@
     "cy_mean": 0.180142,
     "cx_std": 0.014991,
     "cy_std": 0.036979,
-    "angle_mean": 90.1843,
-    "angle_std": 2.0476
+    "angle_mean": 90.3605,
+    "angle_std": 2.4286
   },
   {
     "axis": "sex",
@@ -788,8 +788,8 @@
     "cy_mean": 0.175288,
     "cx_std": 0.016037,
     "cy_std": 0.037796,
-    "angle_mean": 88.7022,
-    "angle_std": 4.7696
+    "angle_mean": 88.8923,
+    "angle_std": 4.872
   },
   {
     "axis": "sex",
@@ -800,8 +800,8 @@
     "cy_mean": 0.161629,
     "cx_std": 0.016419,
     "cy_std": 0.04234,
-    "angle_mean": 90.4032,
-    "angle_std": 7.4231
+    "angle_mean": 90.5997,
+    "angle_std": 7.4802
   },
   {
     "axis": "sex",
@@ -812,8 +812,8 @@
     "cy_mean": 0.169928,
     "cx_std": 0.017713,
     "cy_std": 0.038471,
-    "angle_mean": 86.3034,
-    "angle_std": 5.7446
+    "angle_mean": 86.5248,
+    "angle_std": 5.8374
   },
   {
     "axis": "sex",
@@ -824,8 +824,8 @@
     "cy_mean": 0.165206,
     "cx_std": 0.018414,
     "cy_std": 0.036073,
-    "angle_mean": 85.4584,
-    "angle_std": 7.3193
+    "angle_mean": 85.6333,
+    "angle_std": 7.3586
   },
   {
     "axis": "sex",
@@ -836,8 +836,8 @@
     "cy_mean": 0.162382,
     "cx_std": 0.019526,
     "cy_std": 0.030592,
-    "angle_mean": 87.8001,
-    "angle_std": 6.7317
+    "angle_mean": 88.0172,
+    "angle_std": 6.8783
   },
   {
     "axis": "sex",
@@ -848,8 +848,8 @@
     "cy_mean": 0.148031,
     "cx_std": 0.018838,
     "cy_std": 0.034325,
-    "angle_mean": 78.1181,
-    "angle_std": 11.7485
+    "angle_mean": 78.3325,
+    "angle_std": 11.7601
   },
   {
     "axis": "sex",
@@ -860,8 +860,8 @@
     "cy_mean": 0.11499,
     "cx_std": 0.020918,
     "cy_std": 0.040137,
-    "angle_mean": 69.7411,
-    "angle_std": 17.376
+    "angle_mean": 69.96,
+    "angle_std": 17.4044
   },
   {
     "axis": "sex",
@@ -872,8 +872,8 @@
     "cy_mean": 0.178284,
     "cx_std": 0.0144,
     "cy_std": 0.037579,
-    "angle_mean": 89.5466,
-    "angle_std": 2.358
+    "angle_mean": 89.7326,
+    "angle_std": 2.5679
   },
   {
     "axis": "sex",
@@ -884,8 +884,8 @@
     "cy_mean": 0.176266,
     "cx_std": 0.014864,
     "cy_std": 0.036038,
-    "angle_mean": 92.3108,
-    "angle_std": 5.2629
+    "angle_mean": 92.503,
+    "angle_std": 5.4186
   },
   {
     "axis": "sex",
@@ -896,8 +896,8 @@
     "cy_mean": 0.159464,
     "cx_std": 0.015517,
     "cy_std": 0.042176,
-    "angle_mean": 90.6971,
-    "angle_std": 7.436
+    "angle_mean": 90.8971,
+    "angle_std": 7.5215
   },
   {
     "axis": "sex",
@@ -908,8 +908,8 @@
     "cy_mean": 0.167676,
     "cx_std": 0.015843,
     "cy_std": 0.037416,
-    "angle_mean": 94.0614,
-    "angle_std": 7.4957
+    "angle_mean": 94.2264,
+    "angle_std": 7.7359
   },
   {
     "axis": "sex",
@@ -920,8 +920,8 @@
     "cy_mean": 0.165322,
     "cx_std": 0.01678,
     "cy_std": 0.036749,
-    "angle_mean": 96.2885,
-    "angle_std": 7.5511
+    "angle_mean": 96.4892,
+    "angle_std": 7.6893
   },
   {
     "axis": "sex",
@@ -932,8 +932,8 @@
     "cy_mean": 0.161851,
     "cx_std": 0.017937,
     "cy_std": 0.030809,
-    "angle_mean": 93.2319,
-    "angle_std": 6.8389
+    "angle_mean": 93.4273,
+    "angle_std": 7.033
   },
   {
     "axis": "sex",
@@ -944,8 +944,8 @@
     "cy_mean": 0.148106,
     "cx_std": 0.018503,
     "cy_std": 0.035527,
-    "angle_mean": 101.8342,
-    "angle_std": 11.7556
+    "angle_mean": 102.0498,
+    "angle_std": 11.9074
   },
   {
     "axis": "sex",
@@ -956,8 +956,8 @@
     "cy_mean": 0.113674,
     "cx_std": 0.020379,
     "cy_std": 0.041906,
-    "angle_mean": 112.392,
-    "angle_std": 18.8739
+    "angle_mean": 112.5839,
+    "angle_std": 18.7786
   },
   {
     "axis": "sex",
@@ -968,8 +968,8 @@
     "cy_mean": 0.298008,
     "cx_std": 0.014184,
     "cy_std": 0.041341,
-    "angle_mean": 89.5646,
-    "angle_std": 3.8194
+    "angle_mean": 89.7515,
+    "angle_std": 3.9986
   },
   {
     "axis": "sex",
@@ -980,8 +980,8 @@
     "cy_mean": 0.302083,
     "cx_std": 0.014797,
     "cy_std": 0.04084,
-    "angle_mean": 88.8232,
-    "angle_std": 4.052
+    "angle_mean": 89.0254,
+    "angle_std": 4.287
   },
   {
     "axis": "sex",
@@ -992,8 +992,8 @@
     "cy_mean": 0.31368,
     "cx_std": 0.015972,
     "cy_std": 0.041262,
-    "angle_mean": 95.7033,
-    "angle_std": 6.9125
+    "angle_mean": 95.9004,
+    "angle_std": 7.138
   },
   {
     "axis": "sex",
@@ -1004,8 +1004,8 @@
     "cy_mean": 0.302659,
     "cx_std": 0.01591,
     "cy_std": 0.038455,
-    "angle_mean": 99.2855,
-    "angle_std": 9.6299
+    "angle_mean": 99.4731,
+    "angle_std": 9.8675
   },
   {
     "axis": "sex",
@@ -1016,8 +1016,8 @@
     "cy_mean": 0.297779,
     "cx_std": 0.017902,
     "cy_std": 0.037412,
-    "angle_mean": 106.153,
-    "angle_std": 9.6073
+    "angle_mean": 106.3508,
+    "angle_std": 9.7124
   },
   {
     "axis": "sex",
@@ -1028,8 +1028,8 @@
     "cy_mean": 0.285591,
     "cx_std": 0.059217,
     "cy_std": 0.036899,
-    "angle_mean": 106.5753,
-    "angle_std": 7.5923
+    "angle_mean": 106.7387,
+    "angle_std": 7.8542
   },
   {
     "axis": "sex",
@@ -1040,8 +1040,8 @@
     "cy_mean": 0.269775,
     "cx_std": 0.023459,
     "cy_std": 0.035103,
-    "angle_mean": 112.424,
-    "angle_std": 10.8403
+    "angle_mean": 112.6353,
+    "angle_std": 11.0044
   },
   {
     "axis": "sex",
@@ -1052,8 +1052,8 @@
     "cy_mean": 0.254454,
     "cx_std": 0.02554,
     "cy_std": 0.030568,
-    "angle_mean": 122.2667,
-    "angle_std": 23.1578
+    "angle_mean": 122.3493,
+    "angle_std": 23.204
   },
   {
     "axis": "sex",
@@ -1064,8 +1064,8 @@
     "cy_mean": 0.298343,
     "cx_std": 0.014025,
     "cy_std": 0.041618,
-    "angle_mean": 89.5253,
-    "angle_std": 3.6772
+    "angle_mean": 89.7017,
+    "angle_std": 4.1252
   },
   {
     "axis": "sex",
@@ -1076,8 +1076,8 @@
     "cy_mean": 0.30245,
     "cx_std": 0.014635,
     "cy_std": 0.040451,
-    "angle_mean": 90.726,
-    "angle_std": 6.1404
+    "angle_mean": 90.9359,
+    "angle_std": 6.3648
   },
   {
     "axis": "sex",
@@ -1088,8 +1088,8 @@
     "cy_mean": 0.314751,
     "cx_std": 0.015712,
     "cy_std": 0.041473,
-    "angle_mean": 83.9495,
-    "angle_std": 7.1297
+    "angle_mean": 84.1343,
+    "angle_std": 7.205
   },
   {
     "axis": "sex",
@@ -1100,8 +1100,8 @@
     "cy_mean": 0.304061,
     "cx_std": 0.016743,
     "cy_std": 0.03812,
-    "angle_mean": 81.4976,
-    "angle_std": 8.3252
+    "angle_mean": 81.7162,
+    "angle_std": 8.3523
   },
   {
     "axis": "sex",
@@ -1112,8 +1112,8 @@
     "cy_mean": 0.298905,
     "cx_std": 0.019499,
     "cy_std": 0.037227,
-    "angle_mean": 75.5333,
-    "angle_std": 9.0474
+    "angle_mean": 75.7457,
+    "angle_std": 9.1639
   },
   {
     "axis": "sex",
@@ -1124,8 +1124,8 @@
     "cy_mean": 0.287905,
     "cx_std": 0.020315,
     "cy_std": 0.036258,
-    "angle_mean": 72.3332,
-    "angle_std": 7.0101
+    "angle_mean": 72.5594,
+    "angle_std": 6.99
   },
   {
     "axis": "sex",
@@ -1136,8 +1136,8 @@
     "cy_mean": 0.270008,
     "cx_std": 0.022125,
     "cy_std": 0.033407,
-    "angle_mean": 68.8403,
-    "angle_std": 9.7181
+    "angle_mean": 69.1063,
+    "angle_std": 9.7327
   },
   {
     "axis": "sex",
@@ -1148,8 +1148,8 @@
     "cy_mean": 0.253642,
     "cx_std": 0.021774,
     "cy_std": 0.030369,
-    "angle_mean": 57.9464,
-    "angle_std": 23.9015
+    "angle_mean": 58.2298,
+    "angle_std": 23.9837
   },
   {
     "axis": "sex",
@@ -1160,8 +1160,8 @@
     "cy_mean": 0.169091,
     "cx_std": 0.013237,
     "cy_std": 0.036174,
-    "angle_mean": 90.0652,
-    "angle_std": 2.0659
+    "angle_mean": 90.1382,
+    "angle_std": 2.396
   },
   {
     "axis": "sex",
@@ -1172,8 +1172,8 @@
     "cy_mean": 0.164399,
     "cx_std": 0.014198,
     "cy_std": 0.033356,
-    "angle_mean": 88.4284,
-    "angle_std": 4.0426
+    "angle_mean": 88.4873,
+    "angle_std": 4.2185
   },
   {
     "axis": "sex",
@@ -1184,8 +1184,8 @@
     "cy_mean": 0.151071,
     "cx_std": 0.015105,
     "cy_std": 0.038047,
-    "angle_mean": 89.1968,
-    "angle_std": 9.928
+    "angle_mean": 89.2732,
+    "angle_std": 9.9798
   },
   {
     "axis": "sex",
@@ -1196,8 +1196,8 @@
     "cy_mean": 0.157561,
     "cx_std": 0.015977,
     "cy_std": 0.032223,
-    "angle_mean": 85.3126,
-    "angle_std": 6.5975
+    "angle_mean": 85.4146,
+    "angle_std": 6.6589
   },
   {
     "axis": "sex",
@@ -1208,8 +1208,8 @@
     "cy_mean": 0.156641,
     "cx_std": 0.017711,
     "cy_std": 0.028578,
-    "angle_mean": 85.046,
-    "angle_std": 6.5156
+    "angle_mean": 85.1792,
+    "angle_std": 6.5857
   },
   {
     "axis": "sex",
@@ -1220,8 +1220,8 @@
     "cy_mean": 0.152439,
     "cx_std": 0.021006,
     "cy_std": 0.02749,
-    "angle_mean": 86.3961,
-    "angle_std": 9.0495
+    "angle_mean": 86.4127,
+    "angle_std": 9.1431
   },
   {
     "axis": "sex",
@@ -1232,8 +1232,8 @@
     "cy_mean": 0.136754,
     "cx_std": 0.018984,
     "cy_std": 0.029625,
-    "angle_mean": 76.317,
-    "angle_std": 15.7249
+    "angle_mean": 76.4062,
+    "angle_std": 15.8078
   },
   {
     "axis": "sex",
@@ -1244,8 +1244,8 @@
     "cy_mean": 0.100329,
     "cx_std": 0.017483,
     "cy_std": 0.036418,
-    "angle_mean": 62.1715,
-    "angle_std": 18.9889
+    "angle_mean": 62.2166,
+    "angle_std": 19.0121
   },
   {
     "axis": "sex",
@@ -1256,8 +1256,8 @@
     "cy_mean": 0.168915,
     "cx_std": 0.013164,
     "cy_std": 0.035792,
-    "angle_mean": 89.6978,
-    "angle_std": 1.9607
+    "angle_mean": 89.7708,
+    "angle_std": 2.2117
   },
   {
     "axis": "sex",
@@ -1268,8 +1268,8 @@
     "cy_mean": 0.165606,
     "cx_std": 0.014405,
     "cy_std": 0.034855,
-    "angle_mean": 92.6907,
-    "angle_std": 4.6686
+    "angle_mean": 92.7896,
+    "angle_std": 4.7428
   },
   {
     "axis": "sex",
@@ -1280,8 +1280,8 @@
     "cy_mean": 0.151369,
     "cx_std": 0.0166,
     "cy_std": 0.03605,
-    "angle_mean": 92.5462,
-    "angle_std": 7.5396
+    "angle_mean": 92.6193,
+    "angle_std": 7.5459
   },
   {
     "axis": "sex",
@@ -1292,8 +1292,8 @@
     "cy_mean": 0.15592,
     "cx_std": 0.016628,
     "cy_std": 0.031408,
-    "angle_mean": 94.827,
-    "angle_std": 8.3815
+    "angle_mean": 94.9455,
+    "angle_std": 8.3806
   },
   {
     "axis": "sex",
@@ -1304,8 +1304,8 @@
     "cy_mean": 0.153995,
     "cx_std": 0.01624,
     "cy_std": 0.029082,
-    "angle_mean": 95.4939,
-    "angle_std": 7.8494
+    "angle_mean": 95.6286,
+    "angle_std": 7.9693
   },
   {
     "axis": "sex",
@@ -1316,8 +1316,8 @@
     "cy_mean": 0.151956,
     "cx_std": 0.018509,
     "cy_std": 0.027773,
-    "angle_mean": 93.0316,
-    "angle_std": 9.9065
+    "angle_mean": 93.086,
+    "angle_std": 10.1043
   },
   {
     "axis": "sex",
@@ -1328,8 +1328,8 @@
     "cy_mean": 0.136207,
     "cx_std": 0.017803,
     "cy_std": 0.029375,
-    "angle_mean": 101.8873,
-    "angle_std": 13.2188
+    "angle_mean": 101.9801,
+    "angle_std": 13.3844
   },
   {
     "axis": "sex",
@@ -1340,8 +1340,8 @@
     "cy_mean": 0.09352,
     "cx_std": 0.018521,
     "cy_std": 0.036318,
-    "angle_mean": 119.9922,
-    "angle_std": 22.2362
+    "angle_mean": 120.0922,
+    "angle_std": 22.2879
   },
   {
     "axis": "sex",
@@ -1352,8 +1352,8 @@
     "cy_mean": 0.286828,
     "cx_std": 0.012976,
     "cy_std": 0.037988,
-    "angle_mean": 89.7075,
-    "angle_std": 3.6025
+    "angle_mean": 89.7957,
+    "angle_std": 3.7614
   },
   {
     "axis": "sex",
@@ -1364,8 +1364,8 @@
     "cy_mean": 0.289846,
     "cx_std": 0.013879,
     "cy_std": 0.037537,
-    "angle_mean": 89.3841,
-    "angle_std": 4.2944
+    "angle_mean": 89.4893,
+    "angle_std": 4.5334
   },
   {
     "axis": "sex",
@@ -1376,8 +1376,8 @@
     "cy_mean": 0.298877,
     "cx_std": 0.015751,
     "cy_std": 0.037679,
-    "angle_mean": 94.1976,
-    "angle_std": 5.7119
+    "angle_mean": 94.2948,
+    "angle_std": 5.8808
   },
   {
     "axis": "sex",
@@ -1388,8 +1388,8 @@
     "cy_mean": 0.2898,
     "cx_std": 0.017109,
     "cy_std": 0.034803,
-    "angle_mean": 97.1341,
-    "angle_std": 9.2559
+    "angle_mean": 97.211,
+    "angle_std": 9.4812
   },
   {
     "axis": "sex",
@@ -1400,8 +1400,8 @@
     "cy_mean": 0.284396,
     "cx_std": 0.020637,
     "cy_std": 0.032887,
-    "angle_mean": 108.2595,
-    "angle_std": 10.9613
+    "angle_mean": 108.338,
+    "angle_std": 11.1772
   },
   {
     "axis": "sex",
@@ -1412,8 +1412,8 @@
     "cy_mean": 0.273879,
     "cx_std": 0.02319,
     "cy_std": 0.029627,
-    "angle_mean": 110.8323,
-    "angle_std": 7.7897
+    "angle_mean": 110.9165,
+    "angle_std": 7.7654
   },
   {
     "axis": "sex",
@@ -1424,8 +1424,8 @@
     "cy_mean": 0.252551,
     "cx_std": 0.02481,
     "cy_std": 0.025823,
-    "angle_mean": 115.5157,
-    "angle_std": 11.4723
+    "angle_mean": 115.6341,
+    "angle_std": 11.4831
   },
   {
     "axis": "sex",
@@ -1436,8 +1436,8 @@
     "cy_mean": 0.237308,
     "cx_std": 0.022445,
     "cy_std": 0.024527,
-    "angle_mean": 118.7941,
-    "angle_std": 23.205
+    "angle_mean": 118.9739,
+    "angle_std": 23.3254
   },
   {
     "axis": "sex",
@@ -1448,8 +1448,8 @@
     "cy_mean": 0.286999,
     "cx_std": 0.013376,
     "cy_std": 0.037398,
-    "angle_mean": 90.1246,
-    "angle_std": 3.2226
+    "angle_mean": 90.2127,
+    "angle_std": 3.3624
   },
   {
     "axis": "sex",
@@ -1460,8 +1460,8 @@
     "cy_mean": 0.289204,
     "cx_std": 0.014416,
     "cy_std": 0.037299,
-    "angle_mean": 90.0247,
-    "angle_std": 5.1301
+    "angle_mean": 90.097,
+    "angle_std": 5.2439
   },
   {
     "axis": "sex",
@@ -1472,8 +1472,8 @@
     "cy_mean": 0.299182,
     "cx_std": 0.016751,
     "cy_std": 0.037851,
-    "angle_mean": 85.2313,
-    "angle_std": 7.2587
+    "angle_mean": 85.3115,
+    "angle_std": 7.287
   },
   {
     "axis": "sex",
@@ -1484,8 +1484,8 @@
     "cy_mean": 0.2903,
     "cx_std": 0.018343,
     "cy_std": 0.035121,
-    "angle_mean": 81.3308,
-    "angle_std": 8.5216
+    "angle_mean": 81.4055,
+    "angle_std": 8.4513
   },
   {
     "axis": "sex",
@@ -1496,8 +1496,8 @@
     "cy_mean": 0.284486,
     "cx_std": 0.02176,
     "cy_std": 0.032874,
-    "angle_mean": 74.6329,
-    "angle_std": 10.0893
+    "angle_mean": 74.7273,
+    "angle_std": 10.0402
   },
   {
     "axis": "sex",
@@ -1508,8 +1508,8 @@
     "cy_mean": 0.27388,
     "cx_std": 0.024704,
     "cy_std": 0.029296,
-    "angle_mean": 70.3318,
-    "angle_std": 7.8066
+    "angle_mean": 70.4917,
+    "angle_std": 7.8974
   },
   {
     "axis": "sex",
@@ -1520,8 +1520,8 @@
     "cy_mean": 0.253086,
     "cx_std": 0.026716,
     "cy_std": 0.025877,
-    "angle_mean": 63.862,
-    "angle_std": 11.2654
+    "angle_mean": 63.9357,
+    "angle_std": 11.3037
   },
   {
     "axis": "sex",
@@ -1532,7 +1532,7 @@
     "cy_mean": 0.236033,
     "cx_std": 0.02265,
     "cy_std": 0.023585,
-    "angle_mean": 62.1678,
-    "angle_std": 24.691
+    "angle_mean": 62.3066,
+    "angle_std": 24.5578
   }
 ]
