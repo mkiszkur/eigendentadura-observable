@@ -18,7 +18,7 @@ const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"}
  * @param {number} opts.height
  * @returns {SVGElement}
  */
-export function boxplot2dPlot({boxplotStats, selectedFdi = [], width = 800, height = 550} = {}) {
+export function boxplot2dPlot({boxplotStats, selectedFdi = [], showAngleArcs = false, width = 800, height = 550} = {}) {
   const margin = {top: 20, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
@@ -93,6 +93,21 @@ export function boxplot2dPlot({boxplotStats, selectedFdi = [], width = 800, heig
       .attr("x", 18).attr("y", i * 18 + 10)
       .attr("font-size", 11).attr("fill", "#333")
       .text(`Q${q}`);
+  }
+
+  // Angle arc legend entry (only when enabled)
+  if (showAngleArcs) {
+    const y0 = Object.keys(QUADRANT_COLORS).length * 18 + 6;
+    legend.append("path")
+      .attr("d", d3.arc().innerRadius(0).outerRadius(6)
+        .startAngle(-0.5).endAngle(0.5)())
+      .attr("transform", `translate(6,${y0 + 6})`)
+      .attr("fill", "#888").attr("opacity", 0.4)
+      .attr("stroke", "#888").attr("stroke-width", 0.5);
+    legend.append("text")
+      .attr("x", 18).attr("y", y0 + 10)
+      .attr("font-size", 10).attr("fill", "#555")
+      .text("IQR angular");
   }
 
   function draw(k = 1) {
@@ -211,7 +226,57 @@ export function boxplot2dPlot({boxplotStats, selectedFdi = [], width = 800, heig
       // Tooltip
       if (!dimmed) {
         toothG.append("title")
-          .text(`FDI ${t.fdi} (n=${t.n})\nMediana: (${t.med_x.toFixed(4)}, ${t.med_y.toFixed(4)})\nIQR X: [${t.q1_x.toFixed(4)}, ${t.q3_x.toFixed(4)}]\nIQR Y: [${t.q1_y.toFixed(4)}, ${t.q3_y.toFixed(4)}]`);
+          .text(`FDI ${t.fdi} (n=${t.n})\nMediana: (${t.med_x.toFixed(4)}, ${t.med_y.toFixed(4)})\nIQR X: [${t.q1_x.toFixed(4)}, ${t.q3_x.toFixed(4)}]\nIQR Y: [${t.q1_y.toFixed(4)}, ${t.q3_y.toFixed(4)}]\nÁngulo: med=${t.med_angle?.toFixed(1)}° IQR=[${t.q1_angle?.toFixed(1)}°, ${t.q3_angle?.toFixed(1)}°]`);
+      }
+
+      // Angle dispersion arc (IQR wedge + whisker arc + median line)
+      if (showAngleArcs && t.med_angle != null) {
+        const arcRadius = Math.max(35, 22 * Math.min(k, 6));
+        // Convert data angle (90°=vertical) to d3.arc convention (0=12-o'clock, CW+)
+        const toD3 = (deg) => -(deg - 90) * Math.PI / 180;
+
+        // IQR wedge (filled)
+        const iq1 = toD3(t.q1_angle);
+        const iq3 = toD3(t.q3_angle);
+        toothG.append("path")
+          .attr("d", d3.arc()
+            .innerRadius(0)
+            .outerRadius(arcRadius)
+            .startAngle(Math.min(iq1, iq3))
+            .endAngle(Math.max(iq1, iq3))())
+          .attr("transform", `translate(${mx},${my})`)
+          .attr("fill", color)
+          .attr("opacity", dimmed ? 0.05 : 0.35)
+          .attr("stroke", color)
+          .attr("stroke-width", 1)
+          .attr("stroke-opacity", dimmed ? 0.1 : 0.6);
+
+        // Whisker arc (outline only)
+        const iw1 = toD3(t.wlo_angle);
+        const iw2 = toD3(t.whi_angle);
+        toothG.append("path")
+          .attr("d", d3.arc()
+            .innerRadius(arcRadius - 2)
+            .outerRadius(arcRadius)
+            .startAngle(Math.min(iw1, iw2))
+            .endAngle(Math.max(iw1, iw2))())
+          .attr("transform", `translate(${mx},${my})`)
+          .attr("fill", color)
+          .attr("fill-opacity", dimmed ? 0.02 : 0.15)
+          .attr("stroke", color)
+          .attr("stroke-width", 1.5)
+          .attr("opacity", dimmed ? 0.05 : 0.5);
+
+        // Median line (radial)
+        const medD3 = toD3(t.med_angle);
+        const mlx = mx + arcRadius * Math.sin(medD3);
+        const mly = my - arcRadius * Math.cos(medD3);
+        toothG.append("line")
+          .attr("x1", mx).attr("y1", my)
+          .attr("x2", mlx).attr("y2", mly)
+          .attr("stroke", color)
+          .attr("stroke-width", dimmed ? 0.5 : 2)
+          .attr("opacity", dimmed ? 0.1 : 0.7);
       }
     }
 

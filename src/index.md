@@ -25,6 +25,8 @@ Coordenadas normalizadas por marco condíleo (origen = punto medio intercondíle
 import {odontograma} from "./components/odontograma.js";
 import {kdePlot} from "./components/kde-plot.js";
 import {boxplot2dPlot} from "./components/boxplot-2d.js";
+import {rosePlot} from "./components/rose-plot.js";
+import {radarAngularPlot} from "./components/radar-angular.js";
 import * as d3 from "d3";
 ```
 
@@ -34,6 +36,7 @@ const kdeGrids = await FileAttachment("data/kde_grids.json").json();
 const metadata = await FileAttachment("data/metadata.json").json();
 const boxplotStats = await FileAttachment("data/tooth_boxplot_stats.json").json();
 const typicalityExtremes = await FileAttachment("data/typicality_extremes.json").json();
+const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
 ```
 
 ```js
@@ -152,9 +155,14 @@ Los bigotes se extienden a 1.5×IQR. El punto central es la mediana.
 Los dientes seleccionados en el odontograma se resaltan.
 
 ```js
+const showAngleArcs = view(Inputs.toggle({label: "Mostrar dispersión angular", value: false}));
+```
+
+```js
 display(boxplot2dPlot({
   boxplotStats,
   selectedFdi: selectedFdi,
+  showAngleArcs,
   width: width,
   height: 550,
 }));
@@ -201,6 +209,48 @@ display(Inputs.table(selectedBoxplotStats, {
     wlo_y: d3.format(".4f"),
     whi_y: d3.format(".4f"),
   },
+}));
+```
+
+---
+
+## Rose Plot — Distribución angular por diente
+
+Histograma circular (rose plot) de la orientación de cada diente, ubicado en su posición anatómica media.
+Cada pétalo muestra la frecuencia de ángulos en bins de 5°. La línea radial indica la media.
+Los dientes seleccionados en el odontograma se resaltan.
+
+```js
+display(rosePlot({
+  angleHistograms,
+  toothStats,
+  selectedFdi: selectedFdi,
+  width: width,
+  height: 600,
+}));
+```
+
+---
+
+## Radar — Dispersión angular por diente
+
+Los 32 dientes dispuestos en orden anatómico. El radio representa la dispersión angular de cada pieza.
+
+```js
+const radarMetric = view(Inputs.select(
+  ["iqr", "std", "whisker_range"],
+  {label: "Métrica", format: d => d === "iqr" ? "IQR (Q3−Q1)" : d === "std" ? "Desviación estándar" : "Rango whisker (whi−wlo)", value: "iqr"}
+));
+```
+
+```js
+display(radarAngularPlot({
+  boxplotStats,
+  toothStats,
+  selectedFdi: selectedFdi,
+  metric: radarMetric,
+  width: Math.min(width, 650),
+  height: Math.min(width, 650),
 }));
 ```
 
