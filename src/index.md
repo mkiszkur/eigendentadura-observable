@@ -297,27 +297,41 @@ function typicalityPlot({toothStats, selectedTypical, selectedAtypical, width = 
   function draw(k = 1) {
     g.selectAll("*").remove();
 
-    // Eigendentadura context (grey centroids + FDI labels)
+    // Arrow length in pixels (scales with zoom)
+    const arrowLen = Math.max(12, 12 * Math.min(k, 6));
+
+    // Eigendentadura context (grey centroids + upward arrows = 0 deviation)
     for (const s of toothStats) {
-      const q = s.quadrant || (s.fdi <= 28 ? (s.fdi <= 18 ? 1 : 2) : (s.fdi >= 41 ? 3 : 4));
+      const cx = xScale(s.mean_x);
+      const cy = yScale(s.mean_y);
       g.append("circle")
-        .attr("cx", xScale(s.mean_x))
-        .attr("cy", yScale(s.mean_y))
+        .attr("cx", cx)
+        .attr("cy", cy)
         .attr("r", Math.max(3, 3 * Math.min(k, 6)))
         .attr("fill", "#ddd")
         .attr("stroke", "#bbb")
         .attr("stroke-width", 0.5)
         .attr("opacity", 0.6);
+      // Upward arrow (no deviation) — points "north" in screen coords
+      g.append("line")
+        .attr("x1", cx).attr("y1", cy)
+        .attr("x2", cx).attr("y2", cy - arrowLen)
+        .attr("stroke", "#ccc").attr("stroke-width", 1.5)
+        .attr("opacity", 0.5);
       g.append("text")
-        .attr("x", xScale(s.mean_x))
-        .attr("y", yScale(s.mean_y) - Math.max(5, 5 * Math.min(k, 6)))
+        .attr("x", cx)
+        .attr("y", cy - arrowLen - 3)
         .attr("text-anchor", "middle")
         .attr("font-size", Math.max(8, 8 * Math.min(k, 4)))
         .attr("fill", "#ccc")
         .text(String(s.fdi));
     }
 
-    // Draw individual's teeth
+    // Build lookup: FDI → mean_angle (degrees)
+    const angleMeanByFdi = {};
+    for (const s of toothStats) angleMeanByFdi[s.fdi] = s.mean_angle;
+
+    // Draw individual's teeth with rotation arrows
     function drawIndividual(record, marker) {
       if (!record) return;
       const color = marker === "typical" ? "#2a7f62" : "#c0392b";
@@ -345,6 +359,38 @@ function typicalityPlot({toothStats, selectedTypical, selectedAtypical, width = 
             .attr("stroke-linecap", "round")
             .attr("opacity", 0.85);
         }
+
+        // Rotation arrow: deviation from population mean
+        if (t.angle != null && angleMeanByFdi[t.fdi] != null) {
+          // deltaAngle in degrees: positive = clockwise deviation
+          const deltaAngle = t.angle - angleMeanByFdi[t.fdi];
+          // Convert to radians; arrow points "up" (−π/2) when delta=0
+          // then rotates by delta (in screen coords, CW = positive)
+          const rad = (-Math.PI / 2) + (deltaAngle * Math.PI / 180);
+          const ax = cx + arrowLen * Math.cos(rad);
+          const ay = cy + arrowLen * Math.sin(rad);
+          // Arrow shaft
+          g.append("line")
+            .attr("x1", cx).attr("y1", cy)
+            .attr("x2", ax).attr("y2", ay)
+            .attr("stroke", color)
+            .attr("stroke-width", 2)
+            .attr("opacity", 0.7);
+          // Arrowhead
+          const headLen = Math.max(4, 4 * Math.min(k, 4));
+          const headAngle = 0.5; // ~28 degrees
+          g.append("path")
+            .attr("d", `M${ax},${ay}` +
+              `L${ax - headLen * Math.cos(rad - headAngle)},${ay - headLen * Math.sin(rad - headAngle)}` +
+              `M${ax},${ay}` +
+              `L${ax - headLen * Math.cos(rad + headAngle)},${ay - headLen * Math.sin(rad + headAngle)}`)
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", 2)
+            .attr("stroke-linecap", "round")
+            .attr("opacity", 0.7);
+        }
+
         // FDI label
         g.append("text")
           .attr("x", cx)
@@ -408,6 +454,10 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
   <span style="display:flex; align-items:center; gap:6px;">
     <svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#ddd" stroke="#bbb" stroke-width="0.8"/></svg>
     <span style="font-size:13px;">Eigendentadura (media poblacional)</span>
+  </span>
+  <span style="display:flex; align-items:center; gap:6px;">
+    <svg width="14" height="14"><line x1="7" y1="12" x2="7" y2="2" stroke="#888" stroke-width="2"/><path d="M7,2 L4,6 M7,2 L10,6" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span style="font-size:13px;">↑ Rotación (desvío vs media)</span>
   </span>
 </div>`);
 ```
