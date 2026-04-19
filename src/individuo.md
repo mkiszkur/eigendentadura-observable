@@ -9,6 +9,7 @@ Los z-scores miden cuántas desviaciones estándar se separa cada diente del pro
 
 ```js
 import {odontograma} from "./components/odontograma.js";
+import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import * as d3 from "d3";
 ```
 
@@ -16,41 +17,115 @@ import * as d3 from "d3";
 const toothStats = await FileAttachment("data/tooth_stats_lm.json").json();
 const individuals = await FileAttachment("data/individual_scores.json").json();
 const metadata = await FileAttachment("data/metadata.json").json();
+const browserData = await FileAttachment("data/pantos_browser.json").json();
+const meta = browserData.metadata;
+const allBrowserPantos = browserData.pantos;
 ```
 
 ```js
-// Build searchable list of individuals
-const indivOptions = individuals
-  .sort((a, b) => a.json_filename.localeCompare(b.json_filename))
-  .map(d => ({
-    label: `${d.json_filename} (${d.n_teeth} dientes, z̄=${d.z_mean.toFixed(1)})`,
-    value: d.json_filename,
-  }));
+// Build index: cleaned individual filename → individual object
+const indivMap = new Map(individuals.map(d => [cleanArchivo(d.json_filename), d]));
 
-const searchInput = Inputs.search(indivOptions, {
-  placeholder: "Buscar individuo por nombre de archivo…",
-  format: d => d.label,
-});
-const searchResults = Generators.input(searchInput);
+// Join: pantos from browser that have individual scores
+const allPantos = allBrowserPantos
+  .filter(p => indivMap.has(cleanArchivo(p.archivo)))
+  .map(p => {
+    const ind = indivMap.get(cleanArchivo(p.archivo));
+    return {...p, z_mean: ind.z_mean, z_max: ind.z_max, n_teeth_lm: ind.n_teeth};
+  });
 ```
+
+<!-- ═══════ FILTROS ═══════ -->
+
+```js
+const searchInput = Inputs.text({placeholder: "Buscar archivo…", width: 280});
+const searchTerm = Generators.input(searchInput);
+
+const catInput = Inputs.select(["Todas", ...meta.categorias], {value: "Todas", label: "Cat."});
+const catFilter = Generators.input(catInput);
+
+const dentInput = Inputs.select(["Todas", ...meta.denticiones], {value: "Todas", label: "Dent."});
+const dentFilter = Generators.input(dentInput);
+
+const flagInput = Inputs.select(["Ninguna", ...meta.flag_names], {value: "Ninguna", label: "Patología"});
+const flagFilter = Generators.input(flagInput);
+
+const fdiInput = Inputs.toggle({label: "FDI completo", value: false});
+const fdiFilter = Generators.input(fdiInput);
+const lmInput = Inputs.toggle({label: "LM completos", value: false});
+const lmFilter = Generators.input(lmInput);
+const metalFilterInput = Inputs.toggle({label: "Con metal", value: false});
+const metalRequired = Generators.input(metalFilterInput);
+const cariesFilterInput = Inputs.toggle({label: "Con caries", value: false});
+const cariesRequired = Generators.input(cariesFilterInput);
+const sinFdiInput = Inputs.toggle({label: "Sin FDI", value: false});
+const sinFdiFilter = Generators.input(sinFdiInput);
+```
+
+```js
+display(html`<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: end;">
+  ${searchInput}${catInput}${dentInput}${flagInput}
+</div>`);
+```
+
+<details>
+<summary style="cursor: pointer; font-size: 13px; color: #666;">Más filtros…</summary>
+
+```js
+display(html`<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 6px 0;">
+  ${fdiInput}${lmInput}${metalFilterInput}${cariesFilterInput}${sinFdiInput}
+</div>`);
+```
+
+</details>
+
+```js
+const pantos = allPantos.filter(p => {
+  if (searchTerm && !cleanArchivo(p.archivo).toLowerCase().includes(searchTerm.toLowerCase())) return false;
+  if (catFilter !== "Todas" && p.categoria !== catFilter) return false;
+  if (dentFilter !== "Todas" && p.denticion !== dentFilter) return false;
+  if (flagFilter !== "Ninguna" && !(p.flags && p.flags[flagFilter] > 0)) return false;
+  if (fdiFilter && !p.fdi_completo) return false;
+  if (lmFilter && !p.lm_completo) return false;
+  if (metalRequired && !(p.flags && p.flags["Metal"] > 0)) return false;
+  if (cariesRequired && !(p.flags && p.flags["Caries"] > 0)) return false;
+  if (sinFdiFilter && p.con_fdi > 0) return false;
+  return true;
+});
+```
+
+<!-- ═══════ TABLA PAGINADA ═══════ -->
 
 ## Selección de individuo
 
 ```js
-display(searchInput);
+const PAGE_SIZE = 15;
+const pageState = Mutable(0);
+function goToPage(p) { pageState.value = p; }
 ```
 
 ```js
-const selectInput = Inputs.select(searchResults, {
-  format: d => d.label,
-  label: "Individuo",
-});
-const selected = Generators.input(selectInput);
-display(selectInput);
+const selectedArchivo = Mutable(pantos.length > 0 ? pantos[0].archivo : null);
+function selectRow(archivo) { selectedArchivo.value = archivo; }
 ```
 
 ```js
-const indiv = individuals.find(d => d.json_filename === selected?.value);
+display(pantoTable({
+  pantos,
+  page: pageState,
+  pageSize: PAGE_SIZE,
+  selectedA: selectedArchivo,
+  onSelectA: selectRow,
+  onPage: goToPage,
+  extraColumns: [
+    {key: "z_mean", header: "z̄", format: v => v != null ? v.toFixed(1) : "—"},
+    {key: "z_max", header: "z_max", format: v => v != null ? v.toFixed(1) : "—"},
+  ],
+}));
+```
+
+```js
+const indiv = individuals.find(d => cleanArchivo(d.json_filename) === cleanArchivo(selectedArchivo));
 ```
 
 ```js
@@ -59,7 +134,7 @@ if (indiv) {
   const sexLabel = indiv.sex || "desconocido";
   display(html`<div style="display:flex; gap: 24px; flex-wrap: wrap; margin-top: 8px;">
     <div style="padding: 8px 16px; background: #f5f5f5; border-radius: 6px; font-size: 14px;">
-      <strong>Archivo:</strong> ${indiv.json_filename}
+      <strong>Archivo:</strong> ${cleanArchivo(indiv.json_filename)}
     </div>
     <div style="padding: 8px 16px; background: #f5f5f5; border-radius: 6px; font-size: 14px;">
       <strong>Origen:</strong> ${originLabel}
@@ -360,7 +435,7 @@ if (indiv && indiv.teeth) {
 
 <div class="note">
 
-**Datos**: ${individuals.length.toLocaleString()} individuos con normalización por landmarks condíleos.
+**Datos**: ${allPantos.length.toLocaleString()} individuos con normalización por landmarks condíleos.
 Z-scores calculados como $z = (x - μ) / σ$ respecto a la media y desvío de cada diente.
 $z_{total} = \sqrt{z_x^2 + z_y^2 + z_{angle}^2}$ (norma euclidiana de los z-scores).
 

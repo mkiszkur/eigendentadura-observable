@@ -64,7 +64,13 @@ export function pantoSchematic(container, pantoData, options = {}) {
     showMetalPost = false,
     showMetalOrtodoncia = false,
     showMetalGeneric = false,
+    selectedTeeth = null,
+    showEigendentadura = false,
+    eigendentaduraStats = null,
   } = options;
+
+  // Tooth number filter: null/undefined = show all
+  const toothFilter = selectedTeeth ? new Set(selectedTeeth) : null;
 
   // Determine which metal subtypes to show
   const metalSubtypes = new Set();
@@ -131,10 +137,19 @@ export function pantoSchematic(container, pantoData, options = {}) {
   }
 
   // Filter shapes by entity type (exclude minbbox/centroid/fiducial sub-types)
+  // and optionally by selected tooth numbers
   const visibleShapes = shapes.filter(s => {
-    if (s.et === "tooth") return s.es === "tooth";
+    if (s.et === "tooth") {
+      if (s.es !== "tooth") return false;
+      if (toothFilter && s.tn != null && !toothFilter.has(s.tn)) return false;
+      return true;
+    }
     if (s.et === "landmark") return showLandmarks;
-    if (s.et === "metal") return metalSubtypes.has(s.es);
+    if (s.et === "metal") {
+      if (!metalSubtypes.has(s.es)) return false;
+      if (toothFilter && s.tn != null && !toothFilter.has(s.tn)) return false;
+      return true;
+    }
     return false;
   });
 
@@ -287,33 +302,40 @@ export function pantoSchematic(container, pantoData, options = {}) {
       if (s.et === "landmark") continue; // landmarks handled above
       const tn = s.tn;
       if (tn == null && !s.l) continue;
-      // Position: top-left of bbox, or centroid
+
+      // Position: centroid of polygon, else center of bbox, else centroid point
       let lx, ly;
-      if (s.b) {
-        lx = s.b[0] + 3;
-        ly = s.b[1] - 5;
+      if (s.pg && s.pg.length >= 3) {
+        // Polygon centroid (average of vertices)
+        lx = s.pg.reduce((sum, p) => sum + p[0], 0) / s.pg.length;
+        ly = s.pg.reduce((sum, p) => sum + p[1], 0) / s.pg.length;
       } else if (s.c) {
         [lx, ly] = s.c;
-        ly -= 12;
+      } else if (s.b) {
+        lx = s.b[0] + s.b[2] / 2;
+        ly = s.b[1] + s.b[3] / 2;
       } else continue;
 
       const text = tn != null ? String(tn) : (s.l || "");
+      const fontSize = 18;
+      const approxW = text.length * 11 + 6;
+      const approxH = 20;
+
       const bg = labelG.append("rect");
       const label = labelG.append("text")
-        .attr("x", lx).attr("y", ly)
+        .attr("x", lx).attr("y", ly + fontSize * 0.35)
+        .attr("text-anchor", "middle")
         .text(text)
-        .attr("font-size", 20)
+        .attr("font-size", fontSize)
         .attr("font-weight", "bold")
         .attr("fill", shapeColor(s));
 
-      // Background box
-      // Use approximate text bounds
-      const approxW = text.length * 12 + 6;
-      bg.attr("x", lx - 3).attr("y", ly - 18)
-        .attr("width", approxW).attr("height", 22)
+      // Background box centered on the label
+      bg.attr("x", lx - approxW / 2).attr("y", ly - approxH / 2)
+        .attr("width", approxW).attr("height", approxH)
         .attr("rx", 3)
         .attr("fill", "white")
-        .attr("opacity", 0.85);
+        .attr("opacity", 0.75);
     }
   }
 
@@ -362,6 +384,94 @@ export function pantoSchematic(container, pantoData, options = {}) {
         .attr("paint-order", "stroke")
         .attr("stroke", "white")
         .attr("stroke-width", 4);
+    }
+  }
+
+  // ── Eigendentadura overlay ──
+  if (showEigendentadura && eigendentaduraStats && eigendentaduraStats.length > 0) {
+    // Find condyle landmarks in this panto to compute inverse transform
+    const lmShapes = shapes.filter(s => s.et === "landmark" && s.c);
+    const lmMap = {};
+    for (const s of lmShapes) {
+      if (s.l) lmMap[s.l.toLowerCase()] = s.c;
+    }
+
+    const hasCondyles = lmMap["l1"] && lmMap["l6"] && lmMap["l2"] && lmMap["l7"];
+    if (hasCondyles) {
+      // Compute landmark frame (same as Python LandmarkFrame)
+      const lc_x = (lmMap["l1"][0] + lmMap["l6"][0]) / 2;
+      const lc_y = (lmMap["l1"][1] + lmMap["l6"][1]) / 2;
+      const rc_x = (lmMap["l2"][0] + lmMap["l7"][0]) / 2;
+      const rc_y = (lmMap["l2"][1] + lmMap["l7"][1]) / 2;
+
+      const ox = (lc_x + rc_x) / 2;
+      const oy = (lc_y + rc_y) / 2;
+      const dx = rc_x - lc_x;
+      const dy = rc_y - lc_y;
+      const scale = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx);
+      const cos_a = Math.cos(angle);  // note: +angle for inverse
+      const sin_a = Math.sin(angle);
+
+      // Inverse transform: normalized → pixel
+      // Forward was: translate(-origin) → rotate(-angle) → scale(1/scale)
+      // Inverse: scale(scale) → rotate(+angle) → translate(+origin)
+      function lmToPixel(nx, ny) {
+        const sx = nx * scale;
+        const sy = ny * scale;
+        const px = sx * cos_a - sy * sin_a + ox;
+        const py = sx * sin_a + sy * cos_a + oy;
+        return [px, py];
+      }
+
+      const eigenG = g.append("g").attr("class", "eigendentadura");
+      const toothFilterSet = selectedTeeth ? new Set(selectedTeeth) : null;
+
+      for (const stat of eigendentaduraStats) {
+        if (toothFilterSet && !toothFilterSet.has(stat.fdi)) continue;
+        const [px, py] = lmToPixel(stat.mean_x, stat.mean_y);
+
+        // 1σ ellipse (using std_x, std_y in normalized coords → scale to pixels)
+        const rx = stat.std_x * scale;
+        const ry = stat.std_y * scale;
+
+        // Draw rotated ellipse (aligned with intercondylar axis)
+        const nPts = 48;
+        const pts = [];
+        for (let i = 0; i <= nPts; i++) {
+          const t = (i / nPts) * 2 * Math.PI;
+          const ex = rx * Math.cos(t);
+          const ey = ry * Math.sin(t);
+          // Rotate by intercondylar angle
+          const rpx = ex * cos_a - ey * sin_a + px;
+          const rpy = ex * sin_a + ey * cos_a + py;
+          pts.push([rpx, rpy]);
+        }
+
+        eigenG.append("path")
+          .attr("d", d3.line()(pts))
+          .attr("fill", "none")
+          .attr("stroke", "#888")
+          .attr("stroke-width", 2)
+          .attr("stroke-dasharray", "4,3")
+          .attr("opacity", 0.5);
+
+        eigenG.append("circle")
+          .attr("cx", px).attr("cy", py)
+          .attr("r", 6)
+          .attr("fill", "#888")
+          .attr("stroke", "#555")
+          .attr("stroke-width", 1)
+          .attr("opacity", 0.6);
+
+        eigenG.append("text")
+          .attr("x", px).attr("y", py + 5)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("fill", "#666")
+          .attr("opacity", 0.7)
+          .text(String(stat.fdi));
+      }
     }
   }
 

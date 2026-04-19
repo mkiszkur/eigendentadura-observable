@@ -7,6 +7,53 @@ title: Comparación de Subpoblaciones
 Seleccioná uno o más dientes en el odontograma para comparar su posición
 entre subpoblaciones. La eigendentadura completa se muestra como contexto (gris).
 
+<details>
+<summary><strong>Universo de datos</strong> <em>(clic para expandir)</em></summary>
+
+Del total de **${metadata.unique_pantos.toLocaleString()} pantomografías** con coordenadas landmark-normalized,
+no todas tienen metadatos de subpoblación:
+
+- **Origen clínico** (`data_origin`): disponible en **2.646** pantomografías (98 %).
+  Fuente: el prefijo del nombre de archivo identifica el centro clínico.
+  - **Ecodoc** (Argentina): 1.436 pantomografías
+  - **Italiano** (Italia): 1.210 pantomografías
+- **Sexo biológico**: disponible en **232** pantomografías (8,6 %).
+  Fuente: inferido por OCR sobre la imagen radiográfica → nombre → género.
+  - **Male**: 116 pantomografías
+  - **Female**: 116 pantomografías
+
+Cada diente aporta independientemente: no se requiere dentadura completa (32/32).
+
+```js
+const subpopSummary = (() => {
+  const axes = {origin: "Centro clínico", sex: "Sexo biológico"};
+  const labels = {ecodoc: "Ecodoc", italiano: "Italiano", male: "Male", female: "Female"};
+  const rows = [];
+  for (const ax of ["origin", "sex"]) {
+    const groups = [...new Set(subpopStats.filter(d => d.axis === ax).map(d => d.group))].sort();
+    for (const g of groups) {
+      const entries = subpopStats.filter(d => d.axis === ax && d.group === g);
+      const totalTeeth = d3.sum(entries, d => d.n);
+      const minN = d3.min(entries, d => d.n);
+      const maxN = d3.max(entries, d => d.n);
+      rows.push({axis: axes[ax], group: labels[g] || g, totalTeeth, minN, maxN, piezas: entries.length});
+    }
+  }
+  return rows;
+})();
+display(Inputs.table(subpopSummary, {
+  columns: ["axis", "group", "piezas", "totalTeeth", "minN", "maxN"],
+  header: {axis: "Eje", group: "Grupo", piezas: "Piezas FDI", totalTeeth: "Total dientes", minN: "N mín/pieza", maxN: "N máx/pieza"},
+  format: {totalTeeth: d3.format(",")},
+}));
+```
+
+Coordenadas normalizadas por marco condíleo (origen = punto medio intercondíleo, escala = distancia intercondílea).
+
+</details>
+
+---
+
 ```js
 import {odontograma} from "./components/odontograma.js";
 import * as d3 from "d3";
@@ -19,7 +66,9 @@ const metadata = await FileAttachment("data/metadata.json").json();
 ```
 
 ```js
-// Reactive state: array of selected FDI numbers
+const ALL_FDI = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,
+                 48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+
 const selectedFdi = Mutable([11]);
 
 function toggleTooth(fdi) {
@@ -31,9 +80,11 @@ function toggleTooth(fdi) {
     selectedFdi.value = [...current, fdi];
   }
 }
+function setTeethAll() { selectedFdi.value = [...ALL_FDI]; }
+function setTeethNone() { selectedFdi.value = []; }
+function setTeethUpper() { selectedFdi.value = ALL_FDI.filter(f => f <= 28); }
+function setTeethLower() { selectedFdi.value = ALL_FDI.filter(f => f >= 31); }
 ```
-
-## Eje de comparación
 
 ```js
 const axisInput = Inputs.radio(["origin", "sex"], {
@@ -59,12 +110,18 @@ const labelMap = axis === "origin"
 ```
 
 ```js
-const showPopInput = Inputs.toggle({label: "Mostrar población completa", value: false});
+const showPopInput = Inputs.toggle({label: "Mostrar población completa", value: true});
 const showPopulation = Generators.input(showPopInput);
-display(html`<div style="display:flex; gap:16px; align-items:center;">${axisInput}${showPopInput}</div>`);
 ```
 
-## Odontograma
+## Dentadura media por subpoblación
+
+<details>
+<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Filtros y odontograma</summary>
+
+```js
+display(html`<div style="display:flex; gap:16px; align-items:center; padding: 8px 0;">${axisInput}${showPopInput}</div>`);
+```
 
 Hacé clic en los dientes para seleccionar/deseleccionar. Los dientes seleccionados se resaltan en el plot.
 
@@ -75,10 +132,22 @@ const odonto = odontograma({
   fdiNombres: metadata.fdi_nombres,
   onToggle: toggleTooth,
 });
-display(odonto);
+display(html`<div style="display: flex; align-items: center; gap: 16px; padding: 4px 0;">
+  ${odonto}
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <button onclick=${setTeethAll}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Todos</button>
+    <button onclick=${setTeethNone}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Ninguno</button>
+    <button onclick=${setTeethUpper}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Superiores</button>
+    <button onclick=${setTeethLower}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Inferiores</button>
+  </div>
+</div>`);
 ```
 
-## Dentadura media por subpoblación
+</details>
 
 ```js
 function subpopPlot({selectedFdi, toothStats, axisData, groupNames, colorMap, labelMap, showPopulation = false, width = 800, height = 550} = {}) {
@@ -415,7 +484,7 @@ function diffHeatmap(axisData, groupNames, labelMap, width) {
 
   const cellW = Math.max(18, Math.min(30, (width - 120) / orderedFdis.length));
   const cellH = 30;
-  const margin = {top: 30, right: 20, bottom: 60, left: 80};
+  const margin = {top: 30, right: 20, bottom: 85, left: 80};
   const svgW = margin.left + orderedFdis.length * cellW + margin.right;
   const svgH = margin.top + features.length * cellH + margin.bottom;
 
@@ -481,6 +550,64 @@ function diffHeatmap(axisData, groupNames, labelMap, width) {
     .attr("text-anchor", "middle")
     .attr("font-size", 13).attr("fill", "#333").attr("font-weight", 600)
     .text(`Diferencia (${labelMap[groupNames[0]]} − ${labelMap[groupNames[1]]}) en σ`);
+
+  // Color legend (horizontal bar with labeled extremes)
+  const legendW = Math.min(220, svgW * 0.4);
+  const legendH = 12;
+  const legendX = margin.left;
+  const legendY = svgH - 18;
+  const legendSteps = 60;
+  const fmt1 = d3.format(".2f");
+
+  const defs = svg.select("defs").size() ? svg.select("defs") : svg.append("defs");
+  const gradId = "heatmap-grad";
+  const grad = defs.append("linearGradient").attr("id", gradId);
+  for (let i = 0; i <= legendSteps; i++) {
+    const t = i / legendSteps;
+    const val = -maxAbsDiff + t * 2 * maxAbsDiff;
+    grad.append("stop")
+      .attr("offset", `${(t * 100).toFixed(1)}%`)
+      .attr("stop-color", colorScale(val));
+  }
+  svg.append("rect")
+    .attr("x", legendX).attr("y", legendY)
+    .attr("width", legendW).attr("height", legendH)
+    .attr("fill", `url(#${gradId})`)
+    .attr("stroke", "#ccc").attr("stroke-width", 0.5)
+    .attr("rx", 2);
+
+  // Left label (blue = negative = group1 < group2)
+  svg.append("text")
+    .attr("x", legendX).attr("y", legendY - 4)
+    .attr("text-anchor", "start")
+    .attr("font-size", 10).attr("fill", colorScale(-maxAbsDiff)).attr("font-weight", 600)
+    .text(`−${fmt1(maxAbsDiff)}σ`);
+
+  // Center label (0)
+  svg.append("text")
+    .attr("x", legendX + legendW / 2).attr("y", legendY - 4)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 9).attr("fill", "#999")
+    .text("0");
+
+  // Right label (red = positive = group1 > group2)
+  svg.append("text")
+    .attr("x", legendX + legendW).attr("y", legendY - 4)
+    .attr("text-anchor", "end")
+    .attr("font-size", 10).attr("fill", colorScale(maxAbsDiff)).attr("font-weight", 600)
+    .text(`+${fmt1(maxAbsDiff)}σ`);
+
+  // Interpretive labels below the bar
+  svg.append("text")
+    .attr("x", legendX).attr("y", legendY + legendH + 11)
+    .attr("text-anchor", "start")
+    .attr("font-size", 9).attr("fill", "#888")
+    .text(`← ${labelMap[groupNames[1]]} mayor`);
+  svg.append("text")
+    .attr("x", legendX + legendW).attr("y", legendY + legendH + 11)
+    .attr("text-anchor", "end")
+    .attr("font-size", 9).attr("fill", "#888")
+    .text(`${labelMap[groupNames[0]]} mayor →`);
 
   return svg.node();
 }

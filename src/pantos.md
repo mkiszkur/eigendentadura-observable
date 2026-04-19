@@ -6,11 +6,14 @@ title: Explorador de Pantomografías
 
 ```js
 import {pantoSchematic} from "./components/panto-schematic.js";
+import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {miniOdontograma} from "./components/mini-odontograma.js";
+import {odontograma} from "./components/odontograma.js";
 import * as d3 from "d3";
 ```
 
 ```js
+const toothStatsData = await FileAttachment("data/tooth_stats.json").json();
 const browserData = await FileAttachment("data/pantos_browser.json").json();
 const meta = browserData.metadata;
 const allPantos = browserData.pantos;
@@ -62,7 +65,7 @@ display(html`<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items:
 
 ```js
 const pantos = allPantos.filter(p => {
-  if (searchTerm && !p.archivo.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+  if (searchTerm && !cleanArchivo(p.archivo).toLowerCase().includes(searchTerm.toLowerCase())) return false;
   if (catFilter !== "Todas" && p.categoria !== catFilter) return false;
   if (dentFilter !== "Todas" && p.denticion !== dentFilter) return false;
   if (flagFilter !== "Ninguna" && !(p.flags && p.flags[flagFilter] > 0)) return false;
@@ -75,63 +78,52 @@ const pantos = allPantos.filter(p => {
 });
 ```
 
-<!-- ═══════ SELECTOR DE ARCHIVO ═══════ -->
+<!-- ═══════ TABLA PAGINADA ═══════ -->
 
 ```js
-const archivoOptions = pantos.map(p => p.archivo).sort();
-const archivoInput = Inputs.select(archivoOptions, {label: "Archivo", width: 350});
-const selectedArchivo = Generators.input(archivoInput);
+const PAGE_SIZE = 15;
+const pageState = Mutable(0);
+
+function goToPage(p) { pageState.value = p; }
 ```
 
 ```js
-display(html`<div style="display: flex; gap: 16px; align-items: center;">
-  ${archivoInput}
-  <span style="font-size: 12px; color: #888;">${pantos.length.toLocaleString()} de ${allPantos.length.toLocaleString()}</span>
-</div>`);
+const selectedArchivo = Mutable(pantos.length > 0 ? pantos[0].archivo : null);
+
+function selectRow(archivo) {
+  selectedArchivo.value = archivo;
+}
+```
+
+```js
+display(pantoTable({
+  pantos,
+  page: pageState,
+  pageSize: PAGE_SIZE,
+  selectedA: selectedArchivo,
+  onSelectA: selectRow,
+  onPage: goToPage,
+}));
 ```
 
 ```js
 const selectedPanto = pantos.find(p => p.archivo === selectedArchivo);
 ```
 
-<!-- ═══════ DETALLE (colapsable, ANTES del esquema) ═══════ -->
-
-<details>
-<summary style="cursor: pointer; font-size: 13px; color: #666;">Detalle / Odontograma</summary>
+<!-- ═══════ DETALLE DE SELECCIÓN ═══════ -->
 
 ```js
 if (selectedPanto) {
   const fl = Object.entries(selectedPanto.flags || {});
-  display(html`<div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; padding: 8px 0;">
-    <table style="font-size: 12px; border-collapse: collapse;">
-      <tr><td style="padding:2px 8px 2px 0;color:#666">Dientes</td><td><b>${selectedPanto.dientes}</b> (FDI: ${selectedPanto.con_fdi}, sin: ${selectedPanto.sin_fdi})</td></tr>
-      <tr><td style="padding:2px 8px 2px 0;color:#666">Categoría</td><td><b>${selectedPanto.categoria}</b>${selectedPanto.score != null ? ` (${selectedPanto.score})` : ""}</td></tr>
-      <tr><td style="padding:2px 8px 2px 0;color:#666">Dentición</td><td>${selectedPanto.denticion}</td></tr>
-      <tr><td style="padding:2px 8px 2px 0;color:#666">Cuadrantes</td><td>Q1:${selectedPanto.q1} · Q2:${selectedPanto.q2} · Q3:${selectedPanto.q3} · Q4:${selectedPanto.q4}</td></tr>
-      <tr><td style="padding:2px 8px 2px 0;color:#666">FDI</td><td>${selectedPanto.fdi_completo ? "Completo" : "Incompleto"}</td></tr>
-      <tr><td style="padding:2px 8px 2px 0;color:#666">Landmarks</td><td>${selectedPanto.lm_completo ? "Completos" : "Incompletos"}</td></tr>
-      <tr><td style="padding:2px 8px 2px 0;color:#666">Imagen</td><td>${selectedPanto.img_w}×${selectedPanto.img_h} px</td></tr>
-      ${fl.length > 0 ? html`<tr><td style="padding:2px 8px 2px 0;color:#666;vertical-align:top">Patologías</td><td>${fl.map(([k,v]) => html`<span style="display:inline-block;background:#f0f0f0;border-radius:3px;padding:0 5px;margin:1px;font-size:11px">${k}:${v}</span>`)}</td></tr>` : ""}
-    </table>
-    <div>
-      <p style="margin:0 0 4px;font-size:11px;color:#888">Piezas (${selectedPanto.tooth_numbers.length}):</p>
-      ${miniOdontograma({toothNumbers: selectedPanto.tooth_numbers, cellSize: 20, gap: 2})}
+  display(html`<div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; padding: 8px 0; border-top: 1px solid #eee; margin-top: 4px;">
+    <div style="display: flex; gap: 20px; align-items: start; font-size: 12px; flex-wrap: wrap;">
+      <span><b>${selectedPanto.dientes}</b> dientes (FDI:${selectedPanto.con_fdi}, sin:${selectedPanto.sin_fdi}) · Cat <b>${selectedPanto.categoria}</b>${selectedPanto.score != null ? ` (${selectedPanto.score})` : ""} · ${selectedPanto.denticion}</span>
+      <span>Q1:${selectedPanto.q1} Q2:${selectedPanto.q2} Q3:${selectedPanto.q3} Q4:${selectedPanto.q4} · ${selectedPanto.img_w}×${selectedPanto.img_h}px</span>
+      ${fl.length > 0 ? html`<span>${fl.map(([k,v]) => html`<span style="background:#f0f0f0;border-radius:3px;padding:0 4px;margin:0 1px;font-size:11px">${k}:${v}</span>`)}</span>` : ""}
     </div>
-  </div>`);
-} else {
-  display(html`<p style="color:#999;">Sin selección.</p>`);
-}
-```
-
-</details>
-
-```js
-if (selectedPanto) {
-  const fl = Object.entries(selectedPanto.flags || {});
-  display(html`<div style="display: flex; gap: 20px; align-items: start; font-size: 12px;">
-    <span><b>${selectedPanto.dientes}</b> dientes (FDI:${selectedPanto.con_fdi}) · Cat <b>${selectedPanto.categoria}</b> · ${selectedPanto.denticion}</span>
-    <span>Q1:${selectedPanto.q1} Q2:${selectedPanto.q2} Q3:${selectedPanto.q3} Q4:${selectedPanto.q4}</span>
-    ${fl.length > 0 ? html`<span>${fl.map(([k,v]) => html`<span style="background:#f0f0f0;border-radius:3px;padding:0 4px;margin:0 1px;font-size:11px">${k}:${v}</span>`)}</span>` : ""}
+    <div>
+      ${miniOdontograma({toothNumbers: selectedPanto.tooth_numbers, cellSize: 18, gap: 2})}
+    </div>
   </div>`);
 }
 ```
@@ -164,6 +156,8 @@ const gridInput = Inputs.toggle({label: "Grilla", value: false});
 const showGrid = Generators.input(gridInput);
 const landmarksInput = Inputs.toggle({label: "Landmarks", value: false});
 const showLandmarks = Generators.input(landmarksInput);
+const eigenInput = Inputs.toggle({label: "Eigendentadura", value: false});
+const showEigen = Generators.input(eigenInput);
 const dividersInput = Inputs.toggle({label: "Divisores", value: true});
 const showDividers = Generators.input(dividersInput);
 const curveInput = Inputs.toggle({label: "Curva maxilar", value: true});
@@ -198,25 +192,89 @@ const mcGenericInput = Inputs.toggle({label: "Genérico", value: false});
 const showMcGeneric = Generators.input(mcGenericInput);
 ```
 
-<!-- Opciones de visualización: fila principal + colapsable -->
+```js
+const ALL_FDI = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,
+                 48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
 
-<details>
-<summary style="cursor: pointer; font-size: 13px; color: #666;">Opciones de visualización…</summary>
+const selectedTeeth = Mutable([...ALL_FDI]);
+
+function toggleSchematicTooth(fdi) {
+  const current = selectedTeeth.value;
+  const idx = current.indexOf(fdi);
+  if (idx >= 0) {
+    selectedTeeth.value = current.filter(f => f !== fdi);
+  } else {
+    selectedTeeth.value = [...current, fdi];
+  }
+}
+function setTeethAll() { selectedTeeth.value = [...ALL_FDI]; }
+function setTeethNone() { selectedTeeth.value = []; }
+function setTeethUpper() { selectedTeeth.value = ALL_FDI.filter(f => f <= 28); }
+function setTeethLower() { selectedTeeth.value = ALL_FDI.filter(f => f >= 31); }
+```
+
+<!-- Opciones de visualización: 3 secciones colapsables -->
+
+<details open>
+<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Diente</summary>
 
 ```js
-display(html`<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 6px 0;">
-  ${polygonInput}${bboxInput}${minbboxInput}${centroidInput}${labelsInput}${dividersInput}${curveInput}
+display(html`<div style="display: grid; grid-template-columns: repeat(3, auto); gap: 6px 16px; padding: 6px 0;">
+  ${polygonInput}${bboxInput}${minbboxInput}
+  ${centroidInput}${labelsInput}${gridInput}
+</div>`);
+```
+
+```js
+const selTeethSet = new Set(selectedTeeth);
+const odonto = odontograma({
+  selected: selTeethSet,
+  fdiNombres: {},
+  onToggle: toggleSchematicTooth,
+  cellW: 36,
+  cellH: 30,
+  gap: 2,
+});
+display(html`<div style="display: flex; align-items: center; gap: 16px; padding: 4px 0;">
+  ${odonto}
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <button onclick=${setTeethAll}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Todos</button>
+    <button onclick=${setTeethNone}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Ninguno</button>
+    <button onclick=${setTeethUpper}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Superiores</button>
+    <button onclick=${setTeethLower}
+      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Inferiores</button>
+  </div>
+</div>`);
+```
+
+</details>
+
+<details>
+<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Referencia (dentadura)</summary>
+
+```js
+display(html`<div style="display: grid; grid-template-columns: repeat(3, auto); gap: 6px 16px; padding: 6px 0;">
+  ${dividersInput}${curveInput}${dentBboxInput}
+  ${landmarksInput}${eigenInput}
 </div>
-<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 4px 0;">
-  ${gridInput}${landmarksInput}${dentBboxInput}
-</div>
-<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 4px 0;">
-  <span style="color:#888; font-size: 12px;">RegMinBBox:</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 4px 0;">
+  <span style="color:#888; font-size: 12px;">MinBBox regional:</span>
   ${mbUpperInput}${mbLowerInput}${mbQ1Input}${mbQ2Input}${mbQ3Input}${mbQ4Input}
-</div>
-<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 4px 0;">
-  <span style="color:#888; font-size: 12px;">Metal:</span>
-  ${mcCrownInput}${mcBridgeInput}${mcImplantInput}${mcPostInput}${mcOrtoInput}${mcGenericInput}
+</div>`);
+```
+
+</details>
+
+<details>
+<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Entidades (metal / tratamientos)</summary>
+
+```js
+display(html`<div style="display: grid; grid-template-columns: repeat(3, auto); gap: 6px 16px; padding: 6px 0;">
+  ${mcCrownInput}${mcBridgeInput}${mcImplantInput}
+  ${mcPostInput}${mcOrtoInput}${mcGenericInput}
 </div>`);
 ```
 
@@ -249,6 +307,9 @@ if (pantoGeom) {
     showMetalPost: showMcPost,
     showMetalOrtodoncia: showMcOrto,
     showMetalGeneric: showMcGeneric,
+    selectedTeeth: selectedTeeth.length === 32 ? null : selectedTeeth,
+    showEigendentadura: showEigen,
+    eigendentaduraStats: toothStatsData,
   });
 } else {
   schematicContainer.innerHTML = `<p style="color:#999; font-style: italic;">Seleccioná un archivo para ver su esquema.</p>`;
