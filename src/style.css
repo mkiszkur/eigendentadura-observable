@@ -1,0 +1,24 @@
+/* Custom wide layout: aprovecha más ancho útil de la página.
+   El tema default limita body a 1440px y p/table/figure a 640px. */
+:root {
+  --observablehq-max-width: 1600px;
+}
+
+/* Dejar que párrafos, tablas, figuras y listas ocupen todo el ancho del main */
+p,
+table,
+figure,
+figcaption,
+.katex-display,
+blockquote,
+ol,
+ul {
+  max-width: none !important;
+}
+
+/* Tablas interactivas de Inputs.table */
+.observablehq table,
+form[class^="inputs-"] {
+  max-width: 100% !important;
+}
+

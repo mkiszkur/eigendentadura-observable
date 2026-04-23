@@ -56,6 +56,7 @@ Coordenadas normalizadas por marco condíleo (origen = punto medio intercondíle
 
 ```js
 import {odontograma} from "./components/odontograma.js";
+import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import * as d3 from "d3";
 ```
 
@@ -66,9 +67,6 @@ const metadata = await FileAttachment("data/metadata.json").json();
 ```
 
 ```js
-const ALL_FDI = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,
-                 48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
-
 const selectedFdi = Mutable([11]);
 
 function toggleTooth(fdi) {
@@ -80,10 +78,7 @@ function toggleTooth(fdi) {
     selectedFdi.value = [...current, fdi];
   }
 }
-function setTeethAll() { selectedFdi.value = [...ALL_FDI]; }
-function setTeethNone() { selectedFdi.value = []; }
-function setTeethUpper() { selectedFdi.value = ALL_FDI.filter(f => f <= 28); }
-function setTeethLower() { selectedFdi.value = ALL_FDI.filter(f => f >= 31); }
+function setSelection(fdis) { selectedFdi.value = fdis; }
 ```
 
 ```js
@@ -126,25 +121,12 @@ display(html`<div style="display:flex; gap:16px; align-items:center; padding: 8p
 Hacé clic en los dientes para seleccionar/deseleccionar. Los dientes seleccionados se resaltan en el plot.
 
 ```js
-const selectedSet = new Set(selectedFdi);
-const odonto = odontograma({
-  selected: selectedSet,
-  fdiNombres: metadata.fdi_nombres,
+display(teethSelector({
+  selected: selectedFdi,
   onToggle: toggleTooth,
-});
-display(html`<div style="display: flex; align-items: center; gap: 16px; padding: 4px 0;">
-  ${odonto}
-  <div style="display: flex; flex-direction: column; gap: 4px;">
-    <button onclick=${setTeethAll}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Todos</button>
-    <button onclick=${setTeethNone}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Ninguno</button>
-    <button onclick=${setTeethUpper}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Superiores</button>
-    <button onclick=${setTeethLower}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Inferiores</button>
-  </div>
-</div>`);
+  onSetSelection: setSelection,
+  fdiNombres: metadata.fdi_nombres,
+}));
 ```
 
 </details>

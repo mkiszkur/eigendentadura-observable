@@ -9,6 +9,7 @@ import {pantoSchematic} from "./components/panto-schematic.js";
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {miniOdontograma} from "./components/mini-odontograma.js";
 import {odontograma} from "./components/odontograma.js";
+import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import * as d3 from "d3";
 ```
 
@@ -193,9 +194,6 @@ const showMcGeneric = Generators.input(mcGenericInput);
 ```
 
 ```js
-const ALL_FDI = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,
-                 48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
-
 const selectedTeeth = Mutable([...ALL_FDI]);
 
 function toggleSchematicTooth(fdi) {
@@ -207,10 +205,7 @@ function toggleSchematicTooth(fdi) {
     selectedTeeth.value = [...current, fdi];
   }
 }
-function setTeethAll() { selectedTeeth.value = [...ALL_FDI]; }
-function setTeethNone() { selectedTeeth.value = []; }
-function setTeethUpper() { selectedTeeth.value = ALL_FDI.filter(f => f <= 28); }
-function setTeethLower() { selectedTeeth.value = ALL_FDI.filter(f => f >= 31); }
+function setSchematicSelection(fdis) { selectedTeeth.value = fdis; }
 ```
 
 <!-- Opciones de visualización: 3 secciones colapsables -->
@@ -226,28 +221,12 @@ display(html`<div style="display: grid; grid-template-columns: repeat(3, auto); 
 ```
 
 ```js
-const selTeethSet = new Set(selectedTeeth);
-const odonto = odontograma({
-  selected: selTeethSet,
-  fdiNombres: {},
+display(teethSelector({
+  selected: selectedTeeth,
   onToggle: toggleSchematicTooth,
-  cellW: 36,
-  cellH: 30,
-  gap: 2,
-});
-display(html`<div style="display: flex; align-items: center; gap: 16px; padding: 4px 0;">
-  ${odonto}
-  <div style="display: flex; flex-direction: column; gap: 4px;">
-    <button onclick=${setTeethAll}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Todos</button>
-    <button onclick=${setTeethNone}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Ninguno</button>
-    <button onclick=${setTeethUpper}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Superiores</button>
-    <button onclick=${setTeethLower}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Inferiores</button>
-  </div>
-</div>`);
+  onSetSelection: setSchematicSelection,
+  fdiNombres: {},
+}));
 ```
 
 </details>

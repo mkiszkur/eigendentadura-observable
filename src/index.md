@@ -1,5 +1,5 @@
 ---
-title: Eigendentadura — KDE Poblacional
+title: Eigendentadura — KDE Población
 ---
 
 # Eigendentadura — KDE por pieza dental
@@ -23,6 +23,7 @@ Coordenadas normalizadas por marco condíleo (origen = punto medio intercondíle
 
 ```js
 import {odontograma} from "./components/odontograma.js";
+import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {kdePlot} from "./components/kde-plot.js";
 import {boxplot2dPlot} from "./components/boxplot-2d.js";
 import {rosePlot} from "./components/rose-plot.js";
@@ -54,10 +55,7 @@ function toggleTooth(fdi) {
     selectedFdi.value = [...current, fdi];
   }
 }
-function setTeethAll() { selectedFdi.value = [...ALL_FDI]; }
-function setTeethNone() { selectedFdi.value = []; }
-function setTeethUpper() { selectedFdi.value = ALL_FDI.filter(f => f <= 28); }
-function setTeethLower() { selectedFdi.value = ALL_FDI.filter(f => f >= 31); }
+function setSelection(fdis) { selectedFdi.value = fdis; }
 ```
 
 ---
@@ -70,25 +68,12 @@ function setTeethLower() { selectedFdi.value = ALL_FDI.filter(f => f >= 31); }
 Hacé clic en los dientes para seleccionar/deseleccionar. Los dientes seleccionados se muestran con color.
 
 ```js
-const selectedSet = new Set(selectedFdi);
-const odonto = odontograma({
-  selected: selectedSet,
-  fdiNombres: metadata.fdi_nombres,
+display(teethSelector({
+  selected: selectedFdi,
   onToggle: toggleTooth,
-});
-display(html`<div style="display: flex; align-items: center; gap: 16px; padding: 4px 0;">
-  ${odonto}
-  <div style="display: flex; flex-direction: column; gap: 4px;">
-    <button onclick=${setTeethAll}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Todos</button>
-    <button onclick=${setTeethNone}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Ninguno</button>
-    <button onclick=${setTeethUpper}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Superiores</button>
-    <button onclick=${setTeethLower}
-      style="padding: 3px 10px; font-size: 11px; cursor: pointer;">Inferiores</button>
-  </div>
-</div>`);
+  onSetSelection: setSelection,
+  fdiNombres: metadata.fdi_nombres,
+}));
 ```
 
 </details>
@@ -105,6 +90,10 @@ display(plot);
 ```
 
 ## Estadísticas de los dientes seleccionados
+
+Los valores corresponden a las **coordenadas landmark-normalized** originales
+(no z-scores): X e Y están en el rango aproximado [-1, 1] respecto al centro
+del marco dentario, y el ángulo está en radianes.
 
 ```js
 const selectedSet2 = new Set(selectedFdi);
