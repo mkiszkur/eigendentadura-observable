@@ -29,6 +29,7 @@ import {boxplot2dPlot} from "./components/boxplot-2d.js";
 import {rosePlot} from "./components/rose-plot.js";
 import {radarAngularPlot} from "./components/radar-angular.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
+import {archForm, computeArchMetrics} from "./components/arch-form.js";
 import * as d3 from "d3";
 ```
 
@@ -501,6 +502,57 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
     <span style="font-size:13px;">↑ Rotación (desvío vs media)</span>
   </span>
 </div>`);
+```
+
+---
+
+---
+
+## Forma de arcada
+
+Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
+Reporta medidas ortodónticas clásicas:
+**ancho intercanino** (13↔23 / 43↔33), **ancho intermolar** (16↔26 / 46↔36)
+y **profundidad de arco** (distancia del plano intermolar al borde incisal medio).
+
+La forma se clasifica aproximadamente con la razón *profundidad / ancho intermolar*:
+**Cuadrada** (< 0.70 — más ancha que larga), **Ovalada** (0.70–0.85),
+**Triangular** (> 0.85 — más larga que ancha).
+
+```js
+const archMetrics = computeArchMetrics(toothStats);
+```
+
+```js
+display(archForm({
+  toothStats,
+  selectedFdi: selectedFdi,
+  showMeasurements: true,
+  width: Math.min(width, 900),
+  height: 520,
+}));
+```
+
+```js
+const archRows = [
+  {Arcada: "Maxilar (superior)",    ...archMetrics.maxilar},
+  {Arcada: "Mandibular (inferior)", ...archMetrics.mandibular},
+].map(r => ({
+  "Arcada": r.Arcada,
+  "Ancho intercanino": r.intercanine,
+  "Ancho intermolar": r.intermolar,
+  "Profundidad": r.depth,
+  "Ratio prof/ancho": r.ratio,
+  "Forma": r.shape,
+}));
+display(Inputs.table(archRows, {
+  format: {
+    "Ancho intercanino": d3.format(".4f"),
+    "Ancho intermolar": d3.format(".4f"),
+    "Profundidad": d3.format(".4f"),
+    "Ratio prof/ancho": d3.format(".3f"),
+  },
+}));
 ```
 
 ---

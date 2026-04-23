@@ -28,6 +28,7 @@ export function mirrorFdi(fdi) {
  */
 export function symmetryOverlay({
   symmetryData,
+  toothStats,          // opcional: si se pasa, usa el mismo dominio que el KDE heatmap
   selectedFdi = [],
   highlightTopN = 3,
   useMean = false,     // si true usa mean en vez de median
@@ -62,20 +63,55 @@ export function symmetryOverlay({
     .style("max-width", "100%").style("height", "auto");
 
   const padX = 0.03, padY = 0.03;
-  const xExt = d3.extent(points, d => d.x);
-  const yExt = d3.extent(points, d => d.y);
-  const xMin = Math.min(xExt[0], 0) - padX;
-  const xMax = Math.max(xExt[1], 0) + padX;
-  const x = d3.scaleLinear().domain([xMin, xMax]).range([0, innerW]);
-  const y = d3.scaleLinear().domain([yExt[1] + padY, yExt[0] - padY]).range([0, innerH]);
+  let xMin, xMax, yMin, yMax;
+  if (toothStats && toothStats.length) {
+    // Mismo dominio que el KDE heatmap (padding 0.3) para alineación visual.
+    const xs = toothStats.map(s => s.mean_x);
+    const ys = toothStats.map(s => s.mean_y);
+    xMin = d3.min(xs) - 0.3; xMax = d3.max(xs) + 0.3;
+    yMin = d3.min(ys) - 0.3; yMax = d3.max(ys) + 0.3;
+  } else {
+    const xExt = d3.extent(points, d => d.x);
+    const yExt = d3.extent(points, d => d.y);
+    xMin = Math.min(xExt[0], 0) - padX;
+    xMax = Math.max(xExt[1], 0) + padX;
+    yMin = yExt[0] - padY;
+    yMax = yExt[1] + padY;
+  }
+  // Aspecto 1:1 para no deformar la anatomía.
+  const dx = xMax - xMin;
+  const dy = yMax - yMin;
+  const unit = Math.min(innerW / dx, innerH / dy);
+  const usedW = dx * unit;
+  const usedH = dy * unit;
+  const offX = (innerW - usedW) / 2;
+  const offY = (innerH - usedH) / 2;
+  const x = d3.scaleLinear().domain([xMin, xMax]).range([offX, offX + usedW]);
+  // Maxilar (Y menor) arriba: mapeo directo min→top.
+  const y = d3.scaleLinear().domain([yMin, yMax]).range([offY, offY + usedH]);
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+  // Clip para que el zoom no se desborde.
+  const clipId = `sym-clip-${Math.random().toString(36).slice(2, 8)}`;
+  svg.append("defs").append("clipPath").attr("id", clipId)
+    .append("rect").attr("width", innerW).attr("height", innerH);
+
+  // Ejes (fuera del clip; se actualizan con zoom).
+  const xAxisG = g.append("g").attr("transform", `translate(0,${innerH})`);
+  const yAxisG = g.append("g");
+  xAxisG.call(d3.axisBottom(x).ticks(8));
+  yAxisG.call(d3.axisLeft(y).ticks(8));
+
+  // Contenido zoomable.
+  const gClip = g.append("g").attr("clip-path", `url(#${clipId})`);
+  const gContent = gClip.append("g");
+
   // Plano sagital
-  g.append("line").attr("x1", x(0)).attr("x2", x(0))
+  gContent.append("line").attr("x1", x(0)).attr("x2", x(0))
     .attr("y1", 0).attr("y2", innerH)
     .attr("stroke", "#888").attr("stroke-dasharray", "4,3").attr("stroke-width", 1);
-  g.append("text").attr("x", x(0)).attr("y", -8)
+  gContent.append("text").attr("x", x(0)).attr("y", -8)
     .attr("font-size", 10).attr("fill", "#666").attr("text-anchor", "middle")
     .text("plano sagital (x = 0)");
 
@@ -100,33 +136,33 @@ export function symmetryOverlay({
     const ry = y(pos[yKeyR]);
 
     // Línea par (color = magnitud de asimetría mediana)
-    g.append("line")
+    gContent.append("line")
       .attr("x1", lx).attr("y1", ly).attr("x2", rx).attr("y2", ry)
       .attr("stroke", color(p.stats.distance.median))
       .attr("stroke-width", emph ? 3 : 1.8)
       .attr("opacity", emph ? 1 : 0.75)
       .attr("stroke-linecap", "round");
 
-    g.append("circle").attr("cx", lx).attr("cy", ly)
+    gContent.append("circle").attr("cx", lx).attr("cy", ly)
       .attr("r", emph ? 5 : 3.5)
       .attr("fill", COLOR_L).attr("stroke", "#fff").attr("stroke-width", 1);
-    g.append("circle").attr("cx", rx).attr("cy", ry)
+    // Círculo derecho reflejado: color = asimetría (heatmap)
+    gContent.append("circle").attr("cx", rx).attr("cy", ry)
       .attr("r", emph ? 5 : 3.5)
-      .attr("fill", COLOR_R).attr("stroke", "#fff").attr("stroke-width", 1);
+      .attr("fill", color(p.stats.distance.median))
+      .attr("stroke", "#333").attr("stroke-width", 1);
 
     if (emph) {
-      g.append("text").attr("x", lx).attr("y", ly - 9)
+      gContent.append("text").attr("x", lx).attr("y", ly - 9)
         .attr("text-anchor", "middle").attr("font-size", 10)
         .attr("font-weight", "bold").attr("fill", COLOR_L).text(String(p.fdi_l));
-      g.append("text").attr("x", rx).attr("y", ry + 16)
+      gContent.append("text").attr("x", rx).attr("y", ry + 16)
         .attr("text-anchor", "middle").attr("font-size", 10)
         .attr("font-weight", "bold").attr("fill", COLOR_R).text(`${p.fdi_r}′`);
     }
   }
 
-  // Ejes
-  g.append("g").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x).ticks(8));
-  g.append("g").call(d3.axisLeft(y).ticks(8));
+  // Etiquetas de ejes
   g.append("text").attr("x", innerW / 2).attr("y", innerH + 38)
     .attr("fill", "#666").attr("text-anchor", "middle").attr("font-size", 11)
     .text(`X (landmark-normalized) — posiciones ${useMean ? "medias" : "medianas"} pareadas`);
@@ -137,14 +173,15 @@ export function symmetryOverlay({
 
   // Leyenda símbolos
   const leg = g.append("g").attr("transform", "translate(8,6)");
-  leg.append("rect").attr("width", 230).attr("height", 48)
+  leg.append("rect").attr("width", 260).attr("height", 48)
     .attr("fill", "#fff").attr("stroke", "#ddd").attr("rx", 3).attr("opacity", 0.92);
   leg.append("circle").attr("cx", 14).attr("cy", 16).attr("r", 5).attr("fill", COLOR_L);
   leg.append("text").attr("x", 25).attr("y", 20).attr("font-size", 11).attr("fill", "#333")
-    .text(`● Izquierdo (${useMean ? "media" : "mediana"})`);
-  leg.append("circle").attr("cx", 14).attr("cy", 36).attr("r", 5).attr("fill", COLOR_R);
+    .text(`Izquierdo (${useMean ? "media" : "mediana"})`);
+  leg.append("circle").attr("cx", 14).attr("cy", 36).attr("r", 5)
+    .attr("fill", color(maxDist / 2)).attr("stroke", "#333").attr("stroke-width", 1);
   leg.append("text").attr("x", 25).attr("y", 40).attr("font-size", 11).attr("fill", "#333")
-    .text(`● Derecho reflejado (${useMean ? "media" : "mediana"})`);
+    .text(`Derecho reflejado — color ≡ asimetría`);
 
   // Gradiente
   const legendW = 180, legendH = 8;
@@ -156,14 +193,32 @@ export function symmetryOverlay({
     grad.append("stop").attr("offset", `${i * 10}%`)
       .attr("stop-color", color(maxDist * i / 10));
   }
-  const lg = g.append("g").attr("transform", `translate(0,${innerH - 22})`);
+  const lg = g.append("g").attr("transform", `translate(${innerW - legendW},0)`);
   lg.append("text").attr("x", 0).attr("y", -4).attr("font-size", 10).attr("fill", "#666")
-    .text("largo de línea ≡ asimetría mediana");
+    .text("color / largo de línea ≡ asimetría mediana");
   lg.append("rect").attr("width", legendW).attr("height", legendH)
     .attr("fill", `url(#${gradId})`).attr("stroke", "#ccc");
   lg.append("text").attr("x", 0).attr("y", legendH + 10).attr("font-size", 10).attr("fill", "#666").text("0");
   lg.append("text").attr("x", legendW).attr("y", legendH + 10).attr("font-size", 10).attr("fill", "#666")
     .attr("text-anchor", "end").text(maxDist.toFixed(3));
+
+  // Zoom + pan (rueda / drag). Doble-click restablece.
+  const zoom = d3.zoom()
+    .scaleExtent([0.5, 20])
+    .translateExtent([[-innerW * 2, -innerH * 2], [innerW * 3, innerH * 3]])
+    .on("zoom", (event) => {
+      const t = event.transform;
+      gContent.attr("transform", t);
+      xAxisG.call(d3.axisBottom(t.rescaleX(x)).ticks(8));
+      yAxisG.call(d3.axisLeft(t.rescaleY(y)).ticks(8));
+    });
+  // Capa invisible para capturar eventos en toda el área del plot.
+  g.insert("rect", ":first-child")
+    .attr("width", innerW).attr("height", innerH)
+    .attr("fill", "transparent")
+    .style("cursor", "grab");
+  svg.call(zoom)
+    .on("dblclick.zoom", () => svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity));
 
   return svg.node();
 }
