@@ -28,6 +28,7 @@ import {kdePlot} from "./components/kde-plot.js";
 import {boxplot2dPlot} from "./components/boxplot-2d.js";
 import {rosePlot} from "./components/rose-plot.js";
 import {radarAngularPlot} from "./components/radar-angular.js";
+import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import * as d3 from "d3";
 ```
 
@@ -38,6 +39,7 @@ const metadata = await FileAttachment("data/metadata.json").json();
 const boxplotStats = await FileAttachment("data/tooth_boxplot_stats.json").json();
 const typicalityExtremes = await FileAttachment("data/typicality_extremes.json").json();
 const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
+const symmetryData = await FileAttachment("data/symmetry_pairs.json").json();
 ```
 
 ```js
@@ -499,4 +501,83 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
     <span style="font-size:13px;">↑ Rotación (desvío vs media)</span>
   </span>
 </div>`);
+```
+
+---
+
+## Simetría bilateral
+
+**Pregunta clínica**: ¿las piezas del lado derecho están en posiciones "espejo"
+de sus homólogas izquierdas? Para cada par homólogo (p.ej. 16↔26) se usan
+**solo las dentaduras que tienen ambos dientes del par** y la asimetría se
+mide **por dentadura** (análisis pareado, robusto a ausencias y outliers).
+
+Para cada par calculamos por dentadura: `Δ reflejo X = cx_izq + cx_der`,
+`ΔY = cy_izq − cy_der` y `distancia = √(Δx² + ΔY²)`. Se reportan **mediana
+y rango intercuartílico** (menos sensibles a outliers que la media).
+
+### Distribución de la asimetría por par
+
+```js
+display(symmetryBoxplot({
+  symmetryData,
+  selectedFdi: selectedFdi,
+  width: Math.min(width, 980),
+  height: 360,
+}));
+```
+
+```js
+display(html`<p style="color:#555; font-size:13px;">
+  Cada caja muestra el IQR (Q1–Q3) y la mediana de la <strong>distancia de
+  asimetría por dentadura</strong>. Los bigotes se extienden a los percentiles
+  5% y 95%. <code>n</code> arriba de cada caja es la cantidad de dentaduras
+  con ambos dientes del par presentes.
+</p>`);
+```
+
+### Overlay de medianas pareadas en el espacio anatómico
+
+Cada par aporta **un** punto azul (diente izquierdo en su posición **mediana**
+de la población pareada) y **un** punto naranja (diente derecho homólogo
+**reflejado** contra el plano sagital, también en su mediana pareada). Si
+la población fuera perfectamente simétrica, ambos puntos del par coincidirían.
+El largo y el color de la línea entre ellos representan la magnitud de
+asimetría mediana del par.
+
+```js
+display(symmetryOverlay({
+  symmetryData,
+  selectedFdi: selectedFdi,
+  highlightTopN: 3,
+  width: Math.min(width, 900),
+  height: 500,
+}));
+```
+
+### Tabla resumen por par
+
+```js
+const symRows = symmetryData.pairs.map(p => ({
+  "Par (der ↔ izq)": `${p.fdi_r} ↔ ${p.fdi_l}`,
+  "N pareado": p.n_paired,
+  "Mediana dist.": p.stats.distance.median,
+  "Q1 dist.": p.stats.distance.q1,
+  "Q3 dist.": p.stats.distance.q3,
+  "IQR dist.": p.stats.distance.iqr,
+  "P95 dist.": p.stats.distance.p95,
+  "Mediana Δreflejoᴧ": p.stats.dx_reflect.median,
+  "Mediana ΔY": p.stats.dy.median,
+}));
+display(Inputs.table(symRows, {
+  format: {
+    "Mediana dist.": d3.format(".4f"),
+    "Q1 dist.": d3.format(".4f"),
+    "Q3 dist.": d3.format(".4f"),
+    "IQR dist.": d3.format(".4f"),
+    "P95 dist.": d3.format(".4f"),
+    "Mediana Δreflejoᴧ": d3.format(".4f"),
+    "Mediana ΔY": d3.format(".4f"),
+  },
+}));
 ```
