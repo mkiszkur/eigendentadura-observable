@@ -30,6 +30,7 @@ import {rosePlot} from "./components/rose-plot.js";
 import {radarAngularPlot} from "./components/radar-angular.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
+import {prevalenceOdontogram, prevalenceLegend} from "./components/prevalence-odontogram.js";
 import * as d3 from "d3";
 ```
 
@@ -41,6 +42,7 @@ const boxplotStats = await FileAttachment("data/tooth_boxplot_stats.json").json(
 const typicalityExtremes = await FileAttachment("data/typicality_extremes.json").json();
 const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
 const symmetryData = await FileAttachment("data/symmetry_pairs.json").json();
+const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();
 ```
 
 ```js
@@ -552,6 +554,57 @@ display(Inputs.table(archRows, {
     "Profundidad": d3.format(".4f"),
     "Ratio prof/ancho": d3.format(".3f"),
   },
+}));
+```
+
+---
+
+## Prevalencia de patologías por diente
+
+Cada celda representa un diente (código FDI) y se colorea según el
+**porcentaje de dentaduras de la muestra en las que ese diente
+presenta la patología seleccionada**. La escala se reajusta por patología
+para resaltar el patrón espacial aunque las prevalencias absolutas sean bajas.
+
+```js
+const pathology = view(Inputs.select(prevalenceData.pathologies, {
+  label: "Patología",
+  value: "Restauración",
+}));
+```
+
+```js
+display(prevalenceLegend({prevalenceData, pathology, width: 360}));
+display(prevalenceOdontogram({
+  prevalenceData,
+  pathology,
+  selectedFdi,
+  width: Math.min(width, 1400),
+  cellW: 62,
+  cellH: 78,
+}));
+display(html`<div style="color:#666;font-size:11px;margin-top:6px">
+  n = ${prevalenceData.n_dentitions} dentaduras. El número chico en cada
+  celda indica <em>dientes con la patología / dientes presentes en la muestra</em>.
+</div>`);
+```
+
+### Ranking por prevalencia (patología activa)
+
+```js
+const rankRows = [...prevalenceData.teeth]
+  .map(t => ({
+    FDI: t.fdi,
+    "Dientes presentes": t.n_present,
+    "Con patología": t[pathology].count,
+    "Prevalencia": t[pathology].prevalence,
+  }))
+  .sort((a, b) => b["Prevalencia"] - a["Prevalencia"]);
+display(Inputs.table(rankRows, {
+  format: {
+    "Prevalencia": d => `${(d * 100).toFixed(2)}%`,
+  },
+  rows: 10,
 }));
 ```
 
