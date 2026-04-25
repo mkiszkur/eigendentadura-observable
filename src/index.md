@@ -33,6 +33,8 @@ import {archForm, computeArchMetrics} from "./components/arch-form.js";
 import {prevalenceOdontogram, prevalenceLegend} from "./components/prevalence-odontogram.js";
 import {occlusionHistograms, occlusionScatter} from "./components/occlusion.js";
 import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
+import {summaryCards, computeSummary, tocNav} from "./components/summary-cards.js";
+import {quadrantOverlay} from "./components/quadrant-overlay.js";
 import * as d3 from "d3";
 ```
 
@@ -66,9 +68,34 @@ function toggleTooth(fdi) {
 function setSelection(fdis) { selectedFdi.value = fdis; }
 ```
 
+## Resumen ejecutivo
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Métricas globales de la población estudiada en una vista. Cada tarjeta agrega un aspecto distinto: tamaño muestral, salud bucal, simetría, geometría y oclusión." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+```js
+const summary = computeSummary({metadata, prevalenceData, symmetryData, occlusionData, toothStats});
+display(summaryCards({summary}));
+```
+
+```js
+display(tocNav({sections: [
+  {id: "mapa-de-densidad-kde",                       label: "KDE"},
+  {id: "estadisticas-de-los-dientes-seleccionados",  label: "Estadísticas"},
+  {id: "boxplots-2-d-dispersion-posicional",         label: "Boxplots 2D"},
+  {id: "distribucion-angular-por-diente",            label: "Ángulos"},
+  {id: "radar-dispersion-angular-por-diente",        label: "Radar"},
+  {id: "dentaduras-tipicas-y-atipicas",              label: "Típicas/atípicas"},
+  {id: "forma-de-arcada",                            label: "Arcada"},
+  {id: "prevalencia-de-patologias-por-diente",       label: "Patologías"},
+  {id: "overbite-y-overjet-proxy-poblacional",       label: "Overbite/overjet"},
+  {id: "simetria-bilateral",                         label: "Simetría"},
+  {id: "overlay-de-los-4-cuadrantes",                label: "Overlay 4Q"},
+]}));
+```
+
 ---
 
 ## Mapa de densidad (KDE)
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Kernel Density Estimation 2D: estima la densidad de probabilidad espacial de los centroides de un diente sobre toda la población. Las zonas más oscuras concentran más casos." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 <details open>
 <summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Odontograma</summary>
@@ -98,6 +125,7 @@ display(plot);
 ```
 
 ## Estadísticas de los dientes seleccionados
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Centroide medio, desvíos estándar y ángulo medio del eje principal de cada diente, calculados sobre todas las dentaduras donde aparece anotado." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Los valores corresponden a las **coordenadas landmark-normalized** originales
 (no z-scores): X e Y están en el rango aproximado [-1, 1] respecto al centro
@@ -146,6 +174,7 @@ display(Inputs.table(selectedStats, {
 ---
 
 ## Boxplots 2D — Dispersión posicional
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Caja 2D: el rectángulo central abarca el rango intercuartílico (IQR) en X e Y; los bigotes llegan a P5–P95. Compara dispersión entre piezas." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Cada rectángulo representa el rango intercuartílico (IQR) de un diente en X e Y.
 Los bigotes se extienden a 1.5×IQR. El punto central es la mediana.
@@ -212,6 +241,7 @@ display(Inputs.table(selectedBoxplotStats, {
 ---
 
 ## Distribución angular por diente
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Ángulo del eje principal del diente (rotación respecto del marco condilar). 90° = vertical perfecto. Las rosas mini muestran la distribución; clic en una para ampliar." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 **Mapa global** — Cada diente aparece en su posición anatómica media con
 una mini-rosa polar: los pétalos son la frecuencia de ángulos en bins de 5°,
@@ -277,6 +307,7 @@ display(rosePlot({
 ---
 
 ## Radar — Dispersión angular por diente
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Comparación radial de ángulos medios y desvíos: cada eje radial es un FDI; cuánto más afuera, mayor desvío angular." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Los 32 dientes dispuestos en orden anatómico. El radio representa la dispersión angular de cada pieza.
 
@@ -301,6 +332,7 @@ display(radarAngularPlot({
 ---
 
 ## Dentaduras típicas y atípicas
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Typicality score: log-verosimilitud de cada dentadura bajo el modelo KDE poblacional. Las típicas se parecen al promedio; las atípicas se desvían en una o más piezas." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Dentaduras individuales ordenadas por su score de tipicidad (z̄: promedio de la distancia z por diente).
 Se muestran las **${typicalityExtremes.n_extremes} más típicas** (menor z̄) y las **${typicalityExtremes.n_extremes} más atípicas** (mayor z̄), de un total de ${typicalityExtremes.total_eligible.toLocaleString()} dentaduras con ≥${typicalityExtremes.min_teeth} dientes.
@@ -561,6 +593,7 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
 ---
 
 ## Forma de arcada
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Curva spline (Catmull-Rom) sobre los centroides de cada arcada. Se calculan distancia intercanina (13→23), intermolar (16→26) y forma según ratio IC/IM (Ricketts: Triangular > 0.85, Cuadrada < 0.70, Ovalada en medio)." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
 Reporta medidas ortodónticas clásicas:
@@ -610,6 +643,7 @@ display(Inputs.table(archRows, {
 ---
 
 ## Prevalencia de patologías por diente
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Para cada FDI y cada patología anotada, fracción de dentaduras donde el diente aparece afectado. Color más saturado = más afectado." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Cada celda representa un diente (código FDI) y se colorea según el
 **porcentaje de dentaduras de la muestra en las que ese diente
@@ -661,6 +695,7 @@ display(Inputs.table(rankRows, {
 ---
 
 ## Overbite y overjet (proxy poblacional)
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Overjet: |Δx| entre incisivos centrales superiores e inferiores (cuánto sobresalen horizontalmente). Overbite: Δy vertical entre los mismos. Calculados desde centroides 2D, no desde bordes incisales: son proxies poblacionales." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 Medidas clásicas de oclusión calculadas a partir de los **centroides de los incisivos centrales**
 (11/21 superiores, 41/31 inferiores) en coordenadas *landmark-normalized*:
@@ -710,6 +745,7 @@ display(Inputs.table(occRows, {
 ---
 
 ## Simetría bilateral
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Análisis pareado por dentadura: para cada par homologo (p.ej. 16→26) se calcula Δx reflejado, Δy y distancia entre centroides solo en dentaduras con ambos dientes presentes. Mediana e IQR son robustas a outliers." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
 
 **Pregunta clínica**: ¿las piezas del lado derecho están en posiciones "espejo"
 de sus homólogas izquierdas? Para cada par homólogo (p.ej. 16↔26) se usan
@@ -783,5 +819,43 @@ display(Inputs.table(symRows, {
     "Mediana Δreflejoᴧ": d3.format(".4f"),
     "Mediana ΔY": d3.format(".4f"),
   },
+}));
+```
+
+---
+
+## Overlay de los 4 cuadrantes
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Todos los dientes proyectados sobre un mismo hemilado (|x|, y). Comparación directa entre Q1↔Q2 (homologos superiores), Q4↔Q3 (homologos inferiores) y entre arcada superior↔inferior." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+Elegí qué cuadrantes querés superponer. Cuando seleccionás **exactamente 2**, se dibujan
+**flechas** entre las posiciones FDI homólogas (1↔1, 2↔2, …) y se reporta la
+**distancia media** entre los pares — útil para comparar:
+
+- **Q1 vs Q2** o **Q4 vs Q3** → simetría bilateral *en la geometría media*.
+- **Q1 vs Q4** o **Q2 vs Q3** → alineación oclusal (¿están las piezas superiores
+  encima de las inferiores?).
+
+```js
+const selectedQuadrants = view(Inputs.checkbox(
+  [1, 2, 3, 4],
+  {
+    label: "Cuadrantes",
+    value: [1, 2],
+    format: (q) => ({1: "Q1 (sup. der.)", 2: "Q2 (sup. izq.)", 3: "Q3 (inf. izq.)", 4: "Q4 (inf. der.)"})[q],
+  }
+));
+```
+
+```js
+const showQuadrantEllipses = view(Inputs.toggle({label: "Mostrar elipse ±1σ", value: true}));
+```
+
+```js
+display(quadrantOverlay({
+  toothStats,
+  quadrants: selectedQuadrants,
+  showEllipses: showQuadrantEllipses,
+  width: Math.min(width, 760),
+  height: 480,
 }));
 ```
