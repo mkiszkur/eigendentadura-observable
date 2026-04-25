@@ -31,6 +31,7 @@ import {radarAngularPlot} from "./components/radar-angular.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
 import {prevalenceOdontogram, prevalenceLegend} from "./components/prevalence-odontogram.js";
+import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
 import * as d3 from "d3";
 ```
 
@@ -208,17 +209,64 @@ display(Inputs.table(selectedBoxplotStats, {
 
 ---
 
-## Rose Plot — Distribución angular por diente
+## Distribución angular por diente
 
-Histograma circular (rose plot) de la orientación de cada diente, ubicado en su posición anatómica media.
-Cada pétalo muestra la frecuencia de ángulos en bins de 5°. La línea radial indica la media.
-Los dientes seleccionados en el odontograma se resaltan.
+**Mapa global** — Cada diente aparece en su posición anatómica media con
+una mini-rosa polar: los pétalos son la frecuencia de ángulos en bins de 5°,
+la línea radial indica la media. Los dientes seleccionados se resaltan.
+**Hacé click en un diente** para ver su distribución angular ampliada en detalle.
+
+```js
+// Modal imperativo: lo insertamos/removemos directamente del body.
+const showAngleModal = (fdi) => {
+  // Cerrar cualquier modal previo
+  document.querySelectorAll("[data-angle-modal]").forEach(el => el.remove());
+  const record = angleHistograms.find(r => r.fdi === fdi);
+  if (!record) return;
+
+  const overlay = document.createElement("div");
+  overlay.dataset.angleModal = "1";
+  Object.assign(overlay.style, {
+    position: "fixed", inset: "0", background: "rgba(0,0,0,.45)",
+    zIndex: "1000", display: "flex", alignItems: "center", justifyContent: "center",
+  });
+  const close = () => overlay.remove();
+
+  const panel = document.createElement("div");
+  Object.assign(panel.style, {
+    background: "white", borderRadius: "8px", padding: "18px 22px",
+    boxShadow: "0 8px 28px rgba(0,0,0,.25)", maxWidth: "520px",
+    fontFamily: "var(--sans-serif, system-ui, sans-serif)",
+  });
+
+  const header = document.createElement("div");
+  Object.assign(header.style, {display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px"});
+  const title = document.createElement("strong");
+  title.style.fontSize = "15px";
+  title.textContent = `Distribución angular — FDI ${fdi}`;
+  const btn = document.createElement("button");
+  btn.textContent = "✕ Cerrar";
+  Object.assign(btn.style, {border: "none", background: "#eee", borderRadius: "4px", padding: "4px 10px", cursor: "pointer", fontSize: "13px"});
+  btn.addEventListener("click", close);
+  header.append(title, btn);
+
+  const hint = document.createElement("div");
+  Object.assign(hint.style, {color: "#666", fontSize: "11px", marginBottom: "10px"});
+  hint.textContent = "Línea radial negra = ángulo medio. Arco externo = ±1 σ. Grilla radial en counts.";
+
+  panel.append(header, hint, angleRose({record, size: 380}));
+  overlay.append(panel);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  document.body.append(overlay);
+};
+```
 
 ```js
 display(rosePlot({
   angleHistograms,
   toothStats,
   selectedFdi: selectedFdi,
+  onToothClick: showAngleModal,
   width: width,
   height: 600,
 }));

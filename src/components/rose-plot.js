@@ -20,7 +20,7 @@ const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"}
  * @param {number} opts.width
  * @param {number} opts.height
  */
-export function rosePlot({angleHistograms, toothStats, selectedFdi = [], width = 900, height = 600} = {}) {
+export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onToothClick = null, width = 900, height = 600} = {}) {
   const margin = {top: 25, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
@@ -195,6 +195,16 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], width =
         toothG.append("title")
           .text(`FDI ${fdi} (n=${hist.n})\nÁngulo medio: ${meanAngle.toFixed(1)}°\nDesv. est.: ${hist.std_angle.toFixed(1)}°\nMax bin: ${localMax}`);
       }
+
+      // Click target (encima del rect de zoom): abre el detalle.
+      if (onToothClick) {
+        toothG.append("circle")
+          .attr("r", roseRadius + 4)
+          .attr("fill", "transparent")
+          .style("cursor", "pointer")
+          .style("pointer-events", "all")
+          .on("click", (event) => { event.stopPropagation(); onToothClick(fdi); });
+      }
     }
 
     xAxisG.call(d3.axisBottom(xScale).ticks(6)).call(g => g.select(".domain").remove());
@@ -210,13 +220,17 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], width =
       draw(event.transform.k);
     });
 
-  gOuter.append("rect")
+  const zoomRect = gOuter.append("rect")
     .attr("width", innerW).attr("height", innerH)
-    .attr("fill", "none").attr("pointer-events", "all")
-    .call(zoom)
+    .attr("fill", "none").attr("pointer-events", "all");
+  zoomRect.lower();
+  // Aplicamos zoom en gOuter para capturar wheel/drag incluso sobre los dientes.
+  gOuter.call(zoom)
     .on("dblclick.zoom", () => {
-      gOuter.select("rect").transition().duration(300).call(zoom.transform, d3.zoomIdentity);
+      gOuter.transition().duration(300).call(zoom.transform, d3.zoomIdentity);
     });
+  // Dejamos el rect debajo de los dientes para permitir clicks sobre ellos.
+  zoomRect.lower();
 
   draw();
 
