@@ -32,6 +32,7 @@ import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
 import {prevalenceOdontogram, prevalenceLegend} from "./components/prevalence-odontogram.js";
 import {occlusionHistograms, occlusionScatter} from "./components/occlusion.js";
+import {boltonHistograms} from "./components/bolton.js";
 import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
 import {summaryCards, computeSummary, tocNav} from "./components/summary-cards.js";
 import {quadrantOverlay} from "./components/quadrant-overlay.js";
@@ -47,6 +48,7 @@ const typicalityExtremes = await FileAttachment("data/typicality_extremes.json")
 const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
 const symmetryData = await FileAttachment("data/symmetry_pairs.json").json();
 const occlusionData = await FileAttachment("data/occlusion.json").json();
+const boltonData = await FileAttachment("data/bolton.json").json();
 const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();
 ```
 
@@ -87,6 +89,7 @@ display(tocNav({sections: [
   {id: "forma-de-arcada",                            label: "Arcada"},
   {id: "prevalencia-de-patologias-por-diente",       label: "Patologías"},
   {id: "overbite-y-overjet-proxy-poblacional",       label: "Overbite/overjet"},
+  {id: "indice-de-bolton",                           label: "Bolton"},
   {id: "simetria-bilateral",                         label: "Simetría"},
   {id: "overlay-de-los-4-cuadrantes",                label: "Overlay 4Q"},
 ]}));
@@ -738,6 +741,39 @@ display(Inputs.table(occRows, {
     median: d3.format(".4f"), q1:     d3.format(".4f"), q3: d3.format(".4f"),
     p05:    d3.format(".4f"), p95:    d3.format(".4f"),
     min:    d3.format(".4f"), max:    d3.format(".4f"),
+  },
+}));
+```
+
+---
+
+## Índice de Bolton
+<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Relación entre la suma de anchos mesiodistales (MD) de los dientes mandibulares y los maxilares. Bolton (1958/1962) estableció dos normas: anterior (43–33 / 13–23) = 77.2 ± 1.65 y overall (46–36 / 16–26) = 91.3 ± 1.91. El ancho MD se aproxima por el lado corto del minbbox de cada diente." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+**Pregunta clínica**: ¿las piezas mandibulares y maxilares de cada paciente están en proporción equilibrada para el cierre oclusal? Bolton (1958/1962) definió dos relaciones porcentuales que se aceptan como referencia ortodóntica:
+
+- **Anterior** = `100 × Σ MD(43–33) / Σ MD(13–23)` — norma **77.2 ± 1.65**
+- **Overall**  = `100 × Σ MD(46–36) / Σ MD(16–26)` — norma **91.3 ± 1.91**
+
+El ancho mesiodistal (MD) de cada diente se aproxima por el **lado corto del minbbox** (rectángulo de área mínima sobre el polígono de segmentación). En la vista panorámica el eje mayor del minbbox sigue el eje oclusogingival, por lo que el lado corto aproxima la dimensión MD. Es una **aproximación 2D**, no una medición clínica con calibrador.
+
+La banda verde marca el rango clínicamente aceptable (± 1 SD de la norma); la línea verde la media de Bolton; la línea negra punteada la mediana observada en el dataset.
+
+```js
+display(boltonHistograms({boltonData, width: Math.min(width, 1000)}));
+```
+
+```js
+const boltRows = [
+  {Métrica: "Anterior (43–33 / 13–23)", n: boltonData.eligibility.anterior, ...boltonData.stats.anterior, norma: `${boltonData.norms.anterior.mean} ± ${boltonData.norms.anterior.std}`},
+  {Métrica: "Overall (46–36 / 16–26)",  n: boltonData.eligibility.overall,  ...boltonData.stats.overall,  norma: `${boltonData.norms.overall.mean} ± ${boltonData.norms.overall.std}`},
+];
+display(Inputs.table(boltRows, {
+  format: {
+    mean: d3.format(".2f"), std: d3.format(".2f"),
+    median: d3.format(".2f"), q1: d3.format(".2f"), q3: d3.format(".2f"),
+    p05: d3.format(".2f"), p95: d3.format(".2f"),
+    min: d3.format(".2f"), max: d3.format(".2f"),
   },
 }));
 ```
