@@ -31,6 +31,7 @@ import {radarAngularPlot} from "./components/radar-angular.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
 import {prevalenceOdontogram, prevalenceLegend} from "./components/prevalence-odontogram.js";
+import {occlusionHistograms, occlusionScatter} from "./components/occlusion.js";
 import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
 import * as d3 from "d3";
 ```
@@ -43,6 +44,7 @@ const boxplotStats = await FileAttachment("data/tooth_boxplot_stats.json").json(
 const typicalityExtremes = await FileAttachment("data/typicality_extremes.json").json();
 const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
 const symmetryData = await FileAttachment("data/symmetry_pairs.json").json();
+const occlusionData = await FileAttachment("data/occlusion.json").json();
 const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();
 ```
 
@@ -653,6 +655,55 @@ display(Inputs.table(rankRows, {
     "Prevalencia": d => `${(d * 100).toFixed(2)}%`,
   },
   rows: 10,
+}));
+```
+
+---
+
+## Overbite y overjet (proxy poblacional)
+
+Medidas clásicas de oclusión calculadas a partir de los **centroides de los incisivos centrales**
+(11/21 superiores, 41/31 inferiores) en coordenadas *landmark-normalized*:
+
+- **Overjet** = |Δx| entre el centroide medio de los superiores y el de los inferiores
+  (cuánto sobresalen horizontalmente unos respecto de otros).
+- **Overbite** = Δy entre superiores e inferiores (separación vertical media de los
+  incisivos opuestos).
+
+Por estar basados en centroides 2D (y no en bordes incisales reales),
+estas son **proxies poblacionales** útiles para comparar dentaduras entre sí,
+no medidas clínicas en milímetros. n = ${occlusionData.n_dentitions} dentaduras
+con los 4 incisivos presentes.
+
+```js
+display(occlusionHistograms({occlusionData, width: Math.min(width, 1000)}));
+```
+
+### Diagrama poblacional (overjet vs overbite)
+
+Cada punto = una dentadura. La cruz negra marca la mediana poblacional;
+dentaduras lejos del centro tienen oclusiones atípicas.
+
+```js
+display(occlusionScatter({
+  occlusionData,
+  width: Math.min(width, 720),
+  height: 460,
+}));
+```
+
+```js
+const occRows = [
+  {Métrica: "Overjet (|Δx|)",  ...occlusionData.stats.overjet},
+  {Métrica: "Overbite (Δy)",   ...occlusionData.stats.overbite},
+];
+display(Inputs.table(occRows, {
+  format: {
+    mean:   d3.format(".4f"), std:    d3.format(".4f"),
+    median: d3.format(".4f"), q1:     d3.format(".4f"), q3: d3.format(".4f"),
+    p05:    d3.format(".4f"), p95:    d3.format(".4f"),
+    min:    d3.format(".4f"), max:    d3.format(".4f"),
+  },
 }));
 ```
 
