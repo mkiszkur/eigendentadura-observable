@@ -5,11 +5,36 @@ export default {
   theme: "light",
   head: '<link rel="stylesheet" href="/style.css">',
   pages: [
-    {name: "KDE Poblacional", path: "/"},
-    {name: "Subpoblaciones", path: "/subpoblaciones"},
-    {name: "Individuo vs Población", path: "/individuo"},
-    {name: "Análisis de Clusters", path: "/clusters"},
-    {name: "Explorador de Pantos", path: "/pantos"},
-    {name: "Explorador Normalizado", path: "/pantos-norm"},
+    {
+      name: "Población",
+      open: true,
+      pages: [
+        {name: "KDE / Eigendentadura", path: "/"},
+      ],
+    },
+    {
+      name: "Población vs Población",
+      open: true,
+      pages: [
+        {name: "Origen clínico",  path: "/subpoblacion-origen"},
+        {name: "Sexo biológico",  path: "/subpoblacion-genero"},
+      ],
+    },
+    {
+      name: "Individuo vs Población",
+      open: true,
+      pages: [
+        {name: "Individuo", path: "/individuo"},
+        {name: "Clusters",  path: "/clusters"},
+      ],
+    },
+    {
+      name: "Exploradores",
+      open: true,
+      pages: [
+        {name: "Pantos",              path: "/pantos"},
+        {name: "Pantos normalizadas", path: "/pantos-norm"},
+      ],
+    },
   ],
 };

@@ -5,149 +5,150 @@
     "n": 2589,
     "mean_angle": 90.7693,
     "std_angle": 3.2211,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 0
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 0
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 4
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 44
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 1030
       }
     ]
@@ -158,149 +159,150 @@
     "n": 2557,
     "mean_angle": 88.8129,
     "std_angle": 4.936,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 5
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 26
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 104
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 287
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 1116
       }
     ]
@@ -311,149 +313,150 @@
     "n": 2601,
     "mean_angle": 90.5302,
     "std_angle": 8.7815,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 8
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 4
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 2
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 3
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 2
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 23
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 119
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 300
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 889
       }
     ]
@@ -464,149 +467,150 @@
     "n": 2430,
     "mean_angle": 87.2398,
     "std_angle": 7.6251,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 1
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 2
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 8
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 9
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 76
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 276
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 512
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 773
       }
     ]
@@ -617,149 +621,150 @@
     "n": 2271,
     "mean_angle": 86.2209,
     "std_angle": 8.3034,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 1
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 2
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 4
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 9
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 48
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 140
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 297
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 383
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 690
       }
     ]
@@ -770,149 +775,150 @@
     "n": 2289,
     "mean_angle": 87.9874,
     "std_angle": 9.0221,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 3
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 3
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 4
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 17
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 48
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 92
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 205
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 336
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 694
       }
     ]
@@ -923,149 +929,150 @@
     "n": 2327,
     "mean_angle": 78.4568,
     "std_angle": 13.6381,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 8
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 14
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 30
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 68
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 86
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 181
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 239
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 294
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 289
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 283
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 408
       }
     ]
@@ -1076,149 +1083,150 @@
     "n": 1652,
     "mean_angle": 66.0055,
     "std_angle": 20.1928,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 26
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 37
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 49
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 73
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 92
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 113
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 122
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 120
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 198
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 142
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 111
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 104
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 108
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 148
       }
     ]
@@ -1229,149 +1237,150 @@
     "n": 2601,
     "mean_angle": 89.9669,
     "std_angle": 3.137,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 1
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 1
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 2
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 18
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 90
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 1214
       }
     ]
@@ -1382,149 +1391,150 @@
     "n": 2550,
     "mean_angle": 92.6052,
     "std_angle": 5.5965,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 1
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 2
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 7
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 20
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 89
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 670
       }
     ]
@@ -1535,149 +1545,150 @@
     "n": 2597,
     "mean_angle": 90.8462,
     "std_angle": 8.4704,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 1
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 8
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 9
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 11
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 18
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 25
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 29
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 76
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 192
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 703
       }
     ]
@@ -1688,149 +1699,150 @@
     "n": 2437,
     "mean_angle": 93.9239,
     "std_angle": 7.8823,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 2
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 4
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 3
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 12
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 18
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 36
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 104
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 555
       }
     ]
@@ -1841,149 +1853,150 @@
     "n": 2275,
     "mean_angle": 94.837,
     "std_angle": 8.5623,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 2
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 1
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 4
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 10
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 22
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 30
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 97
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 457
       }
     ]
@@ -1994,149 +2007,150 @@
     "n": 2293,
     "mean_angle": 92.8846,
     "std_angle": 9.4472,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 2
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 2
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 7
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 2
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 13
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 36
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 75
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 186
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 544
       }
     ]
@@ -2147,149 +2161,150 @@
     "n": 2326,
     "mean_angle": 102.7304,
     "std_angle": 13.7872,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 4
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 6
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 13
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 22
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 29
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 75
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 269
       }
     ]
@@ -2300,149 +2315,150 @@
     "n": 1668,
     "mean_angle": 116.131,
     "std_angle": 20.3067,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 2
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 26
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 28
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 42
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 108
       }
     ]
@@ -2453,149 +2469,150 @@
     "n": 2589,
     "mean_angle": 90.4845,
     "std_angle": 4.4215,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 1
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 5
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 28
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 163
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 1027
       }
     ]
@@ -2606,149 +2623,150 @@
     "n": 2603,
     "mean_angle": 89.557,
     "std_angle": 5.5888,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 1
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 2
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 7
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 20
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 96
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 248
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 994
       }
     ]
@@ -2759,149 +2777,150 @@
     "n": 2659,
     "mean_angle": 95.4633,
     "std_angle": 7.9893,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 5
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 5
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 40
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 117
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 463
       }
     ]
@@ -2912,149 +2931,150 @@
     "n": 2578,
     "mean_angle": 99.6086,
     "std_angle": 10.2205,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 1
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 1
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 1
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 7
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 17
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 71
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 407
       }
     ]
@@ -3065,149 +3085,150 @@
     "n": 2440,
     "mean_angle": 107.711,
     "std_angle": 11.2437,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 2
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 2
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 6
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 32
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 117
       }
     ]
@@ -3218,149 +3239,150 @@
     "n": 2132,
     "mean_angle": 109.6759,
     "std_angle": 9.2796,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 1
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 2
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 1
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 1
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 19
       }
     ]
@@ -3371,149 +3393,150 @@
     "n": 2184,
     "mean_angle": 115.7566,
     "std_angle": 12.5943,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 0
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 3
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 3
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 6
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 21
       }
     ]
@@ -3524,149 +3547,150 @@
     "n": 1735,
     "mean_angle": 120.9335,
     "std_angle": 23.4572,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 0
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 0
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 15
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 43
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 56
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 95
       }
     ]
@@ -3677,149 +3701,150 @@
     "n": 2591,
     "mean_angle": 90.2345,
     "std_angle": 4.4238,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 1
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 0
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 0
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 9
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 34
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 167
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 1057
       }
     ]
@@ -3830,149 +3855,150 @@
     "n": 2605,
     "mean_angle": 91.0879,
     "std_angle": 5.7372,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 0
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 0
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 2
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 1
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 3
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 19
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 57
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 138
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 866
       }
     ]
@@ -3983,149 +4009,150 @@
     "n": 2648,
     "mean_angle": 85.1534,
     "std_angle": 8.026,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 4
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 3
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 15
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 19
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 57
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 176
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 361
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 538
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 737
       }
     ]
@@ -4136,149 +4163,150 @@
     "n": 2576,
     "mean_angle": 81.7055,
     "std_angle": 9.1504,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 0
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 0
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 1
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 6
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 26
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 72
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 183
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 360
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 404
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 428
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 581
       }
     ]
@@ -4289,149 +4317,150 @@
     "n": 2420,
     "mean_angle": 75.288,
     "std_angle": 10.8696,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 0
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 0
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 5
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 6
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 5
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 31
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 120
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 299
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 384
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 385
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 291
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 318
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 368
       }
     ]
@@ -4442,149 +4471,150 @@
     "n": 2176,
     "mean_angle": 71.194,
     "std_angle": 8.6403,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 0
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 1
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 2
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 5
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 6
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 10
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 43
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 113
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 297
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 457
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 557
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 393
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 192
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 65
       }
     ]
@@ -4595,149 +4625,150 @@
     "n": 2204,
     "mean_angle": 65.3146,
     "std_angle": 12.6355,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 0
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 0
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 2
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 11
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 17
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 34
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 61
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 136
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 173
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 287
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 312
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 355
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 333
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 240
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 135
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 72
       }
     ]
@@ -4748,149 +4779,150 @@
     "n": 1754,
     "mean_angle": 58.4626,
     "std_angle": 23.7034,
+    "bin_width": 5,
     "histogram": [
       {
-        "angle": -90.0,
+        "angle": -87.5,
         "count": 0
       },
       {
-        "angle": -85.0,
+        "angle": -82.5,
         "count": 0
       },
       {
-        "angle": -80.0,
+        "angle": -77.5,
         "count": 0
       },
       {
-        "angle": -75.0,
+        "angle": -72.5,
         "count": 0
       },
       {
-        "angle": -70.0,
+        "angle": -67.5,
         "count": 0
       },
       {
-        "angle": -65.0,
+        "angle": -62.5,
         "count": 0
       },
       {
-        "angle": -60.0,
+        "angle": -57.5,
         "count": 0
       },
       {
-        "angle": -55.0,
+        "angle": -52.5,
         "count": 0
       },
       {
-        "angle": -50.0,
+        "angle": -47.5,
         "count": 0
       },
       {
-        "angle": -45.0,
+        "angle": -42.5,
         "count": 0
       },
       {
-        "angle": -40.0,
+        "angle": -37.5,
         "count": 0
       },
       {
-        "angle": -35.0,
+        "angle": -32.5,
         "count": 0
       },
       {
-        "angle": -30.0,
+        "angle": -27.5,
         "count": 0
       },
       {
-        "angle": -25.0,
+        "angle": -22.5,
         "count": 0
       },
       {
-        "angle": -20.0,
+        "angle": -17.5,
         "count": 0
       },
       {
-        "angle": -15.0,
+        "angle": -12.5,
         "count": 0
       },
       {
-        "angle": -10.0,
+        "angle": -7.5,
         "count": 0
       },
       {
-        "angle": -5.0,
+        "angle": -2.5,
         "count": 0
       },
       {
-        "angle": 0.0,
+        "angle": 2.5,
         "count": 0
       },
       {
-        "angle": 5.0,
+        "angle": 7.5,
         "count": 0
       },
       {
-        "angle": 10.0,
+        "angle": 12.5,
         "count": 6
       },
       {
-        "angle": 15.0,
+        "angle": 17.5,
         "count": 40
       },
       {
-        "angle": 20.0,
+        "angle": 22.5,
         "count": 91
       },
       {
-        "angle": 25.0,
+        "angle": 27.5,
         "count": 95
       },
       {
-        "angle": 30.0,
+        "angle": 32.5,
         "count": 112
       },
       {
-        "angle": 35.0,
+        "angle": 37.5,
         "count": 108
       },
       {
-        "angle": 40.0,
+        "angle": 42.5,
         "count": 137
       },
       {
-        "angle": 45.0,
+        "angle": 47.5,
         "count": 134
       },
       {
-        "angle": 50.0,
+        "angle": 52.5,
         "count": 109
       },
       {
-        "angle": 55.0,
+        "angle": 57.5,
         "count": 111
       },
       {
-        "angle": 60.0,
+        "angle": 62.5,
         "count": 115
       },
       {
-        "angle": 65.0,
+        "angle": 67.5,
         "count": 114
       },
       {
-        "angle": 70.0,
+        "angle": 72.5,
         "count": 102
       },
       {
-        "angle": 75.0,
+        "angle": 77.5,
         "count": 74
       },
       {
-        "angle": 80.0,
+        "angle": 82.5,
         "count": 71
       },
       {
-        "angle": 85.0,
+        "angle": 87.5,
         "count": 111
       }
     ]

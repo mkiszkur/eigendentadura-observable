@@ -2,15 +2,16 @@
  * Rose Plot — mini histogramas circulares de orientación angular por diente,
  * dispuestos en la posición anatómica de cada pieza (como la eigendentadura).
  *
- * Cada mini rose muestra la distribución de desviaciones angulares respecto
- * a la media del diente. El eje angular está amplificado (±30° de dato →
- * ±150° visual) para que la forma de la distribución sea legible.
- * La escala radial es local (per-tooth) para llenar cada rosa.
- * La línea vertical (12h) representa la orientación media del diente.
+ * Cada mini-rosa usa la misma convención que el modal de detalle:
+ * 90° dental = 12h, sin amplificación. Eje radial local por diente.
+ * La línea radial gris representa la orientación media del diente.
  */
 import * as d3 from "d3";
 
 const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"};
+
+// Convención compartida con angle-rose.js: 0 rad = 12h (arriba), CW positivo.
+const toArcRad = (deg) => ((90 - deg) * Math.PI) / 180;
 
 /**
  * @param {Object} opts
@@ -33,12 +34,6 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
   for (const s of toothStats) statsByFdi[s.fdi] = s;
   const histByFdi = {};
   for (const h of angleHistograms) histByFdi[h.fdi] = h;
-
-  // Angular amplification: map ±maxDevDeg data degrees → ±maxVisualRad visual radians
-  const maxDevDeg = 30;  // data range shown: ±30° from mean
-  const maxVisualRad = (150 / 180) * Math.PI; // visual range: ±150° (fills most of circle)
-  const ampFactor = maxVisualRad / (maxDevDeg * Math.PI / 180);
-
   // Position scales
   const xs = toothStats.map(s => s.mean_x);
   const ys = toothStats.map(s => s.mean_y);
@@ -82,10 +77,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
     .attr("font-size", 10).attr("fill", "#555").text("Ángulo medio");
   legend.append("text").attr("x", 0).attr("y", 26)
     .attr("font-size", 9).attr("fill", "#999")
-    .text("↑ = media · Pétalos = distribución");
-  legend.append("text").attr("x", 0).attr("y", 38)
-    .attr("font-size", 9).attr("fill", "#999")
-    .text(`Escala angular: ±${maxDevDeg}° → ±${Math.round(maxVisualRad * 180 / Math.PI)}° visual`);
+    .text("↑ = 90° dental (vertical) · pétalos = histograma");
 
   function draw(k = 1) {
     g.selectAll("*").remove();
@@ -127,7 +119,11 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
       const rScale = d3.scaleLinear().domain([0, localMax]).range([0, roseRadius]);
 
       const meanAngle = stats.mean_angle;
-      const toothG = g.append("g").attr("transform", `translate(${cx},${cy})`);
+      // Rotamos el grupo (igual que el modal) para que la media siempre quede
+      // apuntando hacia arriba. Así el mini y el detalle se ven idénticos.
+      const meanRotation = meanAngle - 90;
+      const toothG = g.append("g")
+        .attr("transform", `translate(${cx},${cy}) rotate(${meanRotation})`);
 
       // Background circle
       toothG.append("circle")
@@ -137,34 +133,22 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
         .attr("stroke-width", 0.5)
         .attr("opacity", dimmed ? 0.15 : 0.4);
 
-      // Draw petals (deviation from mean, amplified)
-      const binW = hist.bin_width;
+      // Draw petals usando ángulo absoluto (90° dental = 12h, sin amplificar)
+      const binW = hist.bin_width
+        || (hist.histogram.length >= 2 ? hist.histogram[1].angle - hist.histogram[0].angle : 5);
       const halfBin = binW / 2;
       for (const bin of hist.histogram) {
-        // Deviation from mean in degrees
-        const devStart = (bin.angle - halfBin) - meanAngle;
-        const devEnd = (bin.angle + halfBin) - meanAngle;
-
-        // Skip bins far outside visible range
-        if (Math.min(devStart, devEnd) > maxDevDeg || Math.max(devStart, devEnd) < -maxDevDeg) continue;
-
-        // Clamp to visible range
-        const clampedStart = Math.max(devStart, -maxDevDeg);
-        const clampedEnd = Math.min(devEnd, maxDevDeg);
-
-        // Amplified visual angles: 0° deviation = 12-o'clock (negative y)
-        // Positive deviation → clockwise
-        const startRad = -(clampedStart * Math.PI / 180) * ampFactor;
-        const endRad = -(clampedEnd * Math.PI / 180) * ampFactor;
-
+        if (!bin.count) continue;
+        const a0 = toArcRad(bin.angle - halfBin);
+        const a1 = toArcRad(bin.angle + halfBin);
         const r = rScale(bin.count);
 
         toothG.append("path")
           .attr("d", d3.arc()
             .innerRadius(0)
             .outerRadius(r)
-            .startAngle(Math.min(startRad, endRad))
-            .endAngle(Math.max(startRad, endRad))())
+            .startAngle(Math.min(a0, a1))
+            .endAngle(Math.max(a0, a1))())
           .attr("fill", color)
           .attr("fill-opacity", alpha)
           .attr("stroke", color)
@@ -172,18 +156,21 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
           .attr("stroke-width", 0.5);
       }
 
-      // Mean angle line (always points up = 12 o'clock = 0 deviation)
+      // Línea radial = ángulo medio del diente. Tras la rotación queda
+      // siempre apuntando hacia arriba (12h), igual que el modal.
+      const meanRad = toArcRad(meanAngle);
       toothG.append("line")
         .attr("x1", 0).attr("y1", 0)
-        .attr("x2", 0).attr("y2", -roseRadius)
+        .attr("x2", Math.sin(meanRad) * roseRadius)
+        .attr("y2", -Math.cos(meanRad) * roseRadius)
         .attr("stroke", dimmed ? "#ccc" : "#333")
         .attr("stroke-width", dimmed ? 0.5 : 1.5)
-        .attr("opacity", dimmed ? 0.15 : 0.6);
+        .attr("opacity", dimmed ? 0.15 : 0.7);
 
-      // FDI label
+      // FDI label — colocado afuera del grupo rotado para no rotar con la rosa.
       const fontSize = Math.max(7, 7 * Math.min(k, 4));
-      toothG.append("text")
-        .attr("y", -roseRadius - 3)
+      g.append("text")
+        .attr("x", cx).attr("y", cy - roseRadius - 3)
         .attr("text-anchor", "middle")
         .attr("font-size", fontSize)
         .attr("fill", dimmed ? "#ccc" : color)

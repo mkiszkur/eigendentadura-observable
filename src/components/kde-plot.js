@@ -20,7 +20,7 @@ const QUADRANT_COLORS = {
  * @param {number} [options.width=800]
  * @param {number} [options.height=550]
  */
-export function kdePlot({selectedFdi, kdeGrids, toothStats, width = 800, height = 550} = {}) {
+export function kdePlot({selectedFdi, kdeGrids, toothStats, width = 800, height = 550, gamma = 1, minThreshold = 0.05} = {}) {
   const {grid_size, teeth: kdeTeeth} = kdeGrids;
   const margin = {top: 20, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
@@ -89,13 +89,14 @@ export function kdePlot({selectedFdi, kdeGrids, toothStats, width = 800, height 
       const q = Math.floor(fdi / 10);
       const baseColor = QUADRANT_COLORS[q];
 
+      const tMin = Math.max(0.01, Math.min(0.99, minThreshold));
       const contours = d3.contours()
         .size([n, n])
-        .thresholds(d3.range(0.05, 1.01, 0.05))(td.values);
+        .thresholds(d3.range(tMin, 1.01, 0.05))(td.values);
 
       const colorScale = d3.scaleSequential()
         .domain([0, 1])
-        .interpolator(t => { const c = d3.color(baseColor); c.opacity = t * 0.7; return c + ""; });
+        .interpolator(t => { const c = d3.color(baseColor); c.opacity = Math.pow(t, gamma) * 0.7; return c + ""; });
 
       const xGrid = d3.scaleLinear().domain([0, n]).range([e.x_min, e.x_max]);
       const yGrid = d3.scaleLinear().domain([0, n]).range([e.y_min, e.y_max]);

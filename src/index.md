@@ -117,12 +117,25 @@ display(teethSelector({
 </details>
 
 ```js
+const minThresholdInput = Inputs.range([0.05, 0.8], {value: 0.05, step: 0.05, label: "Densidad mínima visible"});
+const minThreshold = Generators.input(minThresholdInput);
+const gammaInput = Inputs.range([0.3, 3], {value: 1, step: 0.1, label: "γ (contraste capas)"});
+const gamma = Generators.input(gammaInput);
+display(html`<div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap; padding:6px 0 4px;">
+  ${minThresholdInput}${gammaInput}
+  <span style="font-size:11px; color:#999;">γ&gt;1 → resalta picos · densidad mínima → recorta el "halo"</span>
+</div>`);
+```
+
+```js
 const plot = kdePlot({
   selectedFdi: selectedFdi,
   kdeGrids: kdeGrids,
   toothStats: toothStats,
   width: 800,
   height: 550,
+  gamma: gamma,
+  minThreshold: minThreshold,
 });
 display(plot);
 ```
