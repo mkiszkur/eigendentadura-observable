@@ -10,6 +10,8 @@ Los z-scores miden cuántas desviaciones estándar se separa cada diente del pro
 ```js
 import {odontograma} from "./components/odontograma.js";
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
+import {individualRosePlot} from "./components/individual-rose-plot.js";
+import {angleRose} from "./components/angle-rose.js";
 import * as d3 from "d3";
 ```
 
@@ -18,6 +20,7 @@ const toothStats = await FileAttachment("data/tooth_stats_lm.json").json();
 const individuals = await FileAttachment("data/individual_scores.json").json();
 const metadata = await FileAttachment("data/metadata.json").json();
 const browserData = await FileAttachment("data/pantos_browser.json").json();
+const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
 const meta = browserData.metadata;
 const allBrowserPantos = browserData.pantos;
 ```
@@ -404,6 +407,70 @@ function zScoreChart(indiv, width) {
 }
 
 display(zScoreChart(indiv, width));
+```
+
+## Distribución angular: individuo vs población
+
+Cada mini-rosa muestra el histograma angular poblacional del diente (pétalos de color por cuadrante) con la media poblacional rotada hacia arriba (12h). La **flecha roja** indica el ángulo del individuo seleccionado: si apunta a 12h coincide con la media; si se desvía, marca cuánto difiere de la población. **Hacé click en un diente** para ver el detalle ampliado.
+
+```js
+// Modal por diente: histograma poblacional + flecha del individuo.
+const showAngleModal = (fdi) => {
+  document.querySelectorAll("[data-angle-modal]").forEach(el => el.remove());
+  const record = angleHistograms.find(r => r.fdi === fdi);
+  if (!record) return;
+  const tIndiv = (indiv?.teeth || []).find(t => t.fdi === fdi);
+
+  const overlay = document.createElement("div");
+  overlay.dataset.angleModal = "1";
+  Object.assign(overlay.style, {
+    position: "fixed", inset: "0", background: "rgba(0,0,0,.45)",
+    zIndex: "1000", display: "flex", alignItems: "center", justifyContent: "center",
+  });
+  const close = () => overlay.remove();
+
+  const panel = document.createElement("div");
+  Object.assign(panel.style, {
+    background: "white", borderRadius: "8px", padding: "18px 22px",
+    boxShadow: "0 8px 28px rgba(0,0,0,.25)", maxWidth: "560px",
+    fontFamily: "var(--sans-serif, system-ui, sans-serif)",
+  });
+
+  const header = document.createElement("div");
+  Object.assign(header.style, {display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px"});
+  const title = document.createElement("strong");
+  title.style.fontSize = "15px";
+  title.textContent = `Distribución angular — FDI ${fdi}`;
+  const btn = document.createElement("button");
+  btn.textContent = "✕ Cerrar";
+  Object.assign(btn.style, {border: "none", background: "#eee", borderRadius: "4px", padding: "4px 10px", cursor: "pointer", fontSize: "13px"});
+  btn.addEventListener("click", close);
+  header.append(title, btn);
+
+  const hint = document.createElement("div");
+  Object.assign(hint.style, {color: "#666", fontSize: "11px", marginBottom: "10px"});
+  hint.textContent = tIndiv
+    ? "Línea negra = ángulo medio poblacional · Arco externo = ±1 σ · Flecha roja = ángulo del individuo."
+    : "Línea negra = ángulo medio poblacional · Arco externo = ±1 σ. (Este individuo no tiene este diente).";
+
+  panel.append(
+    header,
+    hint,
+    angleRose({
+      record,
+      size: 420,
+      individualAngle: tIndiv?.angle ?? null,
+      individualLabel: "individuo",
+    }),
+  );
+  overlay.append(panel);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  document.body.append(overlay);
+};
+```
+
+```js
+display(individualRosePlot({angleHistograms, toothStats, indiv, onToothClick: showAngleModal, width}));
 ```
 
 ## Detalle de dientes

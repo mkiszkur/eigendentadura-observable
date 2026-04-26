@@ -192,14 +192,14 @@ display(teethSelector({
 
 ```js
 const geomA = selectedA
-  ? await fetch(`/_file/data/pantos_geometry/${selectedA.replace('.json', '')}.json`)
+  ? await fetch(`./_file/data/pantos_geometry/${selectedA.replace('.json', '')}.json`)
       .then(r => r.ok ? r.json() : null).catch(() => null)
   : null;
 ```
 
 ```js
 const geomB = selectedB
-  ? await fetch(`/_file/data/pantos_geometry/${selectedB.replace('.json', '')}.json`)
+  ? await fetch(`./_file/data/pantos_geometry/${selectedB.replace('.json', '')}.json`)
       .then(r => r.ok ? r.json() : null).catch(() => null)
   : null;
 ```

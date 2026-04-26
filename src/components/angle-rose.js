@@ -18,7 +18,7 @@ const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"}
  * @param {number} [opts.angleMin=60]
  * @param {number} [opts.angleMax=120]
  */
-export function angleRose({record, size = 220, angleMin = 45, angleMax = 135} = {}) {
+export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, individualAngle = null, individualLabel = null} = {}) {
   const R = size / 2 - 18;
   const cx = size / 2, cy = size / 2;
   const color = QUADRANT_COLORS[record.quadrant] || "#888";
@@ -113,11 +113,31 @@ export function angleRose({record, size = 220, angleMin = 45, angleMax = 135} = 
     }))
     .attr("fill", "#222").attr("opacity", 0.4);
 
+  // Marca del individuo (si se pasó): flecha roja del centro hasta el borde,
+  // en el ángulo absoluto (mismo eje que el resto del gráfico).
+  if (individualAngle != null && Number.isFinite(individualAngle)) {
+    const indivRad = toArcRad(individualAngle);
+    const r = R + 2;
+    const x2 = Math.sin(indivRad) * r;
+    const y2 = -Math.cos(indivRad) * r;
+    g.append("line")
+      .attr("x1", 0).attr("y1", 0)
+      .attr("x2", x2).attr("y2", y2)
+      .attr("stroke", "#e15759").attr("stroke-width", 2.2);
+    g.append("circle")
+      .attr("cx", x2).attr("cy", y2)
+      .attr("r", 3.5).attr("fill", "#e15759");
+  }
+
   // Título superior con stats (sin FDI: el contenedor ya lo trae).
+  const summary = `μ=${record.mean_angle.toFixed(1)}°, σ=${record.std_angle.toFixed(1)}°, n=${record.n}`
+    + (individualAngle != null && Number.isFinite(individualAngle)
+        ? ` · ${individualLabel || "individuo"}=${individualAngle.toFixed(1)}°`
+        : "");
   svg.append("text")
     .attr("x", cx).attr("y", size - 2)
     .attr("text-anchor", "middle").attr("font-size", 10).attr("fill", "#666")
-    .text(`μ=${record.mean_angle.toFixed(1)}°, σ=${record.std_angle.toFixed(1)}°, n=${record.n}`);
+    .text(summary);
 
   return svg.node();
 }
