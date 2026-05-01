@@ -4,23 +4,22 @@ title: Subpoblación — Origen clínico
 
 # Subpoblación — Origen clínico
 
-Comparación de la dentadura media entre los **dos centros clínicos** del dataset:
-**Ecodoc** (Argentina) y **Italiano** (Italia). Cada centro aporta su propia
-nube de centroides por pieza dental; la comparación responde si hay diferencias
-geográficas/poblacionales sistemáticas en la geometría dental.
+Comparación de la dentadura media entre los **dos centros clínicos** del dataset.
+Cada centro aporta su propia nube de centroides por pieza dental; la comparación
+responde si hay diferencias sistemáticas en la geometría dental entre poblaciones.
 
 <details>
 <summary><strong>Universo de datos</strong> <em>(clic para expandir)</em></summary>
 
 ```js
-const totalPantos = kdeOrigen.groups.ecodoc.n_pantos + kdeOrigen.groups.italiano.n_pantos;
+const totalPantos = kdeOrigen.groups["Centro A"].n_pantos + kdeOrigen.groups["Centro B"].n_pantos;
 display(html`
 <p>El centro clínico se obtiene del prefijo del nombre de archivo. Disponible en
 <strong>${totalPantos.toLocaleString()}</strong> pantomografías con landmarks completos
 (de un total de ${metadata.unique_pantos.toLocaleString()} con landmarks).</p>
 <ul>
-  <li><strong>Ecodoc</strong> (Argentina): ${kdeOrigen.groups.ecodoc.n_pantos.toLocaleString()} pantomografías</li>
-  <li><strong>Italiano</strong> (Italia):  ${kdeOrigen.groups.italiano.n_pantos.toLocaleString()} pantomografías</li>
+  <li><strong>Centro A</strong>: ${kdeOrigen.groups["Centro A"].n_pantos.toLocaleString()} pantomografías</li>
+  <li><strong>Centro B</strong>: ${kdeOrigen.groups["Centro B"].n_pantos.toLocaleString()} pantomografías</li>
 </ul>
 <p>Cada diente aporta independientemente: no se requiere dentadura completa (32/32).
 Coordenadas normalizadas por marco condíleo
@@ -48,9 +47,9 @@ const metadata     = await FileAttachment("data/metadata.json").json();
 
 ```js
 const AXIS = "origin";
-const groupNames = ["ecodoc", "italiano"];
-const colorMap = {ecodoc: "#4e79a7", italiano: "#e15759"};
-const labelMap = {ecodoc: "Ecodoc", italiano: "Italiano"};
+const groupNames = ["Centro A", "Centro B"];
+const colorMap = {"Centro A": "#4e79a7", "Centro B": "#e15759"};
+const labelMap = {"Centro A": "Centro A", "Centro B": "Centro B"};
 
 const axisData = subpopStats.filter(d => d.axis === AXIS);
 ```
@@ -67,7 +66,7 @@ function setSelection(fs) { selectedFdi.value = fs; }
 ## Mapa KDE comparativo
 
 Mismo formato que la página poblacional pero con dos capas de contornos:
-**${labelMap.ecodoc}** (azul) y **${labelMap.italiano}** (rojo). El gris de fondo
+**${labelMap["Centro A"]}** (azul) y **${labelMap["Centro B"]}** (rojo). El gris de fondo
 son los centroides de la eigendentadura completa (contexto).
 
 <details open>
@@ -99,9 +98,9 @@ const showEllipses = Generators.input(ellipsesInput);
 
 const showPopInput = Inputs.toggle({label: "Centroides población completa", value: true});
 const showPop = Generators.input(showPopInput);
-const showG0Input = Inputs.toggle({label: `Centroides ${labelMap.ecodoc}`, value: true});
+const showG0Input = Inputs.toggle({label: `Centroides ${labelMap["Centro A"]}`, value: true});
 const showG0 = Generators.input(showG0Input);
-const showG1Input = Inputs.toggle({label: `Centroides ${labelMap.italiano}`, value: true});
+const showG1Input = Inputs.toggle({label: `Centroides ${labelMap["Centro B"]}`, value: true});
 const showG1 = Generators.input(showG1Input);
 
 const bottomOpacityInput = Inputs.range([0.05, 1], {value: 0.6, step: 0.05, label: "Opacidad capa inferior"});
@@ -196,9 +195,9 @@ if (selRows.length === 0) {
 
 ## Diferencia por diente (heatmap)
 
-Magnitud de la diferencia entre **${labelMap.ecodoc}** y **${labelMap.italiano}** para cada
+Magnitud de la diferencia entre **${labelMap["Centro A"]}** y **${labelMap["Centro B"]}** para cada
 diente y feature, expresada en **desviaciones estándar pooled**. Azul oscuro indica que
-${labelMap.italiano} tiene valores mayores; rojo oscuro que ${labelMap.ecodoc} los tiene mayores.
+${labelMap["Centro B"]} tiene valores mayores; rojo oscuro que ${labelMap["Centro A"]} los tiene mayores.
 
 ```js
 display(subpopDiffHeatmap({axisData, groupNames, labelMap, width}));

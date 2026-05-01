@@ -1,7 +1,7 @@
 [
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 11,
     "n": 1407,
     "cx_mean": -0.024727,
@@ -160,7 +160,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 12,
     "n": 1383,
     "cx_mean": -0.060685,
@@ -319,7 +319,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 13,
     "n": 1407,
     "cx_mean": -0.099573,
@@ -478,7 +478,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 14,
     "n": 1358,
     "cx_mean": -0.13251,
@@ -637,7 +637,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 15,
     "n": 1287,
     "cx_mean": -0.168135,
@@ -796,7 +796,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 16,
     "n": 1286,
     "cx_mean": -0.215416,
@@ -955,7 +955,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 17,
     "n": 1315,
     "cx_mean": -0.266354,
@@ -1114,7 +1114,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 18,
     "n": 960,
     "cx_mean": -0.303527,
@@ -1273,7 +1273,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 21,
     "n": 1401,
     "cx_mean": 0.019282,
@@ -1432,7 +1432,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 22,
     "n": 1391,
     "cx_mean": 0.055527,
@@ -1591,7 +1591,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 23,
     "n": 1409,
     "cx_mean": 0.095405,
@@ -1750,7 +1750,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 24,
     "n": 1354,
     "cx_mean": 0.128755,
@@ -1909,7 +1909,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 25,
     "n": 1292,
     "cx_mean": 0.166166,
@@ -2068,7 +2068,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 26,
     "n": 1271,
     "cx_mean": 0.214509,
@@ -2227,7 +2227,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 27,
     "n": 1306,
     "cx_mean": 0.266116,
@@ -2386,7 +2386,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 28,
     "n": 977,
     "cx_mean": 0.303228,
@@ -2545,7 +2545,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 31,
     "n": 1397,
     "cx_mean": 0.011354,
@@ -2704,7 +2704,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 32,
     "n": 1399,
     "cx_mean": 0.038836,
@@ -2863,7 +2863,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 33,
     "n": 1426,
     "cx_mean": 0.075633,
@@ -3022,7 +3022,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 34,
     "n": 1388,
     "cx_mean": 0.113445,
@@ -3181,7 +3181,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 35,
     "n": 1353,
     "cx_mean": 0.154837,
@@ -3340,7 +3340,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 36,
     "n": 1240,
     "cx_mean": 0.209801,
@@ -3499,7 +3499,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 37,
     "n": 1253,
     "cx_mean": 0.276937,
@@ -3658,7 +3658,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 38,
     "n": 994,
     "cx_mean": 0.339221,
@@ -3817,7 +3817,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 41,
     "n": 1396,
     "cx_mean": -0.015099,
@@ -3976,7 +3976,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 42,
     "n": 1400,
     "cx_mean": -0.042465,
@@ -4135,7 +4135,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 43,
     "n": 1422,
     "cx_mean": -0.079073,
@@ -4294,7 +4294,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 44,
     "n": 1397,
     "cx_mean": -0.11607,
@@ -4453,7 +4453,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 45,
     "n": 1329,
     "cx_mean": -0.156225,
@@ -4612,7 +4612,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 46,
     "n": 1261,
     "cx_mean": -0.210392,
@@ -4771,7 +4771,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 47,
     "n": 1249,
     "cx_mean": -0.277393,
@@ -4930,7 +4930,7 @@
   },
   {
     "axis": "origin",
-    "group": "ecodoc",
+    "group": "Centro A",
     "fdi": 48,
     "n": 1009,
     "cx_mean": -0.336321,
@@ -5089,7 +5089,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 11,
     "n": 1128,
     "cx_mean": -0.026476,
@@ -5248,7 +5248,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 12,
     "n": 1121,
     "cx_mean": -0.06296,
@@ -5407,7 +5407,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 13,
     "n": 1139,
     "cx_mean": -0.101927,
@@ -5566,7 +5566,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 14,
     "n": 1022,
     "cx_mean": -0.134649,
@@ -5725,7 +5725,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 15,
     "n": 938,
     "cx_mean": -0.170505,
@@ -5884,7 +5884,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 16,
     "n": 955,
     "cx_mean": -0.216348,
@@ -6043,7 +6043,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 17,
     "n": 964,
     "cx_mean": -0.267253,
@@ -6202,7 +6202,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 18,
     "n": 660,
     "cx_mean": -0.306811,
@@ -6361,7 +6361,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 21,
     "n": 1146,
     "cx_mean": 0.017623,
@@ -6520,7 +6520,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 22,
     "n": 1106,
     "cx_mean": 0.054615,
@@ -6679,7 +6679,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 23,
     "n": 1135,
     "cx_mean": 0.094168,
@@ -6838,7 +6838,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 24,
     "n": 1033,
     "cx_mean": 0.128584,
@@ -6997,7 +6997,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 25,
     "n": 937,
     "cx_mean": 0.166042,
@@ -7156,7 +7156,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 26,
     "n": 972,
     "cx_mean": 0.214219,
@@ -7315,7 +7315,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 27,
     "n": 971,
     "cx_mean": 0.265469,
@@ -7474,7 +7474,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 28,
     "n": 658,
     "cx_mean": 0.304864,
@@ -7633,7 +7633,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 31,
     "n": 1140,
     "cx_mean": 0.009389,
@@ -7792,7 +7792,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 32,
     "n": 1151,
     "cx_mean": 0.037174,
@@ -7951,7 +7951,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 33,
     "n": 1176,
     "cx_mean": 0.073912,
@@ -8110,7 +8110,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 34,
     "n": 1137,
     "cx_mean": 0.112248,
@@ -8269,7 +8269,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 35,
     "n": 1035,
     "cx_mean": 0.153557,
@@ -8428,7 +8428,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 36,
     "n": 849,
     "cx_mean": 0.209553,
@@ -8587,7 +8587,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 37,
     "n": 884,
     "cx_mean": 0.274566,
@@ -8746,7 +8746,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 38,
     "n": 711,
     "cx_mean": 0.336148,
@@ -8905,7 +8905,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 41,
     "n": 1143,
     "cx_mean": -0.017414,
@@ -9064,7 +9064,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 42,
     "n": 1151,
     "cx_mean": -0.044827,
@@ -9223,7 +9223,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 43,
     "n": 1169,
     "cx_mean": -0.081119,
@@ -9382,7 +9382,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 44,
     "n": 1126,
     "cx_mean": -0.118042,
@@ -9541,7 +9541,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 45,
     "n": 1044,
     "cx_mean": -0.156169,
@@ -9700,7 +9700,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 46,
     "n": 873,
     "cx_mean": -0.209317,
@@ -9859,7 +9859,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 47,
     "n": 908,
     "cx_mean": -0.275076,
@@ -10018,7 +10018,7 @@
   },
   {
     "axis": "origin",
-    "group": "italiano",
+    "group": "Centro B",
     "fdi": 48,
     "n": 716,
     "cx_mean": -0.337028,
