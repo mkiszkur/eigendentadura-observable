@@ -22,3 +22,39 @@ form[class^="inputs-"] {
   max-width: 100% !important;
 }
 
+/* ── Separadores de sección ── */
+h2 {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Espacio entre h2 y primer elemento de contenido */
+h2 + p {
+  margin-top: 0.5rem;
+}
+
+/* ── Collapsibles: estilo uniforme en todas las páginas ── */
+details {
+  margin-top: 0.65rem;
+  margin-bottom: 0.2rem;
+}
+
+details > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: #555;
+  font-weight: 600;
+  padding: 2px 0;
+  user-select: none;
+}
+
+details > summary:hover {
+  color: #111;
+}
+
+details[open] > summary {
+  margin-bottom: 0.4rem;
+  color: #333;
+}
+

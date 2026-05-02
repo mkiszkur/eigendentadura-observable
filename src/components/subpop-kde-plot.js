@@ -115,6 +115,20 @@ function _drawGroupContours({g, group, selectedFdi, color, gridSize, layerIndex 
       .attr("stroke", color)
       .attr("stroke-width", (isSigma || isHdr) ? 1.8 : (linesOnly ? 1.2 : 0.5))
       .attr("stroke-opacity", effectiveLinesOnly ? 0.85 : (isHdr ? 0.75 : 0.4));
+
+    if (isHdr) {
+      const hdrLabels = ["95%", "50%", "25%"];
+      contours.forEach((c, ci) => {
+        if (!c.coordinates?.[0]?.[0]) return;
+        const pts = c.coordinates[0][0];
+        const rightmost = pts.reduce((best, p) => p[0] > best[0] ? p : best, pts[0]);
+        g.append("text")
+          .attr("x", xScale(xGrid(rightmost[0])) + 3)
+          .attr("y", yScale(yGrid(rightmost[1])) - 2)
+          .attr("font-size", 9).attr("fill", color).attr("opacity", 0.75)
+          .text(hdrLabels[ci] ?? "");
+      });
+    }
   }
 }
 
@@ -191,22 +205,28 @@ function _drawSubpopEllipses({g, subpopStats, groupNames, selectedFdi, colorMap,
       const base = {mx: s.cx_mean, my: s.cy_mean, sx: s.cx_std, sy: s.cy_std, cov: s.cx_cy_cov ?? 0, xScale, yScale};
 
       // 2σ — solo borde punteado
+      const pts2 = _ellipsePts({...base, nSigma: 2});
       g.append("path")
-        .attr("d", d3.line()(_ellipsePts({...base, nSigma: 2})))
+        .attr("d", d3.line()(pts2))
         .attr("fill", "none")
         .attr("stroke", color)
         .attr("stroke-width", 1.2)
         .attr("stroke-dasharray", "5,3")
         .attr("opacity", 0.55);
+      g.append("text").attr("x", pts2[0][0] + 3).attr("y", pts2[0][1] - 2)
+        .attr("font-size", 9).attr("fill", color).attr("opacity", 0.55).text("2σ");
 
       // 1σ — relleno semitransparente
+      const pts1 = _ellipsePts({...base, nSigma: 1});
       g.append("path")
-        .attr("d", d3.line()(_ellipsePts({...base, nSigma: 1})))
+        .attr("d", d3.line()(pts1))
         .attr("fill", color)
         .attr("fill-opacity", 0.18)
         .attr("stroke", color)
         .attr("stroke-width", 2)
         .attr("opacity", 0.85);
+      g.append("text").attr("x", pts1[0][0] + 3).attr("y", pts1[0][1] - 2)
+        .attr("font-size", 9).attr("fill", color).attr("opacity", 0.8).text("1σ");
     }
   }
 }
@@ -322,7 +342,7 @@ function _drawBagplot({g, bagplotData, subpopStats, groupNames, selectedFdi, col
  * @param {"overlay"|"split"} [options.mode="overlay"]
  * @param {Object}         options.colorMap
  * @param {Object}         options.labelMap
- * @param {"kde"|"hdr"|"elipses"|"ambos"|"diff"|"bagplot"} [options.displayMode="kde"]
+ * @param {"kde_std"|"kde"|"hdr"|"elipses"|"ambos"|"diff"|"bagplot"} [options.displayMode="kde_std"]
  * @param {"equi"|"sigma12"|"sigma123"} [options.contoursMode="equi"]
  * @param {number}         [options.width=900]
  * @param {number}         [options.height=550]
@@ -337,7 +357,7 @@ export function subpopKdePlot({
   mode = "overlay",
   colorMap,
   labelMap,
-  displayMode = "kde",
+  displayMode = "kde_std",
   contoursMode = "equi",
   width = 900,
   height = 550,
@@ -424,7 +444,7 @@ function _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats, 
           });
         });
       }
-      if (displayMode !== "kde" && displayMode !== "hdr") {
+      if (displayMode === "elipses" || displayMode === "ambos") {
         _drawSubpopEllipses({g: gContent, subpopStats, groupNames, selectedFdi, colorMap, xScale, yScale});
       }
     }
@@ -505,7 +525,7 @@ function _renderSplit({groupNames, groups, gridSize, toothStats, subpopStats, ba
           contoursMode: displayMode === "hdr" ? "hdr" : contoursMode,
         });
       }
-      if (displayMode !== "kde" && displayMode !== "hdr" && displayMode !== "bagplot") {
+      if ((displayMode === "elipses" || displayMode === "ambos") && displayMode !== "bagplot") {
         _drawSubpopEllipses({
           g: gContent, subpopStats, groupNames: [gName], selectedFdi,
           colorMap, xScale, yScale,

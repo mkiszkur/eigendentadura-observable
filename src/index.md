@@ -2,6 +2,7 @@
 title: Eigendentadura — KDE Población
 ---
 
+
 # Eigendentadura — KDE por pieza dental
 
 Seleccioná uno o más dientes en el odontograma para ver su **Kernel Density Estimation 2D**
@@ -71,7 +72,20 @@ function setSelection(fdis) { selectedFdi.value = fdis; }
 ```
 
 ## Resumen ejecutivo
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Métricas globales de la población estudiada en una vista. Cada tarjeta agrega un aspecto distinto: tamaño muestral, salud bucal, simetría, geometría y oclusión." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Cada tarjeta resume una dimensión distinta de la población:
+- **Muestra** — cantidad de pantomografías y dientes incluidos.
+- **Salud bucal** — prevalencia agregada de las patologías anotadas.
+- **Simetría** — asimetría mediana entre pares homólogos izquierdo/derecho.
+- **Geometría** — forma y medidas clínicas medias de las arcadas.
+- **Oclusión** — valores medianos de overjet y overbite poblacional.
+
+Las tarjetas son un punto de entrada rápido; cada sección inferior profundiza en cada tema.
+
+</details>
 
 ```js
 const summary = computeSummary({metadata, prevalenceData, symmetryData, occlusionData, toothStats});
@@ -98,10 +112,26 @@ display(tocNav({sections: [
 ---
 
 ## Mapa de densidad (KDE)
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Kernel Density Estimation 2D: estima la densidad de probabilidad espacial de los centroides de un diente sobre toda la población. Las zonas más oscuras concentran más casos." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Seleccioná uno o más dientes en el odontograma para ver su distribución espacial en la población.
+
+- **Contornos KDE** — isodensidades: cada capa corresponde a un nivel de densidad de probabilidad. Las zonas más oscuras/saturadas concentran más centroides dentales.
+- **Elipses ±1σ / ±2σ** — contorno gaussiano equivalente: la elipse sólida abarca ~68 % de los casos y la punteada ~95 %.
+- **Puntos grises** — eigendentadura: posición media de cada diente en la población.
+- **Modo de visualización** — KDE equidistante (capas uniformes de densidad), Regiones HDR al 25/50/95 %, Solo elipses (±1σ/±2σ), o KDE + elipses combinado.
+- **Contornos** — en modo KDE: equidistantes (muchas capas), 1σ·2σ (2 isolíneas estadísticas), o 1σ·2σ·3σ.
+- **Densidad mínima** — recorta el "halo" tenue alrededor del núcleo; aplica solo al modo equidistante.
+- **γ (gamma)** — contraste: γ > 1 resalta los picos de densidad; aplica solo al modo equidistante.
+
+Scroll para zoom, drag para mover, doble-clic para resetear.
+
+</details>
 
 <details open>
-<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Odontograma</summary>
+<summary>Odontograma</summary>
 
 Hacé clic en los dientes para seleccionar/deseleccionar. Los dientes seleccionados se muestran con color.
 
@@ -117,14 +147,33 @@ display(teethSelector({
 </details>
 
 ```js
-const minThresholdInput = Inputs.range([0.05, 0.8], {value: 0.05, step: 0.05, label: "Densidad mínima visible"});
+const minThresholdInput = Inputs.number({value: 0.05, step: 0.01, min: 0, max: 0.99, label: "Densidad mínima visible"});
 const minThreshold = Generators.input(minThresholdInput);
 const gammaInput = Inputs.range([0.3, 3], {value: 1, step: 0.1, label: "γ (contraste capas)"});
 const gamma = Generators.input(gammaInput);
+const displayModeInput = Inputs.select(
+  ["kde_std", "kde", "elipses", "hdr"],
+  {label: "Modo", value: "kde_std",
+   format: d => ({"kde_std": "KDE estándar", kde: "KDE (contornos)", elipses: "Solo elipses σ", hdr: "Regiones HDR (25/50/95%)"})[d]}
+);
+const displayMode = Generators.input(displayModeInput);
+const contoursModeInput = Inputs.select(
+  ["equi", "sigma12", "sigma123"],
+  {label: "Niveles KDE", value: "equi",
+   format: d => ({equi: "Equidistantes", sigma12: "1σ · 2σ", sigma123: "1σ · 2σ · 3σ"})[d]}
+);
+const contoursMode = Generators.input(contoursModeInput);
+const showCentroidsInput = Inputs.toggle({label: "Centroides", value: true});
+const showCentroids = Generators.input(showCentroidsInput);
+```
+
+```js
 display(html`<div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap; padding:6px 0 4px;">
+  ${displayModeInput}${displayMode === "kde" ? contoursModeInput : ""}${showCentroidsInput}
+</div>
+${displayMode === "kde_std" ? html`<div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap; padding:2px 0 6px;">
   ${minThresholdInput}${gammaInput}
-  <span style="font-size:11px; color:#999;">γ&gt;1 → resalta picos · densidad mínima → recorta el "halo"</span>
-</div>`);
+</div>` : ""}`);
 ```
 
 ```js
@@ -136,12 +185,28 @@ const plot = kdePlot({
   height: 550,
   gamma: gamma,
   minThreshold: minThreshold,
+  displayMode: displayMode,
+  contoursMode: contoursMode,
+  showCentroids: showCentroids,
 });
 display(plot);
 ```
 
 ## Estadísticas de los dientes seleccionados
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Centroide medio, desvíos estándar y ángulo medio del eje principal de cada diente, calculados sobre todas las dentaduras donde aparece anotado." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer esta tabla</summary>
+
+Cada fila corresponde a un diente seleccionado en el odontograma.
+
+- **μ X / μ Y** — posición media del centroide en coordenadas landmark-normalized (divididas por la distancia intercondílea). El origen es el punto medio intercondíleo.
+- **σ X / σ Y** — desvío estándar de las posiciones individuales: mide cuánto varía la ubicación de ese diente entre pacientes.
+- **μ ángulo** — ángulo medio del eje principal del diente en grados (0° = horizontal, 90° = vertical).
+- **σ ángulo** — dispersión angular entre pacientes.
+
+Valores más grandes de σ indican mayor variabilidad posicional o angular de esa pieza en la población.
+
+</details>
 
 Los valores corresponden a las **coordenadas landmark-normalized** originales
 (no z-scores): X e Y están en el rango aproximado [-1, 1] respecto al centro
@@ -190,7 +255,20 @@ display(Inputs.table(selectedStats, {
 ---
 
 ## Boxplots 2D — Dispersión posicional
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Caja 2D: el rectángulo central abarca el rango intercuartílico (IQR) en X e Y; los bigotes llegan a P5–P95. Compara dispersión entre piezas." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Cada diente se muestra como una caja 2D en su posición anatómica media.
+
+- **Rectángulo central** — rango intercuartílico (Q1–Q3) en ambas coordenadas X e Y simultáneamente. Un rectángulo grande indica alta variabilidad posicional.
+- **Bigotes** — se extienden a 1.5 × IQR en cada dimensión.
+- **Punto central** — mediana 2D.
+- **Arcos angulares** (opcional) — distribución del ángulo del eje principal del diente; el radio es la frecuencia.
+
+Colores por cuadrante: azul = Q1 (sup. der.), verde = Q2 (sup. izq.), amarillo = Q3 (inf. izq.), rojo = Q4 (inf. der.).
+
+</details>
 
 Cada rectángulo representa el rango intercuartílico (IQR) de un diente en X e Y.
 Los bigotes se extienden a 1.5×IQR. El punto central es la mediana.
@@ -257,7 +335,21 @@ display(Inputs.table(selectedBoxplotStats, {
 ---
 
 ## Distribución angular por diente
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Ángulo del eje principal del diente (rotación respecto del marco condilar). 90° = vertical perfecto. Las rosas mini muestran la distribución; clic en una para ampliar." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Cada diente aparece en su posición anatómica media con una **mini-rosa polar** superpuesta.
+
+- **Pétalos** — frecuencia de ángulos en bins de 5°. Pétalos más largos = más casos con ese ángulo.
+- **Línea radial** — ángulo medio de la pieza en la población.
+- **0° / 90°** — horizontal / vertical en el sistema de coordenadas landmark-normalized.
+
+**Hacé clic en cualquier diente** para ver su rosa polar ampliada con el rango ±1σ y la grilla radial en counts.
+
+Los dientes seleccionados en el odontograma aparecen resaltados.
+
+</details>
 
 **Mapa global** — Cada diente aparece en su posición anatómica media con
 una mini-rosa polar: los pétalos son la frecuencia de ángulos en bins de 5°,
@@ -323,7 +415,18 @@ display(rosePlot({
 ---
 
 ## Radar — Dispersión angular por diente
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Comparación radial de ángulos medios y desvíos: cada eje radial es un FDI; cuánto más afuera, mayor desvío angular." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Los 32 dientes (o los presentes en la muestra) se disponen en orden anatómico alrededor del centro.
+
+- **Radio** — magnitud de la dispersión angular de cada pieza entre pacientes. Cuanto más alejado del centro, mayor es la variabilidad de orientación de ese diente.
+- **Métrica seleccionable** — IQR (rango intercuartílico Q3−Q1), desvío estándar, o rango de bigotes. El IQR es más robusto a valores extremos.
+
+Las piezas con mayor radio son las que presentan mayor variabilidad en su eje de orientación entre distintos individuos de la muestra.
+
+</details>
 
 Los 32 dientes dispuestos en orden anatómico. El radio representa la dispersión angular de cada pieza.
 
@@ -348,7 +451,20 @@ display(radarAngularPlot({
 ---
 
 ## Dentaduras típicas y atípicas
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Typicality score: log-verosimilitud de cada dentadura bajo el modelo KDE poblacional. Las típicas se parecen al promedio; las atípicas se desvían en una o más piezas." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Seleccioná una dentadura típica (◆) y/o atípica (✕) en los combos para visualizarla sobre la eigendentadura (puntos grises).
+
+- **◆ Verde** — dentadura típica: sus dientes se ubican cerca del promedio poblacional (z̄ bajo).
+- **✕ Rojo** — dentadura atípica: uno o más dientes se desvían notablemente del promedio (z̄ alto).
+- **Flechas** — desvío angular de cada diente respecto a la media poblacional. La flecha apunta "hacia arriba" cuando el ángulo coincide con el promedio; se inclina según la diferencia angular.
+- **z̄** — promedio de la distancia z estandarizada por pieza: mide qué tan lejos está cada diente del centroide medio de su posición esperada.
+
+Scroll para zoom, drag para mover, doble-clic para resetear.
+
+</details>
 
 Dentaduras individuales ordenadas por su score de tipicidad (z̄: promedio de la distancia z por diente).
 Se muestran las **${typicalityExtremes.n_extremes} más típicas** (menor z̄) y las **${typicalityExtremes.n_extremes} más atípicas** (mayor z̄), de un total de ${typicalityExtremes.total_eligible.toLocaleString()} dentaduras con ≥${typicalityExtremes.min_teeth} dientes.
@@ -609,7 +725,20 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
 ---
 
 ## Forma de arcada
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Curva spline (Catmull-Rom) sobre los centroides de cada arcada. Se calculan distancia intercanina (13→23), intermolar (16→26) y forma según ratio IC/IM (Ricketts: Triangular > 0.85, Cuadrada < 0.70, Ovalada en medio)." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
+
+- **Línea azul** — arcada maxilar (superior). **Línea roja** — arcada mandibular (inferior).
+- **Forma de arcada** (entre paréntesis en la leyenda) — clasificación según ratio *profundidad / ancho intermolar*: **Cuadrada** (< 0.70), **Ovalada** (0.70–0.85), **Triangular** (> 0.85).
+- **Líneas de medición punteadas** (si están activas) — cada color corresponde a una medida clínica. Los valores numéricos aparecen en la leyenda de la esquina superior derecha:
+  - <span style="color:#7C3AED">■</span> **intercanino sup** (13↔23) · <span style="color:#D97706">■</span> **intermolar sup** (16↔26)
+  - <span style="color:#059669">■</span> **intercanino inf** (43↔33) · <span style="color:#DB2777">■</span> **intermolar inf** (46↔36)
+- **Puntos de medición** (si están activos) — anillos de colores sobre los 8 dientes usados como puntos de referencia.
+
+</details>
 
 Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
 Reporta medidas ortodónticas clásicas:
@@ -625,10 +754,18 @@ const archMetrics = computeArchMetrics(toothStats);
 ```
 
 ```js
+const showMeasurementsArch = view(Inputs.toggle({label: "Líneas de medición", value: true}));
+const showArchLabels = view(Inputs.toggle({label: "Etiquetas inline", value: false}));
+const showMeasurePts = view(Inputs.toggle({label: "Puntos de medición", value: false}));
+```
+
+```js
 display(archForm({
   toothStats,
   selectedFdi: selectedFdi,
-  showMeasurements: true,
+  showMeasurements: showMeasurementsArch,
+  showLabels: showArchLabels,
+  showMeasurePoints: showMeasurePts,
   width: Math.min(width, 900),
   height: 520,
 }));
@@ -659,7 +796,20 @@ display(Inputs.table(archRows, {
 ---
 
 ## Prevalencia de patologías por diente
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Para cada FDI y cada patología anotada, fracción de dentaduras donde el diente aparece afectado. Color más saturado = más afectado." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se colorea según la prevalencia de la patología seleccionada.
+
+- **Color más saturado** — mayor porcentaje de dentaduras con ese diente afectado.
+- **Número pequeño** — fracción *casos / dientes presentes*: el denominador varía por pieza ya que no todas están en todas las dentaduras.
+- **Escala** — se reajusta por patología para resaltar el patrón espacial; no compares intensidades entre patologías distintas.
+- **Ranking inferior** — lista los FDI de mayor a menor prevalencia para la patología activa.
+
+Seleccioná dientes en el odontograma superior (sección KDE) para resaltarlos aquí también.
+
+</details>
 
 Cada celda representa un diente (código FDI) y se colorea según el
 **porcentaje de dentaduras de la muestra en las que ese diente
@@ -711,7 +861,20 @@ display(Inputs.table(rankRows, {
 ---
 
 ## Overbite y overjet (proxy poblacional)
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Overjet: |Δx| entre incisivos centrales superiores e inferiores (cuánto sobresalen horizontalmente). Overbite: Δy vertical entre los mismos. Calculados desde centroides 2D, no desde bordes incisales: son proxies poblacionales." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Ambas métricas se calculan a partir de los **centroides 2D** de los incisivos centrales (11/21 superiores, 41/31 inferiores). No son mediciones clínicas en milímetros desde bordes incisales; son **proxies poblacionales** en unidades landmark-normalized.
+
+- **Overjet** — distancia horizontal |Δx| entre el centroide medio de los incisivos superiores e inferiores. Mide el resalte horizontal.
+- **Overbite** — diferencia vertical Δy entre superiores e inferiores. Mide el resalte vertical.
+- **Histogramas** — distribución poblacional de cada métrica con líneas de referencia para la mediana.
+- **Diagrama de dispersión** — cada punto es una dentadura. La cruz negra marca la mediana poblacional; puntos alejados tienen oclusiones atípicas.
+
+Por basarse en centroides 2D, estos valores son útiles para comparar dentaduras *dentro del dataset*, pero no equivalen a las medidas clínicas estándar.
+
+</details>
 
 Medidas clásicas de oclusión calculadas a partir de los **centroides de los incisivos centrales**
 (11/21 superiores, 41/31 inferiores) en coordenadas *landmark-normalized*:
@@ -761,7 +924,21 @@ display(Inputs.table(occRows, {
 ---
 
 ## Índice de Bolton
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Relación entre la suma de anchos mesiodistales (MD) de los dientes mandibulares y los maxilares. Bolton (1958/1962) estableció dos normas: anterior (43–33 / 13–23) = 77.2 ± 1.65 y overall (46–36 / 16–26) = 91.3 ± 1.91. El ancho MD se aproxima por el lado corto del minbbox de cada diente." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+El índice de Bolton mide si los dientes mandibulares y maxilares de un paciente están en proporción equilibrada para el cierre oclusal.
+
+- **Anterior** = 100 × Σ MD(43–33) / Σ MD(13–23) — norma clínica **77.2 ± 1.65**
+- **Overall** = 100 × Σ MD(46–36) / Σ MD(16–26) — norma clínica **91.3 ± 1.91**
+- **Banda verde** — rango clínicamente aceptable (± 1 SD de la norma de Bolton).
+- **Línea verde** — media de Bolton; **línea negra punteada** — mediana del dataset.
+- Valores fuera de la banda sugieren discrepancia maxilo-mandibular que podría requerir compensación ortodóntica.
+
+El ancho mesiodistal (MD) se aproxima por el **lado corto del rectángulo de área mínima** (minbbox) del polígono de segmentación. Es una aproximación 2D, no una medición con calibrador.
+
+</details>
 
 **Pregunta clínica**: ¿las piezas mandibulares y maxilares de cada paciente están en proporción equilibrada para el cierre oclusal? Bolton (1958/1962) definió dos relaciones porcentuales que se aceptan como referencia ortodóntica:
 
@@ -794,7 +971,19 @@ display(Inputs.table(boltRows, {
 ---
 
 ## Simetría bilateral
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Análisis pareado por dentadura: para cada par homologo (p.ej. 16→26) se calcula Δx reflejado, Δy y distancia entre centroides solo en dentaduras con ambos dientes presentes. Mediana e IQR son robustas a outliers." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Para cada par homólogo (ej. 16↔26) se analizan solo las dentaduras que tienen ambos dientes presentes, midiendo la asimetría **por dentadura** (análisis pareado).
+
+- **Boxplots** — la caja muestra el IQR (Q1–Q3) de la distancia de asimetría por dentadura; los bigotes llegan a P5–P95. El `n` sobre la caja es la cantidad de dentaduras con el par completo.
+- **Overlay** — los puntos azules son el diente del lado izquierdo en su posición mediana pareada; los naranjas son el homólogo derecho **reflejado** contra el plano sagital. Si ambos coinciden, la población es perfectamente simétrica para ese par.
+- **Largo y color de la línea** entre puntos del overlay — magnitud de la asimetría mediana del par.
+
+Los 3 pares con mayor asimetría se etiquetan en el overlay.
+
+</details>
 
 **Pregunta clínica**: ¿las piezas del lado derecho están en posiciones "espejo"
 de sus homólogas izquierdas? Para cada par homólogo (p.ej. 16↔26) se usan
@@ -874,7 +1063,18 @@ display(Inputs.table(symRows, {
 ---
 
 ## Overlay de los 4 cuadrantes
-<p style="font-size:12px;color:#777;margin-top:-8px;"><span title="Todos los dientes proyectados sobre un mismo hemilado (|x|, y). Comparación directa entre Q1↔Q2 (homologos superiores), Q4↔Q3 (homologos inferiores) y entre arcada superior↔inferior." style="cursor:help;">ⓘ ¿Qué es esto?</span></p>
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Todos los dientes se proyectan sobre un mismo hemilado (|x|, y): los del lado derecho se reflejan para que coincidan en espacio con los del lado izquierdo. Esto permite comparación directa entre cuadrantes.
+
+- **Comparando Q1 vs Q2** (o Q4 vs Q3) — evalúa simetría bilateral *en la geometría media*: los puntos deberían superponerse si la arcada es simétrica.
+- **Comparando Q1 vs Q4** (o Q2 vs Q3) — evalúa alineación oclusal: si los dientes superiores están directamente sobre los inferiores, los puntos coinciden.
+- **Flechas** (con exactamente 2 cuadrantes) — conectan pares FDI homólogos (posición 1 con posición 1, etc.) y se reporta la distancia media.
+- **Elipses ±1σ** (opcionales) — muestran la dispersión gaussiana de cada posición.
+
+</details>
 
 Elegí qué cuadrantes querés superponer. Cuando seleccionás **exactamente 2**, se dibujan
 **flechas** entre las posiciones FDI homólogas (1↔1, 2↔2, …) y se reporta la

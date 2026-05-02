@@ -2,6 +2,7 @@
 title: Subpoblación — Sexo biológico
 ---
 
+
 # Subpoblación — Sexo biológico
 
 Comparación de la dentadura media entre **Male** y **Female** (sexo biológico
@@ -79,7 +80,7 @@ Mismo formato que la página poblacional pero con dos capas de contornos:
 son los centroides de la eigendentadura completa (contexto).
 
 <details open>
-<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Cómo leer este gráfico</summary>
+<summary>Cómo leer este gráfico</summary>
 
 El gráfico muestra la **distribución de posición** de cada pieza dental en la pantomografía, separada por grupo (azul vs rojo). Cada contorno o elipse representa dónde se ubican los dientes de los pacientes de ese grupo.
 
@@ -117,7 +118,7 @@ El gráfico muestra la **distribución de posición** de cada pieza dental en la
 </details>
 
 <details open>
-<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Odontograma</summary>
+<summary>Odontograma</summary>
 
 Hacé clic en los dientes para seleccionar/deseleccionar.
 
@@ -140,11 +141,11 @@ const modeInput = Inputs.select(["overlay", "split"], {
 });
 const mode = Generators.input(modeInput);
 
-const displayModeInput = Inputs.select(["kde", "hdr", "elipses", "ambos", "diff", "bagplot"], {
-  value: "kde",
+const displayModeInput = Inputs.select(["kde_std", "kde", "elipses", "hdr", "diff", "bagplot"], {
+  value: "kde_std",
   label: "Visualización",
-  format: m => ({kde: "KDE (contornos)", hdr: "HDR (25 %, 50 %, 95 %)", elipses: "Solo elipses σ",
-                 ambos: "KDE + elipses", diff: "Diferencia A−B", bagplot: "Bagplot"})[m],
+  format: m => ({"kde_std": "KDE estándar", kde: "KDE (contornos)", elipses: "Solo elipses σ",
+                 hdr: "Regiones HDR (25/50/95%)", diff: "Diferencia A−B", bagplot: "Bagplot"})[m],
 });
 const displayMode = Generators.input(displayModeInput);
 
@@ -171,18 +172,18 @@ const contoursLevel = Generators.input(contoursLevelInput);
 ```
 
 <details>
-<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Opciones de visualización</summary>
+<summary>Opciones de visualización</summary>
 
 ```js
 display(html`<div style="display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; padding:8px 0 8px;">
-  ${modeInput}${displayModeInput}${displayMode !== "elipses" && displayMode !== "hdr" && displayMode !== "diff" && displayMode !== "bagplot" ? contoursLevelInput : ""}${displayMode !== "diff" && displayMode !== "bagplot" ? bottomOpacityInput : ""}${displayMode !== "diff" && displayMode !== "bagplot" ? topOpacityInput : ""}
+  ${modeInput}${displayModeInput}${displayMode === "kde" ? contoursLevelInput : ""}${displayMode !== "diff" && displayMode !== "bagplot" ? bottomOpacityInput : ""}${displayMode !== "diff" && displayMode !== "bagplot" ? topOpacityInput : ""}
 </div>`);
 ```
 
 </details>
 
 <details>
-<summary style="cursor: pointer; font-size: 13px; color: #444; font-weight: 600;">Centroides</summary>
+<summary>Centroides</summary>
 
 ```js
 display(html`<div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap; padding:8px 0 8px;">
@@ -241,6 +242,20 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
 
 ## Estadísticas de los dientes seleccionados
 
+<details>
+<summary>Cómo leer esta tabla</summary>
+
+Resumen numérico por diente (FDI) y grupo para los dientes seleccionados en el odontograma.
+
+- **N**: cantidad de dientes en el dataset para ese FDI y grupo. No requiere dentadura completa.
+- **μ X / μ Y**: posición media del centroide en coordenadas normalizadas por marco condíleo (origen = punto medio intercondíleo, escala = distancia intercondílea).
+- **σ X / σ Y**: dispersión de la posición — cuán variable es la ubicación del diente entre pacientes del grupo.
+- **μ ángulo / σ ángulo**: orientación media del diente (°) y su variabilidad dentro del grupo.
+
+Un σ mayor indica que los pacientes del grupo son más heterogéneos en esa coordenada.
+
+</details>
+
 ```js
 const selSet = new Set(selectedFdi);
 const selRows = [];
@@ -281,6 +296,21 @@ Magnitud de la diferencia entre **${labelMap.male}** y **${labelMap.female}** pa
 diente y feature, expresada en **desviaciones estándar pooled**. Azul oscuro indica que
 ${labelMap.female} tiene valores mayores; rojo oscuro que ${labelMap.male} los tiene mayores.
 
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Cada celda muestra la diferencia entre grupos para ese diente y esa variable, expresada en **desviaciones estándar pooled** (effect size equivalente a Cohen's *d*).
+
+- **Color rojo**: ${labelMap.male} tiene valores mayores en esa variable para ese diente.
+- **Color azul**: ${labelMap.female} tiene valores mayores.
+- **Blanco / color pálido**: diferencia pequeña o nula.
+
+Guía de magnitud: |d| < 0.2 trivial · 0.2–0.5 pequeño · 0.5–0.8 moderado · > 0.8 grande.
+
+Las variables son: posición media en X e Y (μX, μY), dispersión en X e Y (σX, σY) y ángulo medio.
+
+</details>
+
 ```js
 display(subpopDiffHeatmap({axisData, groupNames, labelMap, width}));
 ```
@@ -288,7 +318,23 @@ display(subpopDiffHeatmap({axisData, groupNames, labelMap, width}));
 ## Distribuciones marginales
 
 Distribuciones de posición en X (eje mesio-distal) e Y (eje supero-inferior) para cada diente seleccionado.
-Grupo **${labelMap.male}** arriba · Grupo **${labelMap.female}** abajo · Línea = mediana.
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Dos violines simétricos por celda, uno por grupo, para cada diente seleccionado.
+
+- **Eje Y**: valores de posición en coordenadas normalizadas por marco condíleo. Es el único eje con escala numérica — úsalo para leer posiciones absolutas.
+- **Caja (IQR)**: rectángulo Q1–Q3. Contiene el **50 % central** de los casos. Es el elemento principal para comparar grupos: si las cajas están a distinta altura, hay una diferencia de posición mediana.
+- **Línea horizontal en la caja**: mediana del grupo.
+- **Bigotes**: extensión hasta 1.5 × IQR desde la caja (rango típico esperado).
+- **Silueta de fondo**: forma del KDE — muestra si la distribución es unimodal, asimétrica o bimodal. El ancho del contorno no tiene escala propia; sirve solo para ver la forma, no para medir.
+- **N en la etiqueta**: total de dientes del grupo para ese FDI.
+- **Columna izquierda**: distribución en X (eje mesio-distal). **Columna derecha**: distribución en Y (eje supero-inferior).
+
+*Compará la altura de las cajas entre grupos para detectar diferencias de posición; compará el tamaño de las cajas para ver diferencias de dispersión.*
+
+</details>
 
 ```js
 display(subpopViolinPlot({
@@ -305,6 +351,21 @@ display(subpopViolinPlot({
 Para cada diente, la **flecha** apunta a la desviación del ángulo medio del grupo
 respecto al ángulo medio poblacional (12h = sin diferencia). El **sector relleno**
 representa ±1&sigma; del grupo. Eje angular amplificado (±30° reales → ±150° visuales).
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Gráfico polar por diente seleccionado. Cada sector compara la orientación del grupo con la media poblacional.
+
+- **Flecha**: apunta al ángulo medio del grupo, medido como desviación respecto a la población completa.
+- **Sector relleno**: rango ±1σ del grupo.
+- **12h (arriba)** = sin diferencia angular respecto a la población.
+- El eje angular está **amplificado × 5** para legibilidad: ±30° reales se muestran como ±150° visuales.
+- Una flecha hacia las 3h indica que el grupo tiene sus dientes más inclinados hacia la derecha que la media poblacional.
+
+*Un sector amplio indica alta variabilidad de orientación. Flechas opuestas entre grupos indican diferencias sistemáticas de inclinación.*
+
+</details>
 
 ```js
 display(subpopRosePlot({
@@ -326,6 +387,50 @@ medio del grupo en cada pieza. Punteado gris = arcada de la población completa 
 referencia. Las letras entre paréntesis indican la clasificación maxilar/mandibular
 (O=Ovalada, T=Triangular, C=Cuadrada).
 
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Curvas continuas trazadas por interpolación de los centroides medios de cada grupo en cada pieza.
+
+- **Arcada superior** (maxilar) y **arcada inferior** (mandibular) por separado.
+- **Punteado gris**: arcada de la población completa, como referencia.
+- **Letras entre paréntesis en la leyenda**: clasificación de forma de cada grupo — formato (Maxilar/Mandibular). O = Ovalada, T = Triangular, C = Cuadrada (según el ratio profundidad/anchura intermolar).
+- **Tabla de métricas**: distancia intercanina (3–3), distancia intermolar (6–6), profundidad de arcada y ratio.
+
+*Una curva más ancha o más estrecha que la referencia gris indica que ese grupo tiene una arcada sistemáticamente diferente en ese plano.*
+
+</details>
+
+```js
+const archArcsInput = Inputs.checkbox(["Maxilar", "Mandibular"], {
+  value: ["Maxilar", "Mandibular"],
+  label: "Arcadas",
+});
+const archArcs = Generators.input(archArcsInput);
+const archGroupsInput = Inputs.checkbox(
+  groupNames.map(g => labelMap[g] || g),
+  {value: groupNames.map(g => labelMap[g] || g), label: "Grupos"}
+);
+const archGroupsSel = Generators.input(archGroupsInput);
+const showPopArchInput = Inputs.toggle({label: "Población completa", value: true});
+const showPopArch = Generators.input(showPopArchInput);
+const showArchLabelsInput = Inputs.toggle({label: "Etiquetas de métricas", value: true});
+const showArchLabels = Generators.input(showArchLabelsInput);
+const showMeasurePtsInput = Inputs.toggle({label: "Puntos de medición", value: false});
+const showMeasurePts = Generators.input(showMeasurePtsInput);
+```
+
+<details>
+<summary>Opciones de visualización</summary>
+
+```js
+display(html`<div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; padding:8px 0 8px;">
+  ${archArcsInput}${archGroupsInput}${showPopArchInput}${showArchLabelsInput}${showMeasurePtsInput}
+</div>`);
+```
+
+</details>
+
 ```js
 const arch = subpopArchForm({
   subpopStats: axisData,
@@ -333,7 +438,12 @@ const arch = subpopArchForm({
   colorMap,
   labelMap,
   toothStats,
-  showPopulation: true,
+  showPopulation: showPopArch,
+  visibleGroups: groupNames.filter(g => archGroupsSel.includes(labelMap[g] || g)),
+  showUpper: archArcs.includes("Maxilar"),
+  showLower: archArcs.includes("Mandibular"),
+  showLabels: showArchLabels,
+  showMeasurePoints: showMeasurePts,
   width: Math.min(width, 900),
   height: 520,
 });

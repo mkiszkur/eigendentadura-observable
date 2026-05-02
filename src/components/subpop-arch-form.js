@@ -5,6 +5,9 @@
  * usando los centroides medios del grupo (cx_mean, cy_mean por FDI).
  * Reporta métricas clínicas (intercanino, intermolar, profundidad, ratio,
  * tipo de arcada) por grupo en una tabla compacta dentro del SVG.
+ *
+ * Opciones: showUpper / showLower (arcadas visibles) y showLabels (etiquetas
+ * de métricas en el gráfico). Las etiquetas se apilan sin superposición.
  */
 import * as d3 from "d3";
 
@@ -46,14 +49,19 @@ function archPath(arch, byFdi, x, y) {
 
 /**
  * @param {Object} opts
- * @param {Array}  opts.subpopStats  - tooth_stats_subpop filtrado al eje
+ * @param {Array}  opts.subpopStats   - tooth_stats_subpop filtrado al eje
  * @param {Array}  opts.groupNames
  * @param {Object} opts.colorMap
  * @param {Object} [opts.labelMap]
- * @param {Array}  [opts.toothStats] - opcional, para mostrar contorno de población
- * @param {boolean} [opts.showPopulation=true]
- * @param {number} [opts.width=820]
- * @param {number} [opts.height=520]
+ * @param {Array}  [opts.toothStats]  - opcional, para mostrar contorno de población
+ * @param {boolean}  [opts.showPopulation=true]
+ * @param {string[]} [opts.visibleGroups=null]  - null = todos; array de group names visibles
+ * @param {boolean}  [opts.showUpper=true]   - mostrar arcada maxilar
+ * @param {boolean}  [opts.showLower=true]   - mostrar arcada mandibular
+ * @param {boolean}  [opts.showLabels=true]       - mostrar etiquetas de métricas
+ * @param {boolean}  [opts.showMeasurePoints=false] - resaltar caninos y molares de medición
+ * @param {number}   [opts.width=820]
+ * @param {number}   [opts.height=520]
  */
 export function subpopArchForm({
   subpopStats,
@@ -62,6 +70,11 @@ export function subpopArchForm({
   labelMap = {},
   toothStats = null,
   showPopulation = true,
+  visibleGroups = null,
+  showUpper = true,
+  showLower = true,
+  showLabels = true,
+  showMeasurePoints = false,
   width = 820,
   height = 520,
 } = {}) {
@@ -73,7 +86,8 @@ export function subpopArchForm({
     if (m) m.set(s.fdi, s);
   }
 
-  const margin = {top: 30, right: 30, bottom: 50, left: 55};
+  // Margen superior ampliado para dejar espacio a las etiquetas apiladas
+  const margin = {top: 60, right: 30, bottom: 60, left: 55};
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
@@ -90,7 +104,7 @@ export function subpopArchForm({
     empty.append("text").attr("x", width / 2).attr("y", height / 2)
       .attr("text-anchor", "middle").attr("fill", "#999").attr("font-size", 13)
       .text("Sin datos suficientes");
-    return empty.node();
+    return {node: empty.node(), metrics: {}};
   }
   const xs = allPts.map(p => p[0]);
   const ys = allPts.map(p => p[1]);
@@ -99,7 +113,6 @@ export function subpopArchForm({
   const yDomain = [d3.min(ys) - padY, d3.max(ys) + padY];
   const dx = xDomain[1] - xDomain[0];
   const dy = yDomain[1] - yDomain[0];
-  // Aspecto isométrico
   const unit = Math.min(innerW / dx, innerH / dy);
   const usedW = dx * unit, usedH = dy * unit;
   const offX = (innerW - usedW) / 2, offY = (innerH - usedH) / 2;
@@ -119,10 +132,13 @@ export function subpopArchForm({
     .attr("y1", 0).attr("y2", innerH)
     .attr("stroke", "#ddd").attr("stroke-dasharray", "3,3");
 
-  // Splines de población (si está)
+  // Splines de población
   if (showPopulation && toothStats) {
     const popMap = new Map(toothStats.map(s => [s.fdi, {cx_mean: s.mean_x, cy_mean: s.mean_y}]));
-    for (const arch of [ARCH_UPPER, ARCH_LOWER]) {
+    const popArchs = [];
+    if (showUpper) popArchs.push(ARCH_UPPER);
+    if (showLower) popArchs.push(ARCH_LOWER);
+    for (const arch of popArchs) {
       g.append("path")
         .attr("d", archPath(arch, popMap, x, y))
         .attr("fill", "none").attr("stroke", "#bbb").attr("stroke-width", 2)
@@ -131,60 +147,158 @@ export function subpopArchForm({
   }
 
   // Splines por grupo
-  groupNames.forEach((gName) => {
+  const visibleFdiSet = new Set([
+    ...(showUpper ? ARCH_UPPER : []),
+    ...(showLower ? ARCH_LOWER : []),
+  ]);
+  const activeGroups = visibleGroups ? groupNames.filter(g => visibleGroups.includes(g)) : groupNames;
+  activeGroups.forEach((gName) => {
     const map = byGroup.get(gName);
     if (!map || !map.size) return;
     const color = colorMap[gName] || "#999";
-    for (const arch of [ARCH_UPPER, ARCH_LOWER]) {
+    const archs = [];
+    if (showUpper) archs.push(ARCH_UPPER);
+    if (showLower) archs.push(ARCH_LOWER);
+    for (const arch of archs) {
       g.append("path")
         .attr("d", archPath(arch, map, x, y))
         .attr("fill", "none").attr("stroke", color).attr("stroke-width", 2.5)
         .attr("opacity", 0.85);
     }
-    // Centroides
-    for (const s of map.values()) {
+    for (const [fdi, s] of map) {
+      if (!visibleFdiSet.has(fdi)) continue;
       g.append("circle")
         .attr("cx", x(s.cx_mean)).attr("cy", y(s.cy_mean))
         .attr("r", 3).attr("fill", color).attr("stroke", "#fff").attr("stroke-width", 1)
         .attr("opacity", 0.9)
-        .append("title").text(`${labelMap[gName] || gName} · FDI ${s.fdi}\nμ=(${s.cx_mean.toFixed(3)}, ${s.cy_mean.toFixed(3)})\nn=${s.n}`);
+        .append("title").text(`${labelMap[gName] || gName} · FDI ${fdi}\nμ=(${s.cx_mean.toFixed(3)}, ${s.cy_mean.toFixed(3)})\nn=${s.n}`);
     }
   });
 
-  // Líneas de medida (intercanino / intermolar) por grupo.
-  function drawMeasure(map, fdi1, fdi2, color, label, yOffset) {
-    const a = map.get(fdi1), b = map.get(fdi2);
-    if (!a || !b) return;
-    const ax = x(a.cx_mean), ay = y(a.cy_mean);
-    const bx = x(b.cx_mean), by = y(b.cy_mean);
-    g.append("line")
-      .attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by)
-      .attr("stroke", color).attr("stroke-width", 1.2)
-      .attr("stroke-dasharray", "5,3").attr("opacity", 0.85);
-    g.append("circle").attr("cx", ax).attr("cy", ay).attr("r", 2.5).attr("fill", color);
-    g.append("circle").attr("cx", bx).attr("cy", by).attr("r", 2.5).attr("fill", color);
-    const distVal = Math.hypot(a.cx_mean - b.cx_mean, a.cy_mean - b.cy_mean);
-    g.append("text").attr("x", (ax + bx) / 2).attr("y", (ay + by) / 2 + yOffset)
-      .attr("text-anchor", "middle").attr("font-size", 9).attr("fill", color)
-      .attr("font-weight", "bold")
-      .text(`${label}: ${distVal.toFixed(3)}`);
-  }
-  groupNames.forEach((gName, gi) => {
-    const map = byGroup.get(gName);
-    if (!map || !map.size) return;
-    const color = colorMap[gName] || "#999";
-    // Para que las etiquetas no se pisen entre grupos, alterno el offset vertical.
-    const sign = gi === 0 ? -1 : 1;
-    drawMeasure(map, 13, 23, color, `intercanino sup (${labelMap[gName] || gName})`, -8 + sign * -6);
-    drawMeasure(map, 16, 26, color, `intermolar sup (${labelMap[gName] || gName})`,  -8 + sign * -6);
-    drawMeasure(map, 43, 33, color, `intercanino inf (${labelMap[gName] || gName})`, 16 + sign * 6);
-    drawMeasure(map, 46, 36, color, `intermolar inf (${labelMap[gName] || gName})`,  16 + sign * 6);
+  // Líneas de medida: color por tipo de medición, dash por grupo
+  // Los valores se muestran en una leyenda top-right (sin texto inline)
+  const MEAS_COLORS = {
+    "intercanino sup": "#7C3AED",
+    "intermolar sup":  "#D97706",
+    "intercanino inf": "#059669",
+    "intermolar inf":  "#DB2777",
+  };
+  const GROUP_DASHES = ["none", "7,4"];  // grupo 0: continuo; grupo 1: punteado
+
+  const measDefs = [
+    ...(showUpper ? [
+      {key: "intercanino sup", f1: 13, f2: 23},
+      {key: "intermolar sup",  f1: 16, f2: 26},
+    ] : []),
+    ...(showLower ? [
+      {key: "intercanino inf", f1: 43, f2: 33},
+      {key: "intermolar inf",  f1: 46, f2: 36},
+    ] : []),
+  ];
+
+  // Colectar valores para la leyenda y dibujar líneas
+  const measLegend = measDefs.map(({key, f1, f2}) => {
+    const color = MEAS_COLORS[key];
+    const vals = activeGroups.map((gName, gi) => {
+      const map = byGroup.get(gName);
+      if (!map) return null;
+      const a = map.get(f1), b = map.get(f2);
+      if (!a || !b) return null;
+      const ax = x(a.cx_mean), ay = y(a.cy_mean);
+      const bx = x(b.cx_mean), by = y(b.cy_mean);
+      g.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by)
+        .attr("stroke", color).attr("stroke-width", gi === 0 ? 2 : 1.5)
+        .attr("stroke-dasharray", GROUP_DASHES[gi]).attr("opacity", 0.85);
+      g.append("circle").attr("cx", ax).attr("cy", ay).attr("r", 2.5)
+        .attr("fill", color).attr("opacity", 0.85);
+      g.append("circle").attr("cx", bx).attr("cy", by).attr("r", 2.5)
+        .attr("fill", color).attr("opacity", 0.85);
+      return Math.hypot(a.cx_mean - b.cx_mean, a.cy_mean - b.cy_mean);
+    });
+    return {key, color, vals};
   });
+
+  // Leyenda de medidas (top-right) — posiciones X fijas
+  if (showLabels && measLegend.length) {
+    const nG    = activeGroups.length;
+    const legW  = nG > 1 ? 210 : 175;
+    const COL_LABEL = 30;          // inicio del texto de etiqueta
+    const COL_V = nG > 1
+      ? [legW - 62, legW - 8]      // dos grupos: dos columnas de valores
+      : [legW - 8];                // un grupo: una columna
+    const legRowH  = 18;
+    const legHeadH = nG > 1 ? 16 : 0;
+    const legH     = 8 + legHeadH + measLegend.length * legRowH + 6;
+    const lx       = innerW - legW - 2;
+
+    const mleg = g.append("g").attr("transform", `translate(${lx}, 6)`);
+    mleg.append("rect").attr("width", legW).attr("height", legH)
+      .attr("fill", "#fff").attr("stroke", "#ddd").attr("rx", 3).attr("opacity", 0.96);
+
+    // Encabezado de grupos
+    if (nG > 1) {
+      activeGroups.forEach((gName, gi) => {
+        const cx2 = COL_V[gi];
+        mleg.append("line")
+          .attr("x1", cx2 - 22).attr("y1", 11).attr("x2", cx2 - 6).attr("y2", 11)
+          .attr("stroke", colorMap[gName] || "#999").attr("stroke-width", 2)
+          .attr("stroke-dasharray", GROUP_DASHES[gi]);
+        mleg.append("text")
+          .attr("x", cx2 - 24).attr("y", 11).attr("dy", "0.32em")
+          .attr("text-anchor", "end").attr("font-size", 8.5)
+          .attr("fill", colorMap[gName] || "#999")
+          .text(labelMap[gName] || gName);
+      });
+    }
+
+    let yRow = 8 + legHeadH;
+    measLegend.forEach(({key, color, vals}) => {
+      // Swatch
+      mleg.append("line")
+        .attr("x1", 6).attr("y1", yRow + 7).attr("x2", 24).attr("y2", yRow + 7)
+        .attr("stroke", color).attr("stroke-width", 2.5);
+      // Etiqueta
+      mleg.append("text")
+        .attr("x", COL_LABEL).attr("y", yRow + 7).attr("dy", "0.32em")
+        .attr("font-size", 9).attr("fill", "#555")
+        .text(key);
+      // Valores alineados a columnas fijas
+      vals.forEach((v, gi) => {
+        if (v == null) return;
+        mleg.append("text")
+          .attr("x", COL_V[gi]).attr("y", yRow + 7).attr("dy", "0.32em")
+          .attr("text-anchor", "end").attr("font-size", 9).attr("font-weight", "bold")
+          .attr("fill", colorMap[activeGroups[gi]] || "#444")
+          .text(v.toFixed(3));
+      });
+      yRow += legRowH;
+    });
+  }
+
+  // Puntos de medición resaltados (caninos y molares)
+  const CANINE_FDIS = new Set([13, 23, 43, 33]);
+  const MOLAR_FDIS  = new Set([16, 26, 46, 36]);
+  if (showMeasurePoints) {
+    activeGroups.forEach((gName) => {
+      const map = byGroup.get(gName);
+      if (!map) return;
+      const color = colorMap[gName] || "#999";
+      for (const [fdi, s] of map) {
+        if (!CANINE_FDIS.has(fdi) && !MOLAR_FDIS.has(fdi)) continue;
+        if (!visibleFdiSet.has(fdi)) continue;
+        const r = CANINE_FDIS.has(fdi) ? 6 : 7;
+        g.append("circle")
+          .attr("cx", x(s.cx_mean)).attr("cy", y(s.cy_mean))
+          .attr("r", r).attr("fill", "none")
+          .attr("stroke", color).attr("stroke-width", 2.2).attr("opacity", 0.9);
+      }
+    });
+  }
 
   // Ejes
   g.append("g").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x).ticks(8));
   g.append("g").call(d3.axisLeft(y).ticks(8));
-  g.append("text").attr("x", innerW / 2).attr("y", innerH + 38)
+  g.append("text").attr("x", innerW / 2).attr("y", innerH + 44)
     .attr("fill", "#666").attr("text-anchor", "middle").attr("font-size", 11)
     .text("X (landmark-normalized)");
   g.append("text").attr("transform", "rotate(-90)")
@@ -192,7 +306,7 @@ export function subpopArchForm({
     .attr("fill", "#666").attr("text-anchor", "middle").attr("font-size", 11)
     .text("Y (landmark-normalized)");
 
-  // Métricas comparativas
+  // Métricas
   const metricsByGroup = new Map();
   for (const gName of groupNames) {
     const map = byGroup.get(gName);
