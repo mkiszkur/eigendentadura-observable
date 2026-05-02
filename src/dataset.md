@@ -7,7 +7,7 @@ title: Dataset — Universo de Datos
 Descripción del proceso de filtrado y la composición del universo de análisis.
 
 ```js
-import {funnelChart, flagPrevalenceChart, teethDistChart} from "./components/funnel-chart.js";
+import {funnelChart, teethDistChart} from "./components/funnel-chart.js";
 import * as d3 from "d3";
 ```
 
@@ -50,22 +50,6 @@ Se excluyen de ambos universos:
 - Pantomografías sin ninguna anotación
 
 </details>
-
----
-
-## Composición del universo KDE
-
-Distribución de hallazgos clínicos en las ${ds.universe_kde.toLocaleString("es-AR")} pantomografías del universo eigendentadura.
-Cada barra muestra qué proporción de pacientes presentó al menos una pieza con ese hallazgo.
-
-```js
-display(flagPrevalenceChart(
-  ds.pantos, ds.flag_labels, ds.pathology_labels, ds.treatment_labels,
-  {width: Math.min(width, 680)}
-));
-```
-
----
 
 ## Distribución de dientes anotados por pantomografía
 

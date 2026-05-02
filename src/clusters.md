@@ -77,8 +77,6 @@ Plot.plot({
 }
 ```
 
----
-
 ```js
 const algKeys = [
   {key: "kmeans", label: "KMeans"},

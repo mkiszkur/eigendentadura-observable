@@ -31,7 +31,6 @@ import {rosePlot} from "./components/rose-plot.js";
 import {radarAngularPlot} from "./components/radar-angular.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
-import {prevalenceOdontogram, prevalenceLegend} from "./components/prevalence-odontogram.js";
 import {occlusionHistograms, occlusionScatter} from "./components/occlusion.js";
 import {boltonHistograms} from "./components/bolton.js";
 import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
@@ -101,15 +100,12 @@ display(tocNav({sections: [
   {id: "radar-dispersion-angular-por-diente",        label: "Radar"},
   {id: "dentaduras-tipicas-y-atipicas",              label: "Típicas/atípicas"},
   {id: "forma-de-arcada",                            label: "Arcada"},
-  {id: "prevalencia-de-patologias-por-diente",       label: "Patologías"},
   {id: "overbite-y-overjet-proxy-poblacional",       label: "Overbite/overjet"},
   {id: "indice-de-bolton",                           label: "Bolton"},
   {id: "simetria-bilateral",                         label: "Simetría"},
   {id: "overlay-de-los-4-cuadrantes",                label: "Overlay 4Q"},
 ]}));
 ```
-
----
 
 ## Mapa de densidad (KDE)
 
@@ -252,8 +248,6 @@ display(Inputs.table(selectedStats, {
 }));
 ```
 
----
-
 ## Boxplots 2D — Dispersión posicional
 
 <details>
@@ -331,8 +325,6 @@ display(Inputs.table(selectedBoxplotStats, {
   },
 }));
 ```
-
----
 
 ## Distribución angular por diente
 
@@ -421,8 +413,6 @@ display(rosePlot({
 }));
 ```
 
----
-
 ## Radar — Dispersión angular por diente
 
 <details>
@@ -456,8 +446,6 @@ display(radarAngularPlot({
   height: Math.min(width, 650),
 }));
 ```
-
----
 
 ## Dentaduras típicas y atípicas
 
@@ -729,9 +717,6 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
 </div>`);
 ```
 
----
-
----
 
 ## Forma de arcada
 
@@ -802,73 +787,6 @@ display(Inputs.table(archRows, {
 }));
 ```
 
----
-
-## Prevalencia de patologías por diente
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se colorea según la prevalencia de la patología seleccionada.
-
-- **Color más saturado** — mayor porcentaje de dentaduras con ese diente afectado.
-- **Número pequeño** — fracción *casos / dientes presentes*: el denominador varía por pieza ya que no todas están en todas las dentaduras.
-- **Escala** — se reajusta por patología para resaltar el patrón espacial; no compares intensidades entre patologías distintas.
-- **Ranking inferior** — lista los FDI de mayor a menor prevalencia para la patología activa.
-
-Seleccioná dientes en el odontograma superior (sección KDE) para resaltarlos aquí también.
-
-</details>
-
-Cada celda representa un diente (código FDI) y se colorea según el
-**porcentaje de dentaduras de la muestra en las que ese diente
-presenta la patología seleccionada**. La escala se reajusta por patología
-para resaltar el patrón espacial aunque las prevalencias absolutas sean bajas.
-
-```js
-const pathology = view(Inputs.select(prevalenceData.pathologies, {
-  label: "Patología",
-  value: "Restauración",
-}));
-```
-
-```js
-display(prevalenceLegend({prevalenceData, pathology, width: 360}));
-display(prevalenceOdontogram({
-  prevalenceData,
-  pathology,
-  selectedFdi,
-  width: Math.min(width, 1400),
-  cellW: 62,
-  cellH: 78,
-}));
-display(html`<div style="color:#666;font-size:11px;margin-top:6px">
-  n = ${prevalenceData.n_dentitions} dentaduras. El número chico en cada
-  celda indica <em>dientes con la patología / dientes presentes en la muestra</em>.
-</div>`);
-```
-
-### Ranking por prevalencia (patología activa)
-
-```js
-const rankRows = [...prevalenceData.teeth]
-  .map(t => ({
-    FDI: t.fdi,
-    "Dientes presentes": t.n_present,
-    "Con patología": t[pathology].count,
-    "Prevalencia": t[pathology].prevalence,
-  }))
-  .sort((a, b) => b["Prevalencia"] - a["Prevalencia"]);
-display(Inputs.table(rankRows, {
-  format: {
-    "Prevalencia": d => `${(d * 100).toFixed(2)}%`,
-  },
-  rows: 10,
-}));
-```
-
----
-
 ## Overbite y overjet (proxy poblacional)
 
 <details>
@@ -930,8 +848,6 @@ display(Inputs.table(occRows, {
 }));
 ```
 
----
-
 ## Índice de Bolton
 
 <details>
@@ -976,8 +892,6 @@ display(Inputs.table(boltRows, {
   },
 }));
 ```
-
----
 
 ## Simetría bilateral
 
@@ -1068,8 +982,6 @@ display(Inputs.table(symRows, {
   },
 }));
 ```
-
----
 
 ## Overlay de los 4 cuadrantes
 

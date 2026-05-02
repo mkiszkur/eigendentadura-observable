@@ -9,8 +9,9 @@ export default {
       name: "Población",
       open: true,
       pages: [
-        {name: "Universo de datos",   path: "/dataset"},
+        {name: "Universo de datos",    path: "/dataset"},
         {name: "KDE / Eigendentadura", path: "/"},
+        {name: "Patologías",           path: "/patologias"},
       ],
     },
     {

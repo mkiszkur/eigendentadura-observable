@@ -12,6 +12,7 @@ import {odontograma} from "./components/odontograma.js";
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {individualRosePlot} from "./components/individual-rose-plot.js";
 import {angleRose} from "./components/angle-rose.js";
+import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import * as d3 from "d3";
 ```
 
@@ -498,12 +499,49 @@ if (indiv && indiv.teeth) {
 }
 ```
 
----
+## Atipicidad posicional vs angular — población completa
+
+¿Son los pacientes atípicos por su **posición** dental, por su **ángulo** de rotación, o por ambas cosas?
+Cada punto es una pantomografía. El paciente seleccionado aparece resaltado.
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+- **Eje X (z_pos)** — atipicidad posicional: desvío promedio de los centroides dentales respecto a la media poblacional, en desvíos estándar. Valores altos = dientes muy desplazados de su posición típica.
+- **Eje Y (z_ang)** — atipicidad angular: desvío medio del ángulo de cada diente respecto al ángulo poblacional.
+- **Líneas punteadas** — mediana de la población en cada eje; dividen el espacio en 4 cuadrantes.
+- **Punto grande con borde** — paciente actualmente seleccionado en el panel de arriba.
+- **Color** — codificado según el selector (centro clínico o sexo biológico).
+
+Un paciente en el cuadrante superior derecho ("Atípico posición + ángulo") tiene dientes desplazados *y* rotados respecto a la distribución esperada.
+
+</details>
+
+```js
+const colorByInput = Inputs.select(
+  new Map([["Centro clínico", "origin"], ["Sexo", "sex"]]),
+  {label: "Colorear por", value: "origin"}
+);
+const colorBy = Generators.input(colorByInput);
+display(colorByInput);
+```
+
+```js
+display(atipicalityScatter(individuals, {
+  width: Math.min(width, 700),
+  height: 460,
+  colorBy,
+  minTeeth: 10,
+  selectedPanto: indiv?.json_filename ?? null,
+}));
+```
 
 <div class="note">
 
 **Datos**: ${allPantos.length.toLocaleString()} individuos con normalización por landmarks condíleos.
 Z-scores calculados como $z = (x - μ) / σ$ respecto a la media y desvío de cada diente.
 $z_{total} = \sqrt{z_x^2 + z_y^2 + z_{angle}^2}$ (norma euclidiana de los z-scores).
+$z_{pos} = \sqrt{z_x^2 + z_y^2}$ promediado sobre todos los dientes.
+$z_{ang}$ = media de $|z_{angle}|$ por diente.
 
 </div>

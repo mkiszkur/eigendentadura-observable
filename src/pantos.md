@@ -133,7 +133,7 @@ if (selectedPanto) {
 
 ```js
 const pantoGeom = selectedArchivo
-  ? await fetch(`./_file/data/pantos_geometry/${selectedArchivo.replace('.json', '')}.json`).then(r => {
+  ? await fetch(`_file/data/pantos_geometry/${selectedArchivo.replace('.json', '')}.json`).then(r => {
       if (!r.ok) throw new Error(`No geometry for ${selectedArchivo}`);
       return r.json();
     }).catch(e => { console.warn(e); return null; })

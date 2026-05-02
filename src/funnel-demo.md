@@ -10,8 +10,6 @@ const ds = await FileAttachment("data/dataset_stats.json").json();
 const funnel = ds.funnel;
 ```
 
----
-
 ## Opción A — CONSORT style
 
 Rectángulos con borde, exclusiones como cajas laterales con flecha. Estilo de papers clínicos.
@@ -91,8 +89,6 @@ Rectángulos con borde, exclusiones como cajas laterales con flecha. Estilo de p
 }
 ```
 
----
-
 ## Opción B — Barras horizontales
 
 Barras proporcionales, sin trapezoides, etiquetas arriba, exclusiones al costado.
@@ -151,8 +147,6 @@ Barras proporcionales, sin trapezoides, etiquetas arriba, exclusiones al costado
   display(svg.node());
 }
 ```
-
----
 
 ## Opción C — Tabla visual
 
