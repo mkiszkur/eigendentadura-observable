@@ -357,6 +357,12 @@ la línea radial indica la media. Los dientes seleccionados se resaltan.
 **Hacé click en un diente** para ver su distribución angular ampliada en detalle.
 
 ```js
+const rotateToMeanInput = Inputs.toggle({label: "Alinear media al eje vertical", value: true});
+const rotateToMean = Generators.input(rotateToMeanInput);
+display(rotateToMeanInput);
+```
+
+```js
 // Modal imperativo: lo insertamos/removemos directamente del body.
 const showAngleModal = (fdi) => {
   // Cerrar cualquier modal previo
@@ -392,9 +398,11 @@ const showAngleModal = (fdi) => {
 
   const hint = document.createElement("div");
   Object.assign(hint.style, {color: "#666", fontSize: "11px", marginBottom: "10px"});
-  hint.textContent = "Línea radial negra = ángulo medio. Arco externo = ±1 σ. Grilla radial en counts.";
+  hint.textContent = rotateToMean
+    ? "Media rotada al eje vertical. Línea negra = media. Arco externo = ±1 σ."
+    : "Inclinación real del diente. 90° = vertical canónico. Línea negra = media.";
 
-  panel.append(header, hint, angleRose({record, size: 380}));
+  panel.append(header, hint, angleRose({record, size: 380, rotateToMean}));
   overlay.append(panel);
   overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
   document.body.append(overlay);
@@ -409,6 +417,7 @@ display(rosePlot({
   onToothClick: showAngleModal,
   width: width,
   height: 600,
+  rotateToMean,
 }));
 ```
 

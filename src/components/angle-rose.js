@@ -18,13 +18,12 @@ const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"}
  * @param {number} [opts.angleMin=60]
  * @param {number} [opts.angleMax=120]
  */
-export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, individualAngle = null, individualLabel = null} = {}) {
+export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, individualAngle = null, individualLabel = null, rotateToMean = true} = {}) {
   const R = size / 2 - 18;
   const cx = size / 2, cy = size / 2;
   const color = QUADRANT_COLORS[record.quadrant] || "#888";
   const bw = record.bin_width || 5;
   const maxCount = d3.max(record.histogram, d => d.count) || 1;
-  // Escala radial con sqrt (área fiel al conteo).
   const rScale = d3.scaleSqrt().domain([0, maxCount]).range([0, R]);
 
   const svg = d3.create("svg")
@@ -33,10 +32,7 @@ export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, in
     .style("font-family", "var(--sans-serif, system-ui, sans-serif)")
     .style("overflow", "visible");
 
-  // Rotamos todo el grupo para que la media siempre quede apuntando arriba
-  // (igual que las mini-rosas del Rose Plot global). Las etiquetas angulares
-  // siguen mostrando los grados absolutos.
-  const meanRotation = record.mean_angle - 90; // grados, sentido horario en SVG
+  const meanRotation = rotateToMean ? record.mean_angle - 90 : 0;
   const g = svg.append("g")
     .attr("transform", `translate(${cx},${cy}) rotate(${meanRotation})`);
 
@@ -151,6 +147,7 @@ export function angleRoseGrid({
   selectedFdi = [],
   cellSize = 180,
   columns = 8,
+  rotateToMean = true,
 }) {
   const selSet = new Set(selectedFdi);
   const items = angleHistograms
@@ -166,7 +163,7 @@ export function angleRoseGrid({
   for (const r of items) {
     const wrap = document.createElement("div");
     wrap.style.textAlign = "center";
-    wrap.appendChild(angleRose({record: r, size: cellSize}));
+    wrap.appendChild(angleRose({record: r, size: cellSize, rotateToMean}));
     container.appendChild(wrap);
   }
   if (items.length === 0) {

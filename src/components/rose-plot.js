@@ -21,7 +21,7 @@ const toArcRad = (deg) => ((90 - deg) * Math.PI) / 180;
  * @param {number} opts.width
  * @param {number} opts.height
  */
-export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onToothClick = null, width = 900, height = 600} = {}) {
+export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onToothClick = null, width = 900, height = 600, rotateToMean = true} = {}) {
   const margin = {top: 25, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
@@ -98,8 +98,8 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
       .attr("y1", 0).attr("y2", innerH)
       .attr("stroke", "cyan").attr("stroke-dasharray", "4,3").attr("opacity", 0.4);
 
-    // Rose radius in pixels
-    const roseRadius = Math.max(20, Math.min(16 * k, 65));
+    // Rose radius in pixels — crece proporcionalmente al zoom sin techo
+    const roseRadius = Math.max(20, 16 * k);
 
     for (const stats of toothStats) {
       const fdi = stats.fdi;
@@ -119,9 +119,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
       const rScale = d3.scaleLinear().domain([0, localMax]).range([0, roseRadius]);
 
       const meanAngle = stats.mean_angle;
-      // Rotamos el grupo (igual que el modal) para que la media siempre quede
-      // apuntando hacia arriba. Así el mini y el detalle se ven idénticos.
-      const meanRotation = meanAngle - 90;
+      const meanRotation = rotateToMean ? meanAngle - 90 : 0;
       const toothG = g.append("g")
         .attr("transform", `translate(${cx},${cy}) rotate(${meanRotation})`);
 
