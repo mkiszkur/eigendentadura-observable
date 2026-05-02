@@ -1,8 +1,8 @@
 ---
-title: Análisis de Clusters
+title: ¿Existen subtipos de dentadura?
 ---
 
-# Análisis de Clusters
+# ¿Existen subtipos de dentadura?
 
 Clustering de **${clustering.meta.n_dentitions}** dentaduras completas (32/32 FDI).
 Espacio de features: ${clustering.meta.n_features} z-scores → PCA (${clustering.pca.n_components_90} PCs, 90% varianza) → clustering.
@@ -181,3 +181,7 @@ A diferencia de los anteriores, HDBSCAN determina el número de clusters automá
   }));
 }
 ```
+
+<div style="border-left: 4px solid #f58518; background: #fff9f0; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
+<strong>Hallazgo principal</strong> — <strong>No se detectaron clusters naturales</strong> en el espacio geométrico dental: los cinco algoritmos evaluados (KMeans, Ward, GMM, Spectral, HDBSCAN) arrojan silhouette scores &lt; 0.25, por debajo del umbral convencional para clustering significativo. La variabilidad dental en esta población es un <strong>continuo</strong>, no un conjunto de fenotipos discretos.
+</div>

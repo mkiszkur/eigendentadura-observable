@@ -5,7 +5,7 @@ title: Individuo vs Población
 # Individuo vs Población
 
 Compará la geometría dental de un individuo contra la distribución poblacional.
-Los z-scores miden cuántas desviaciones estándar se separa cada diente del promedio.
+**${individuals.length.toLocaleString("es-AR")} pantomografías** con landmarks condíleos y z-scores calculados. Los z-scores miden cuántas desviaciones estándar se separa cada diente del promedio.
 
 ```js
 import {odontograma} from "./components/odontograma.js";
@@ -538,10 +538,14 @@ display(atipicalityScatter(individuals, {
 
 <div class="note">
 
-**Datos**: ${allPantos.length.toLocaleString()} individuos con normalización por landmarks condíleos.
+**Datos**: ${allPantos.length.toLocaleString()} pantomografías con normalización por landmarks condíleos.
 Z-scores calculados como $z = (x - μ) / σ$ respecto a la media y desvío de cada diente.
 $z_{total} = \sqrt{z_x^2 + z_y^2 + z_{angle}^2}$ (norma euclidiana de los z-scores).
 $z_{pos} = \sqrt{z_x^2 + z_y^2}$ promediado sobre todos los dientes.
 $z_{ang}$ = media de $|z_{angle}|$ por diente.
 
+</div>
+
+<div style="border-left: 4px solid #b07aa1; background: #fdf7fd; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
+<strong>Hallazgo principal</strong> — Los z-scores permiten <strong>identificar piezas atípicas</strong> en un individuo en relación a la distribución poblacional, tanto en posición como en orientación. El scatter de atipicidad posicional vs. angular revela que la mayoría de los individuos son <strong>consistentemente típicos o consistentemente atípicos</strong> en ambas dimensiones: la dentadura de un individuo tiende a ser globalmente regular o globalmente irregular, sin una disociación marcada entre posición y ángulo.
 </div>

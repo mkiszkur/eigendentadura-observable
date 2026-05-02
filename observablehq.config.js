@@ -5,17 +5,21 @@ export default {
   theme: "light",
   head: '<link rel="stylesheet" href="/style.css">',
   pages: [
+    {path: "/intro", name: "Introducción"},
     {
       name: "Población",
       open: true,
       pages: [
         {name: "Universo de datos",    path: "/dataset"},
-        {name: "KDE / Eigendentadura", path: "/"},
+        {name: "Geometría Dental",     path: "/"},
+        {name: "Morfometría clínica",  path: "/morfometria"},
         {name: "Patologías",           path: "/patologias"},
+        {name: "Geometría × Patología", path: "/geo-patologia"},
+        {name: "¿Existen subtipos?",   path: "/clusters"},
       ],
     },
     {
-      name: "Población vs Población",
+      name: "Subpoblaciones",
       open: true,
       pages: [
         {name: "Origen clínico",  path: "/subpoblacion-origen"},
@@ -27,7 +31,6 @@ export default {
       open: true,
       pages: [
         {name: "Individuo", path: "/individuo"},
-        {name: "Clusters",  path: "/clusters"},
       ],
     },
     {
@@ -38,5 +41,6 @@ export default {
         {name: "Pantos normalizadas", path: "/pantos-norm"},
       ],
     },
+    {path: "/conclusiones", name: "Conclusiones"},
   ],
 };

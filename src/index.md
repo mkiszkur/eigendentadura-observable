@@ -1,14 +1,11 @@
 ---
-title: Eigendentadura — KDE Población
+title: Geometría Dental
 ---
 
 
-# Eigendentadura — KDE por pieza dental
+# Geometría Dental
 
-Seleccioná uno o más dientes en el odontograma para ver su **Kernel Density Estimation 2D**
-(mapa de calor) sobre las coordenadas landmark-normalized.
-
-La eigendentadura (centroides medios de la población) se muestra como contexto.
+Análisis de la distribución espacial y angular de los dientes en **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos: densidad de posición (KDE), dispersión posicional, orientación angular y tipicidad individual.
 
 <details>
 <summary><strong>Universo de datos</strong> — ${metadata.total_teeth.toLocaleString()} dientes de ${metadata.unique_pantos.toLocaleString()} pantomografías <em>(clic para expandir)</em></summary>
@@ -29,13 +26,7 @@ import {kdePlot} from "./components/kde-plot.js";
 import {boxplot2dPlot} from "./components/boxplot-2d.js";
 import {rosePlot} from "./components/rose-plot.js";
 import {radarAngularPlot} from "./components/radar-angular.js";
-import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
-import {archForm, computeArchMetrics} from "./components/arch-form.js";
-import {occlusionHistograms, occlusionScatter} from "./components/occlusion.js";
-import {boltonHistograms} from "./components/bolton.js";
 import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
-import {summaryCards, computeSummary, tocNav} from "./components/summary-cards.js";
-import {quadrantOverlay} from "./components/quadrant-overlay.js";
 import * as d3 from "d3";
 ```
 
@@ -46,10 +37,6 @@ const metadata = await FileAttachment("data/metadata.json").json();
 const boxplotStats = await FileAttachment("data/tooth_boxplot_stats.json").json();
 const typicalityExtremes = await FileAttachment("data/typicality_extremes.json").json();
 const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
-const symmetryData = await FileAttachment("data/symmetry_pairs.json").json();
-const occlusionData = await FileAttachment("data/occlusion.json").json();
-const boltonData = await FileAttachment("data/bolton.json").json();
-const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();
 ```
 
 ```js
@@ -70,44 +57,56 @@ function toggleTooth(fdi) {
 function setSelection(fdis) { selectedFdi.value = fdis; }
 ```
 
-## Resumen ejecutivo
 
-<details>
-<summary>Cómo leer este gráfico</summary>
+## La eigendentadura
 
-Cada tarjeta resume una dimensión distinta de la población:
-- **Muestra** — cantidad de pantomografías y dientes incluidos.
-- **Salud bucal** — prevalencia agregada de las patologías anotadas.
-- **Simetría** — asimetría mediana entre pares homólogos izquierdo/derecho.
-- **Geometría** — forma y medidas clínicas medias de las arcadas.
-- **Oclusión** — valores medianos de overjet y overbite poblacional.
-
-Las tarjetas son un punto de entrada rápido; cada sección inferior profundiza en cada tema.
-
-</details>
+La **eigendentadura** es la dentadura "promedio" de la población: la posición media de cada pieza dental en coordenadas landmark-normalized. Funciona como el mapa de referencia sobre el que se interpretan todas las variaciones individuales y de subpoblaciones estudiadas en este dashboard. Cada punto es el centroide de los casos disponibles para esa pieza (entre ${d3.min(toothStats, d => d.n).toLocaleString("es-AR")} y ${d3.max(toothStats, d => d.n).toLocaleString("es-AR")} pantomografías según la pieza).
 
 ```js
-const summary = computeSummary({metadata, prevalenceData, symmetryData, occlusionData, toothStats});
-display(summaryCards({summary}));
+{
+  const QC = {1: "#4e79a7", 2: "#f28e2b", 3: "#e15759", 4: "#76b7b2"};
+  const byFdi = Object.fromEntries(toothStats.map(t => [t.fdi, t]));
+  const upperLine = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28]
+    .filter(f => byFdi[f]).map(f => byFdi[f]);
+  const lowerLine = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38]
+    .filter(f => byFdi[f]).map(f => byFdi[f]);
+
+  display(Plot.plot({
+    width: Math.min(width, 680),
+    height: 260,
+    marginTop: 24,
+    marginBottom: 20,
+    marginLeft: 10,
+    marginRight: 10,
+    x: {label: null, ticks: 0},
+    y: {reverse: true, label: null, ticks: 0},
+    marks: [
+      Plot.line(upperLine, {x: "mean_x", y: "mean_y", stroke: "#ddd", strokeWidth: 2}),
+      Plot.line(lowerLine, {x: "mean_x", y: "mean_y", stroke: "#ddd", strokeWidth: 2}),
+      Plot.link(toothStats, {
+        x1: d => d.mean_x - d.std_x, y1: "mean_y",
+        x2: d => d.mean_x + d.std_x, y2: "mean_y",
+        stroke: d => QC[d.quadrant], strokeWidth: 5, strokeOpacity: 0.18,
+      }),
+      Plot.dot(toothStats, {
+        x: "mean_x", y: "mean_y",
+        fill: d => QC[d.quadrant], r: 5, stroke: "white", strokeWidth: 1,
+      }),
+      Plot.text(toothStats, {
+        x: "mean_x", y: "mean_y",
+        text: d => String(d.fdi), fontSize: 8, dy: -10,
+        fill: d => QC[d.quadrant], fontWeight: "600",
+      }),
+    ]
+  }));
+}
 ```
 
-```js
-display(tocNav({sections: [
-  {id: "mapa-de-densidad-kde",                       label: "KDE"},
-  {id: "estadisticas-de-los-dientes-seleccionados",  label: "Estadísticas"},
-  {id: "boxplots-2-d-dispersion-posicional",         label: "Boxplots 2D"},
-  {id: "distribucion-angular-por-diente",            label: "Ángulos"},
-  {id: "radar-dispersion-angular-por-diente",        label: "Radar"},
-  {id: "dentaduras-tipicas-y-atipicas",              label: "Típicas/atípicas"},
-  {id: "forma-de-arcada",                            label: "Arcada"},
-  {id: "overbite-y-overjet-proxy-poblacional",       label: "Overbite/overjet"},
-  {id: "indice-de-bolton",                           label: "Bolton"},
-  {id: "simetria-bilateral",                         label: "Simetría"},
-  {id: "overlay-de-los-4-cuadrantes",                label: "Overlay 4Q"},
-]}));
-```
+<small>Unidades intercondíleas (distancia cóndilo–cóndilo = 1.0). Colores por cuadrante FDI: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#f28e2b">■</span> Q2 · <span style="color:#e15759">■</span> Q3 · <span style="color:#76b7b2">■</span> Q4. Barras tenues = dispersión ±1σ en X.</small>
 
 ## Mapa de densidad (KDE)
+
+Seleccioná uno o más dientes en el odontograma para explorar la **distribución espacial** de ese diente en la población, representada como un mapa de calor (KDE 2D). La eigendentadura (centroides medios) aparece como referencia.
 
 <details>
 <summary>Cómo leer este gráfico</summary>
@@ -163,6 +162,9 @@ const showCentroidsInput = Inputs.toggle({label: "Centroides", value: true});
 const showCentroids = Generators.input(showCentroidsInput);
 ```
 
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
+
 ```js
 display(html`<div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap; padding:6px 0 4px;">
   ${displayModeInput}${displayMode === "kde" ? contoursModeInput : ""}${showCentroidsInput}
@@ -171,6 +173,8 @@ ${displayMode === "kde_std" ? html`<div style="display:flex; gap:24px; align-ite
   ${minThresholdInput}${gammaInput}
 </div>` : ""}`);
 ```
+
+</details>
 
 ```js
 const plot = kdePlot({
@@ -190,6 +194,10 @@ display(plot);
 
 ## Estadísticas de los dientes seleccionados
 
+Los valores corresponden a las **coordenadas landmark-normalized** originales
+(no z-scores): X e Y están en el rango aproximado [-1, 1] respecto al centro
+del marco dentario, y el ángulo está en radianes.
+
 <details>
 <summary>Cómo leer esta tabla</summary>
 
@@ -203,10 +211,6 @@ Cada fila corresponde a un diente seleccionado en el odontograma.
 Valores más grandes de σ indican mayor variabilidad posicional o angular de esa pieza en la población.
 
 </details>
-
-Los valores corresponden a las **coordenadas landmark-normalized** originales
-(no z-scores): X e Y están en el rango aproximado [-1, 1] respecto al centro
-del marco dentario, y el ángulo está en radianes.
 
 ```js
 const selectedSet2 = new Set(selectedFdi);
@@ -250,6 +254,10 @@ display(Inputs.table(selectedStats, {
 
 ## Boxplots 2D — Dispersión posicional
 
+Cada rectángulo representa el rango intercuartílico (IQR) de un diente en X e Y.
+Los bigotes se extienden a 1.5×IQR. El punto central es la mediana.
+Los dientes seleccionados en el odontograma se resaltan.
+
 <details>
 <summary>Cómo leer este gráfico</summary>
 
@@ -264,13 +272,19 @@ Colores por cuadrante: azul = Q1 (sup. der.), verde = Q2 (sup. izq.), amarillo =
 
 </details>
 
-Cada rectángulo representa el rango intercuartílico (IQR) de un diente en X e Y.
-Los bigotes se extienden a 1.5×IQR. El punto central es la mediana.
-Los dientes seleccionados en el odontograma se resaltan.
+```js
+const showAngleArcsInput = Inputs.toggle({label: "Mostrar dispersión angular", value: false});
+const showAngleArcs = Generators.input(showAngleArcsInput);
+```
+
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
 
 ```js
-const showAngleArcs = view(Inputs.toggle({label: "Mostrar dispersión angular", value: false}));
+display(showAngleArcsInput);
 ```
+
+</details>
 
 ```js
 display(boxplot2dPlot({
@@ -328,6 +342,8 @@ display(Inputs.table(selectedBoxplotStats, {
 
 ## Distribución angular por diente
 
+**Mapa global** — Cada diente aparece en su posición anatómica media con una mini-rosa polar: los pétalos son la frecuencia de ángulos en bins de 5°, la línea radial indica la media. Los dientes seleccionados se resaltan. **Hacé click en un diente** para ver su distribución angular ampliada en detalle.
+
 <details>
 <summary>Cómo leer este gráfico</summary>
 
@@ -343,16 +359,19 @@ Los dientes seleccionados en el odontograma aparecen resaltados.
 
 </details>
 
-**Mapa global** — Cada diente aparece en su posición anatómica media con
-una mini-rosa polar: los pétalos son la frecuencia de ángulos en bins de 5°,
-la línea radial indica la media. Los dientes seleccionados se resaltan.
-**Hacé click en un diente** para ver su distribución angular ampliada en detalle.
-
 ```js
 const rotateToMeanInput = Inputs.toggle({label: "Alinear media al eje vertical", value: true});
 const rotateToMean = Generators.input(rotateToMeanInput);
+```
+
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
+
+```js
 display(rotateToMeanInput);
 ```
+
+</details>
 
 ```js
 // Modal imperativo: lo insertamos/removemos directamente del body.
@@ -415,6 +434,8 @@ display(rosePlot({
 
 ## Radar — Dispersión angular por diente
 
+Los 32 dientes dispuestos en orden anatómico alrededor del centro. El radio de cada punto representa la **dispersión angular** de esa pieza en la población.
+
 <details>
 <summary>Cómo leer este gráfico</summary>
 
@@ -427,14 +448,22 @@ Las piezas con mayor radio son las que presentan mayor variabilidad en su eje de
 
 </details>
 
-Los 32 dientes dispuestos en orden anatómico. El radio representa la dispersión angular de cada pieza.
-
 ```js
-const radarMetric = view(Inputs.select(
+const radarMetricInput = Inputs.select(
   ["iqr", "std", "whisker_range"],
   {label: "Métrica", format: d => d === "iqr" ? "IQR (Q3−Q1)" : d === "std" ? "Desviación estándar" : "Rango whisker (whi−wlo)", value: "iqr"}
-));
+);
+const radarMetric = Generators.input(radarMetricInput);
 ```
+
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
+
+```js
+display(radarMetricInput);
+```
+
+</details>
 
 ```js
 display(radarAngularPlot({
@@ -449,6 +478,8 @@ display(radarAngularPlot({
 
 ## Dentaduras típicas y atípicas
 
+Dentaduras individuales ordenadas por su score de tipicidad (z̄: promedio de la distancia z por diente). Se muestran las **${typicalityExtremes.n_extremes} más típicas** (menor z̄) y las **${typicalityExtremes.n_extremes} más atípicas** (mayor z̄), de un total de ${typicalityExtremes.total_eligible.toLocaleString()} dentaduras con ≥${typicalityExtremes.min_teeth} dientes. Seleccioná una en los combos para visualizarla sobre la eigendentadura.
+
 <details>
 <summary>Cómo leer este gráfico</summary>
 
@@ -462,11 +493,6 @@ Seleccioná una dentadura típica (◆) y/o atípica (✕) en los combos para vi
 Scroll para zoom, drag para mover, doble-clic para resetear.
 
 </details>
-
-Dentaduras individuales ordenadas por su score de tipicidad (z̄: promedio de la distancia z por diente).
-Se muestran las **${typicalityExtremes.n_extremes} más típicas** (menor z̄) y las **${typicalityExtremes.n_extremes} más atípicas** (mayor z̄), de un total de ${typicalityExtremes.total_eligible.toLocaleString()} dentaduras con ≥${typicalityExtremes.min_teeth} dientes.
-
-Seleccioná una dentadura típica y/o atípica en los combos para visualizarla sobre la eigendentadura.
 
 ```js
 const fmt4 = d3.format(".4f");
@@ -718,314 +744,6 @@ display(html`<div style="display:flex; gap:20px; align-items:center; margin: 4px
 ```
 
 
-## Forma de arcada
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
-
-- **Línea azul** — arcada maxilar (superior). **Línea roja** — arcada mandibular (inferior).
-- **Forma de arcada** (entre paréntesis en la leyenda) — clasificación según ratio *profundidad / ancho intermolar*: **Cuadrada** (< 0.70), **Ovalada** (0.70–0.85), **Triangular** (> 0.85).
-- **Líneas de medición punteadas** (si están activas) — cada color corresponde a una medida clínica. Los valores numéricos aparecen en la leyenda de la esquina superior derecha:
-  - <span style="color:#7C3AED">■</span> **intercanino sup** (13↔23) · <span style="color:#D97706">■</span> **intermolar sup** (16↔26)
-  - <span style="color:#059669">■</span> **intercanino inf** (43↔33) · <span style="color:#DB2777">■</span> **intermolar inf** (46↔36)
-- **Puntos de medición** (si están activos) — anillos de colores sobre los 8 dientes usados como puntos de referencia.
-
-</details>
-
-Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
-Reporta medidas ortodónticas clásicas:
-**ancho intercanino** (13↔23 / 43↔33), **ancho intermolar** (16↔26 / 46↔36)
-y **profundidad de arco** (distancia del plano intermolar al borde incisal medio).
-
-La forma se clasifica aproximadamente con la razón *profundidad / ancho intermolar*:
-**Cuadrada** (< 0.70 — más ancha que larga), **Ovalada** (0.70–0.85),
-**Triangular** (> 0.85 — más larga que ancha).
-
-```js
-const archMetrics = computeArchMetrics(toothStats);
-```
-
-```js
-const showMeasurementsArch = view(Inputs.toggle({label: "Líneas de medición", value: true}));
-const showArchLabels = view(Inputs.toggle({label: "Etiquetas inline", value: false}));
-const showMeasurePts = view(Inputs.toggle({label: "Puntos de medición", value: false}));
-```
-
-```js
-display(archForm({
-  toothStats,
-  selectedFdi: selectedFdi,
-  showMeasurements: showMeasurementsArch,
-  showLabels: showArchLabels,
-  showMeasurePoints: showMeasurePts,
-  width: Math.min(width, 900),
-  height: 520,
-}));
-```
-
-```js
-const archRows = [
-  {Arcada: "Maxilar (superior)",    ...archMetrics.maxilar},
-  {Arcada: "Mandibular (inferior)", ...archMetrics.mandibular},
-].map(r => ({
-  "Arcada": r.Arcada,
-  "Ancho intercanino": r.intercanine,
-  "Ancho intermolar": r.intermolar,
-  "Profundidad": r.depth,
-  "Ratio prof/ancho": r.ratio,
-  "Forma": r.shape,
-}));
-display(Inputs.table(archRows, {
-  format: {
-    "Ancho intercanino": d3.format(".4f"),
-    "Ancho intermolar": d3.format(".4f"),
-    "Profundidad": d3.format(".4f"),
-    "Ratio prof/ancho": d3.format(".3f"),
-  },
-}));
-```
-
-## Overbite y overjet (proxy poblacional)
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-Ambas métricas se calculan a partir de los **centroides 2D** de los incisivos centrales (11/21 superiores, 41/31 inferiores). No son mediciones clínicas en milímetros desde bordes incisales; son **proxies poblacionales** en unidades landmark-normalized.
-
-- **Overjet** — distancia horizontal |Δx| entre el centroide medio de los incisivos superiores e inferiores. Mide el resalte horizontal.
-- **Overbite** — diferencia vertical Δy entre superiores e inferiores. Mide el resalte vertical.
-- **Histogramas** — distribución poblacional de cada métrica con líneas de referencia para la mediana.
-- **Diagrama de dispersión** — cada punto es una dentadura. La cruz negra marca la mediana poblacional; puntos alejados tienen oclusiones atípicas.
-
-Por basarse en centroides 2D, estos valores son útiles para comparar dentaduras *dentro del dataset*, pero no equivalen a las medidas clínicas estándar.
-
-</details>
-
-Medidas clásicas de oclusión calculadas a partir de los **centroides de los incisivos centrales**
-(11/21 superiores, 41/31 inferiores) en coordenadas *landmark-normalized*:
-
-- **Overjet** = |Δx| entre el centroide medio de los superiores y el de los inferiores
-  (cuánto sobresalen horizontalmente unos respecto de otros).
-- **Overbite** = Δy entre superiores e inferiores (separación vertical media de los
-  incisivos opuestos).
-
-Por estar basados en centroides 2D (y no en bordes incisales reales),
-estas son **proxies poblacionales** útiles para comparar dentaduras entre sí,
-no medidas clínicas en milímetros. n = ${occlusionData.n_dentitions} dentaduras
-con los 4 incisivos presentes.
-
-```js
-display(occlusionHistograms({occlusionData, width: Math.min(width, 1000)}));
-```
-
-### Diagrama poblacional (overjet vs overbite)
-
-Cada punto = una dentadura. La cruz negra marca la mediana poblacional;
-dentaduras lejos del centro tienen oclusiones atípicas.
-
-```js
-display(occlusionScatter({
-  occlusionData,
-  width: Math.min(width, 720),
-  height: 460,
-}));
-```
-
-```js
-const occRows = [
-  {Métrica: "Overjet (|Δx|)",  ...occlusionData.stats.overjet},
-  {Métrica: "Overbite (Δy)",   ...occlusionData.stats.overbite},
-];
-display(Inputs.table(occRows, {
-  format: {
-    mean:   d3.format(".4f"), std:    d3.format(".4f"),
-    median: d3.format(".4f"), q1:     d3.format(".4f"), q3: d3.format(".4f"),
-    p05:    d3.format(".4f"), p95:    d3.format(".4f"),
-    min:    d3.format(".4f"), max:    d3.format(".4f"),
-  },
-}));
-```
-
-## Índice de Bolton
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-El índice de Bolton mide si los dientes mandibulares y maxilares de un paciente están en proporción equilibrada para el cierre oclusal.
-
-- **Anterior** = 100 × Σ MD(43–33) / Σ MD(13–23) — norma clínica **77.2 ± 1.65**
-- **Overall** = 100 × Σ MD(46–36) / Σ MD(16–26) — norma clínica **91.3 ± 1.91**
-- **Banda verde** — rango clínicamente aceptable (± 1 SD de la norma de Bolton).
-- **Línea verde** — media de Bolton; **línea negra punteada** — mediana del dataset.
-- Valores fuera de la banda sugieren discrepancia maxilo-mandibular que podría requerir compensación ortodóntica.
-
-El ancho mesiodistal (MD) se aproxima por el **lado corto del rectángulo de área mínima** (minbbox) del polígono de segmentación. Es una aproximación 2D, no una medición con calibrador.
-
-</details>
-
-**Pregunta clínica**: ¿las piezas mandibulares y maxilares de cada paciente están en proporción equilibrada para el cierre oclusal? Bolton (1958/1962) definió dos relaciones porcentuales que se aceptan como referencia ortodóntica:
-
-- **Anterior** = `100 × Σ MD(43–33) / Σ MD(13–23)` — norma **77.2 ± 1.65**
-- **Overall**  = `100 × Σ MD(46–36) / Σ MD(16–26)` — norma **91.3 ± 1.91**
-
-El ancho mesiodistal (MD) de cada diente se aproxima por el **lado corto del minbbox** (rectángulo de área mínima sobre el polígono de segmentación). En la vista panorámica el eje mayor del minbbox sigue el eje oclusogingival, por lo que el lado corto aproxima la dimensión MD. Es una **aproximación 2D**, no una medición clínica con calibrador.
-
-La banda verde marca el rango clínicamente aceptable (± 1 SD de la norma); la línea verde la media de Bolton; la línea negra punteada la mediana observada en el dataset.
-
-```js
-display(boltonHistograms({boltonData, width: Math.min(width, 1000)}));
-```
-
-```js
-const boltRows = [
-  {Métrica: "Anterior (43–33 / 13–23)", n: boltonData.eligibility.anterior, ...boltonData.stats.anterior, norma: `${boltonData.norms.anterior.mean} ± ${boltonData.norms.anterior.std}`},
-  {Métrica: "Overall (46–36 / 16–26)",  n: boltonData.eligibility.overall,  ...boltonData.stats.overall,  norma: `${boltonData.norms.overall.mean} ± ${boltonData.norms.overall.std}`},
-];
-display(Inputs.table(boltRows, {
-  format: {
-    mean: d3.format(".2f"), std: d3.format(".2f"),
-    median: d3.format(".2f"), q1: d3.format(".2f"), q3: d3.format(".2f"),
-    p05: d3.format(".2f"), p95: d3.format(".2f"),
-    min: d3.format(".2f"), max: d3.format(".2f"),
-  },
-}));
-```
-
-## Simetría bilateral
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-Para cada par homólogo (ej. 16↔26) se analizan solo las dentaduras que tienen ambos dientes presentes, midiendo la asimetría **por dentadura** (análisis pareado).
-
-- **Boxplots** — la caja muestra el IQR (Q1–Q3) de la distancia de asimetría por dentadura; los bigotes llegan a P5–P95. El `n` sobre la caja es la cantidad de dentaduras con el par completo.
-- **Overlay** — los puntos azules son el diente del lado izquierdo en su posición mediana pareada; los naranjas son el homólogo derecho **reflejado** contra el plano sagital. Si ambos coinciden, la población es perfectamente simétrica para ese par.
-- **Largo y color de la línea** entre puntos del overlay — magnitud de la asimetría mediana del par.
-
-Los 3 pares con mayor asimetría se etiquetan en el overlay.
-
-</details>
-
-**Pregunta clínica**: ¿las piezas del lado derecho están en posiciones "espejo"
-de sus homólogas izquierdas? Para cada par homólogo (p.ej. 16↔26) se usan
-**solo las dentaduras que tienen ambos dientes del par** y la asimetría se
-mide **por dentadura** (análisis pareado, robusto a ausencias y outliers).
-
-Para cada par calculamos por dentadura: `Δ reflejo X = cx_izq + cx_der`,
-`ΔY = cy_izq − cy_der` y `distancia = √(Δx² + ΔY²)`. Se reportan **mediana
-y rango intercuartílico** (menos sensibles a outliers que la media).
-
-### Distribución de la asimetría por par
-
-```js
-display(symmetryBoxplot({
-  symmetryData,
-  selectedFdi: selectedFdi,
-  width: Math.min(width, 980),
-  height: 360,
-}));
-```
-
-```js
-display(html`<p style="color:#555; font-size:13px;">
-  Cada caja muestra el IQR (Q1–Q3) y la mediana de la <strong>distancia de
-  asimetría por dentadura</strong>. Los bigotes se extienden a los percentiles
-  5% y 95%. <code>n</code> arriba de cada caja es la cantidad de dentaduras
-  con ambos dientes del par presentes.
-</p>`);
-```
-
-### Overlay de medianas pareadas en el espacio anatómico
-
-Cada par aporta **un** punto azul (diente izquierdo en su posición **mediana**
-de la población pareada) y **un** punto naranja (diente derecho homólogo
-**reflejado** contra el plano sagital, también en su mediana pareada). Si
-la población fuera perfectamente simétrica, ambos puntos del par coincidirían.
-El largo y el color de la línea entre ellos representan la magnitud de
-asimetría mediana del par.
-
-```js
-display(symmetryOverlay({
-  symmetryData,
-  selectedFdi: selectedFdi,
-  highlightTopN: 3,
-  width: Math.min(width, 900),
-  height: 500,
-}));
-```
-
-### Tabla resumen por par
-
-```js
-const symRows = symmetryData.pairs.map(p => ({
-  "Par (der ↔ izq)": `${p.fdi_r} ↔ ${p.fdi_l}`,
-  "N pareado": p.n_paired,
-  "Mediana dist.": p.stats.distance.median,
-  "Q1 dist.": p.stats.distance.q1,
-  "Q3 dist.": p.stats.distance.q3,
-  "IQR dist.": p.stats.distance.iqr,
-  "P95 dist.": p.stats.distance.p95,
-  "Mediana Δreflejoᴧ": p.stats.dx_reflect.median,
-  "Mediana ΔY": p.stats.dy.median,
-}));
-display(Inputs.table(symRows, {
-  format: {
-    "Mediana dist.": d3.format(".4f"),
-    "Q1 dist.": d3.format(".4f"),
-    "Q3 dist.": d3.format(".4f"),
-    "IQR dist.": d3.format(".4f"),
-    "P95 dist.": d3.format(".4f"),
-    "Mediana Δreflejoᴧ": d3.format(".4f"),
-    "Mediana ΔY": d3.format(".4f"),
-  },
-}));
-```
-
-## Overlay de los 4 cuadrantes
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-Todos los dientes se proyectan sobre un mismo hemilado (|x|, y): los del lado derecho se reflejan para que coincidan en espacio con los del lado izquierdo. Esto permite comparación directa entre cuadrantes.
-
-- **Comparando Q1 vs Q2** (o Q4 vs Q3) — evalúa simetría bilateral *en la geometría media*: los puntos deberían superponerse si la arcada es simétrica.
-- **Comparando Q1 vs Q4** (o Q2 vs Q3) — evalúa alineación oclusal: si los dientes superiores están directamente sobre los inferiores, los puntos coinciden.
-- **Flechas** (con exactamente 2 cuadrantes) — conectan pares FDI homólogos (posición 1 con posición 1, etc.) y se reporta la distancia media.
-- **Elipses ±1σ** (opcionales) — muestran la dispersión gaussiana de cada posición.
-
-</details>
-
-Elegí qué cuadrantes querés superponer. Cuando seleccionás **exactamente 2**, se dibujan
-**flechas** entre las posiciones FDI homólogas (1↔1, 2↔2, …) y se reporta la
-**distancia media** entre los pares — útil para comparar:
-
-- **Q1 vs Q2** o **Q4 vs Q3** → simetría bilateral *en la geometría media*.
-- **Q1 vs Q4** o **Q2 vs Q3** → alineación oclusal (¿están las piezas superiores
-  encima de las inferiores?).
-
-```js
-const selectedQuadrants = view(Inputs.checkbox(
-  [1, 2, 3, 4],
-  {
-    label: "Cuadrantes",
-    value: [1, 2],
-    format: (q) => ({1: "Q1 (sup. der.)", 2: "Q2 (sup. izq.)", 3: "Q3 (inf. izq.)", 4: "Q4 (inf. der.)"})[q],
-  }
-));
-```
-
-```js
-const showQuadrantEllipses = view(Inputs.toggle({label: "Mostrar elipse ±1σ", value: true}));
-```
-
-```js
-display(quadrantOverlay({
-  toothStats,
-  quadrants: selectedQuadrants,
-  showEllipses: showQuadrantEllipses,
-  width: Math.min(width, 760),
-  height: 480,
-}));
-```
+<div style="border-left: 4px solid #7b52ab; background: #f9f7ff; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
+<strong>Hallazgo principal</strong> — La variabilidad posicional y angular de los dientes en esta población es <strong>continua</strong>: no emergen subtipos ni fenotipos geométricos discretos. La eigendentadura describe un centro de gravedad estable, con alta simetría bilateral (distancia mediana entre pares homólogos ≈ 0.02 unidades normalizadas). Las piezas posteriores muestran mayor dispersión posicional que las anteriores.
+</div>

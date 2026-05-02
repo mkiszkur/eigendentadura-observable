@@ -5,8 +5,7 @@ title: Subpoblación — Sexo biológico
 
 # Subpoblación — Sexo biológico
 
-Comparación de la dentadura media entre **Male** y **Female** (sexo biológico
-inferido por OCR sobre el nombre del paciente, cuando es visible en la imagen).
+Comparación de la dentadura media entre **Male** y **Female** (**${kdeGenero.groups.male.n_pantos + kdeGenero.groups.female.n_pantos} pantomografías** con sexo inferido por OCR).
 La comparación responde si existe **dimorfismo sexual** detectable en la
 posición/orientación de las piezas dentales sobre la pantomografía.
 
@@ -478,3 +477,7 @@ display(Inputs.table(archRows, {
   },
 }));
 ```
+
+<div style="border-left: 4px solid #54a24b; background: #f7fff7; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
+<strong>Hallazgo principal</strong> — Las diferencias en geometría dental entre grupos de <strong>sexo biológico</strong> son sutiles: los KDE se superponen en gran medida y los ratios de arcada son similares. El análisis está limitado por el tamaño muestral (~230 por grupo) y la inferencia de sexo por OCR, lo que introduce ruido. <strong>Interpretar con precaución</strong>: los resultados son exploratorios y requieren validación con una muestra balanceada y verificada.
+</div>

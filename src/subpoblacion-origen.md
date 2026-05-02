@@ -5,7 +5,7 @@ title: Subpoblación — Origen clínico
 
 # Subpoblación — Origen clínico
 
-Comparación de la dentadura media entre los **dos centros clínicos** del dataset.
+Comparación de la dentadura media entre los **dos centros clínicos** del dataset (**${kdeOrigen.groups["Centro A"].n_pantos + kdeOrigen.groups["Centro B"].n_pantos} pantomografías** totales).
 Cada centro aporta su propia nube de centroides por pieza dental; la comparación
 responde si hay diferencias sistemáticas en la geometría dental entre poblaciones.
 
@@ -473,3 +473,7 @@ display(Inputs.table(archRows, {
   },
 }));
 ```
+
+<div style="border-left: 4px solid #54a24b; background: #f7fff7; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
+<strong>Hallazgo principal</strong> — Existen <strong>diferencias sistemáticas moderadas</strong> en la geometría dental entre los dos centros clínicos: los KDE por pieza muestran desplazamientos de centroides en algunas piezas posteriores, pero la forma global de arcada y los ratios morfométricos son similares entre grupos. Las diferencias observadas podrían reflejar distintos protocolos de posicionamiento del paciente o características demográficas propias de cada centro, más que una variación biológica genuina.
+</div>
