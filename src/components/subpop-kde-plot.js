@@ -1,7 +1,7 @@
 /**
- * KDE 2D por subpoblación. Igual al kdePlot poblacional pero superpone
- * las contornos de DOS grupos en colores distintos, con la dentadura
- * media completa como contexto en gris.
+ * KDE 2D por subpoblación. Superpone contornos de DOS grupos en colores
+ * distintos, con la dentadura media completa como contexto en gris.
+ * Modos: overlay, split, diff (heatmap KDE A−B).
  *
  * Modo "split" renderiza dos paneles lado a lado (un grupo cada uno).
  * Modo "overlay" superpone ambos sobre el mismo plot.
@@ -9,6 +9,14 @@
 import * as d3 from "d3";
 
 const POP_COLOR = "#bbb";
+
+function hdrThreshold(values, p) {
+  const sorted = [...values].sort((a, b) => b - a);
+  const total = sorted.reduce((s, v) => s + v, 0);
+  let cum = 0;
+  for (const v of sorted) { cum += v; if (cum >= p * total) return v; }
+  return sorted.at(-1) ?? 0;
+}
 
 function _ellipsePts({mx, my, sx, sy, cov, nSigma, xScale, yScale}) {
   const varX = sx * sx, varY = sy * sy;
@@ -38,27 +46,53 @@ function _ellipsePts({mx, my, sx, sy, cov, nSigma, xScale, yScale}) {
  * La opacidad final se controla por la variable CSS `--layer-${layerIndex}-opacity`
  * en el ancestro <svg>, para que el slider la pueda actualizar sin redibujar.
  */
-function _drawGroupContours({g, group, selectedFdi, color, gridSize, layerIndex = 0, xScale, yScale}) {
+function _drawGroupContours({g, group, selectedFdi, color, gridSize, layerIndex = 0, xScale, yScale, linesOnly = false, contoursMode = "equi"}) {
   if (!group) return;
   const layer = g.append("g")
     .attr("class", `subpop-layer subpop-layer-${layerIndex}`)
     .style("opacity", `var(--layer-${layerIndex}-opacity, 0.6)`);
 
-  // colorScale: opacidad creciente con la densidad (replica kde-plot.js).
   const colorScale = d3.scaleSequential()
     .domain([0, 1])
     .interpolator(t => { const c = d3.color(color); c.opacity = t; return c + ""; });
 
+  const isSigma = contoursMode === "sigma12" || contoursMode === "sigma123";
+  const isHdr = contoursMode === "hdr";
+  const effectiveLinesOnly = (linesOnly || isSigma) && !isHdr;
+
+  const equiThresholds = linesOnly
+    ? d3.range(0.10, 1.01, 0.15)
+    : d3.range(0.05, 1.01, 0.05);
+
   for (const fdi of selectedFdi) {
     const td = group.teeth[String(fdi)];
     if (!td) continue;
+
+    let thresholds;
+    if (contoursMode === "sigma12") {
+      const t1 = hdrThreshold(td.values, 0.393);
+      const t2 = hdrThreshold(td.values, 0.865);
+      thresholds = [t1, t2].sort((a, b) => a - b);
+    } else if (contoursMode === "sigma123") {
+      const t1 = hdrThreshold(td.values, 0.393);
+      const t2 = hdrThreshold(td.values, 0.865);
+      const t3 = hdrThreshold(td.values, 0.989);
+      thresholds = [t1, t2, t3].sort((a, b) => a - b);
+    } else if (contoursMode === "hdr") {
+      const t25 = hdrThreshold(td.values, 0.25);
+      const t50 = hdrThreshold(td.values, 0.50);
+      const t95 = hdrThreshold(td.values, 0.95);
+      thresholds = [t95, t50, t25].filter((v, i, a) => a.findIndex(x => Math.abs(x - v) < 1e-12) === i).sort((a, b) => a - b);
+    } else {
+      thresholds = equiThresholds;
+    }
 
     const n = gridSize;
     const e = td.extent;
 
     const contours = d3.contours()
       .size([n, n])
-      .thresholds(d3.range(0.05, 1.01, 0.05))(td.values);
+      .thresholds(thresholds)(td.values);
 
     const xGrid = d3.scaleLinear().domain([0, n]).range([e.x_min, e.x_max]);
     const yGrid = d3.scaleLinear().domain([0, n]).range([e.y_min, e.y_max]);
@@ -69,10 +103,18 @@ function _drawGroupContours({g, group, selectedFdi, color, gridSize, layerIndex 
 
     layer.append("g").selectAll("path").data(contours).join("path")
       .attr("d", path)
-      .attr("fill", d => colorScale(d.value))
+      .attr("fill", isHdr
+        ? (d => {
+            const idx = thresholds.findIndex(t => Math.abs(d.value - t) < 1e-10);
+            if (idx === 0) return "none";  // 95%: solo línea
+            const c = d3.color(color);
+            c.opacity = idx === thresholds.length - 1 ? 0.42 : 0.18;  // 25%: oscuro · 50%: claro
+            return c + "";
+          })
+        : effectiveLinesOnly ? "none" : d => colorScale(d.value))
       .attr("stroke", color)
-      .attr("stroke-width", 0.5)
-      .attr("stroke-opacity", 0.4);
+      .attr("stroke-width", (isSigma || isHdr) ? 1.8 : (linesOnly ? 1.2 : 0.5))
+      .attr("stroke-opacity", effectiveLinesOnly ? 0.85 : (isHdr ? 0.75 : 0.4));
   }
 }
 
@@ -134,35 +176,137 @@ function _drawSubpopCentroids({g, subpopStats, groupNames, colorMap, selectedFdi
 }
 
 /**
- * Dibuja elipses analíticas (1σ) por subpop usando subpopStats.
+ * Dibuja elipses de covarianza (1σ rellena, 2σ solo borde) por subpop.
  */
 function _drawSubpopEllipses({g, subpopStats, groupNames, selectedFdi, colorMap, xScale, yScale}) {
   if (!subpopStats) return;
-  const selSet = new Set(selectedFdi);
   const subpopByGroupFdi = new Map();
-  for (const s of subpopStats) {
-    subpopByGroupFdi.set(`${s.group}::${s.fdi}`, s);
-  }
+  for (const s of subpopStats) subpopByGroupFdi.set(`${s.group}::${s.fdi}`, s);
+
   for (const fdi of selectedFdi) {
-    if (!selSet.has(fdi)) continue;
     for (const gName of groupNames) {
       const s = subpopByGroupFdi.get(`${gName}::${fdi}`);
       if (!s) continue;
       const color = colorMap[gName] || "#999";
-      const pts = _ellipsePts({
-        mx: s.cx_mean, my: s.cy_mean,
-        sx: s.cx_std,  sy: s.cy_std,
-        cov: 0,  // no tenemos covarianza en subpop_stats; aproximación con elipse axial
-        nSigma: 1,
-        xScale, yScale,
-      });
+      const base = {mx: s.cx_mean, my: s.cy_mean, sx: s.cx_std, sy: s.cy_std, cov: s.cx_cy_cov ?? 0, xScale, yScale};
+
+      // 2σ — solo borde punteado
       g.append("path")
-        .attr("d", d3.line()(pts))
+        .attr("d", d3.line()(_ellipsePts({...base, nSigma: 2})))
         .attr("fill", "none")
         .attr("stroke", color)
-        .attr("stroke-width", 1.5)
-        .attr("stroke-dasharray", "4,3")
-        .attr("opacity", 0.65);
+        .attr("stroke-width", 1.2)
+        .attr("stroke-dasharray", "5,3")
+        .attr("opacity", 0.55);
+
+      // 1σ — relleno semitransparente
+      g.append("path")
+        .attr("d", d3.line()(_ellipsePts({...base, nSigma: 1})))
+        .attr("fill", color)
+        .attr("fill-opacity", 0.18)
+        .attr("stroke", color)
+        .attr("stroke-width", 2)
+        .attr("opacity", 0.85);
+    }
+  }
+}
+
+/**
+ * Renderiza el mapa de diferencia KDE (A − B) como imagen rasterizada.
+ * Rojo = más densidad en grupo A; Azul = más densidad en grupo B.
+ */
+function _drawDiffMap({g, diffData, selectedFdi, xScale, yScale}) {
+  if (!diffData) return;
+  const gridSize = diffData.grid_size;
+  for (const fdi of selectedFdi) {
+    const td = diffData.teeth?.[String(fdi)];
+    if (!td) continue;
+    const {extent: e, values, vmax} = td;
+    const n = gridSize;
+
+    const svgX0 = Math.min(xScale(e.x_min), xScale(e.x_max));
+    const svgX1 = Math.max(xScale(e.x_min), xScale(e.x_max));
+    const svgY0 = Math.min(yScale(e.y_min), yScale(e.y_max));
+    const svgY1 = Math.max(yScale(e.y_min), yScale(e.y_max));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = n; canvas.height = n;
+    const ctx = canvas.getContext("2d");
+    const img = ctx.createImageData(n, n);
+
+    for (let row = 0; row < n; row++) {
+      for (let col = 0; col < n; col++) {
+        const v = values[row * n + col];
+        const t = 0.5 + 0.5 * (v / vmax);          // 0=B domina, 1=A domina
+        const c = d3.color(d3.interpolateRdBu(1 - t)); // rojo=A, azul=B
+        const alpha = Math.round(Math.abs(v) / vmax * 220 + 20);
+        const idx = (row * n + col) * 4;
+        img.data[idx]   = c.r;
+        img.data[idx+1] = c.g;
+        img.data[idx+2] = c.b;
+        img.data[idx+3] = alpha;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    g.append("image")
+      .attr("href", canvas.toDataURL())
+      .attr("x", svgX0).attr("y", svgY0)
+      .attr("width",  svgX1 - svgX0)
+      .attr("height", svgY1 - svgY0)
+      .attr("preserveAspectRatio", "none");
+  }
+}
+
+/**
+ * Dibuja el bagplot (Rousseeuw 1999): bag (50 % Mahalanobis), loop/fence
+ * (bag × 3) y outliers como × para cada subpoblación y FDI seleccionado.
+ */
+function _drawBagplot({g, bagplotData, subpopStats, groupNames, selectedFdi, colorMap, xScale, yScale}) {
+  if (!bagplotData || !subpopStats) return;
+  const {bag_r, loop_r} = bagplotData;
+
+  const byKey = new Map();
+  for (const s of subpopStats) byKey.set(`${s.group}::${s.fdi}`, s);
+
+  for (const fdi of selectedFdi) {
+    for (const gName of groupNames) {
+      const s = byKey.get(`${gName}::${fdi}`);
+      const td = bagplotData.groups[gName]?.teeth?.[String(fdi)];
+      if (!s || !td) continue;
+
+      const color = colorMap[gName] || "#999";
+      const base = {mx: s.cx_mean, my: s.cy_mean, sx: s.cx_std, sy: s.cy_std,
+                    cov: s.cx_cy_cov ?? 0, xScale, yScale};
+
+      // Loop (fence) — borde punteado fino
+      g.append("path")
+        .attr("d", d3.line()(_ellipsePts({...base, nSigma: loop_r})))
+        .attr("fill", "none").attr("stroke", color)
+        .attr("stroke-width", 1).attr("stroke-dasharray", "4,3").attr("opacity", 0.45);
+
+      // Bag (50 %) — relleno + borde
+      g.append("path")
+        .attr("d", d3.line()(_ellipsePts({...base, nSigma: bag_r})))
+        .attr("fill", color).attr("fill-opacity", 0.20)
+        .attr("stroke", color).attr("stroke-width", 1.8).attr("opacity", 0.85);
+
+      // Mediana (centroide)
+      g.append("circle")
+        .attr("cx", xScale(s.cx_mean)).attr("cy", yScale(s.cy_mean))
+        .attr("r", 4).attr("fill", color).attr("stroke", "white").attr("stroke-width", 1.5);
+
+      // Outliers — marca ×
+      const sz = 4;
+      for (let i = 0; i < td.outliers_x.length; i++) {
+        const ox = xScale(td.outliers_x[i]), oy = yScale(td.outliers_y[i]);
+        g.append("line").attr("x1", ox - sz).attr("x2", ox + sz)
+          .attr("y1", oy - sz).attr("y2", oy + sz)
+          .attr("stroke", color).attr("stroke-width", 1.5).attr("opacity", 0.75);
+        g.append("line").attr("x1", ox - sz).attr("x2", ox + sz)
+          .attr("y1", oy + sz).attr("y2", oy - sz)
+          .attr("stroke", color).attr("stroke-width", 1.5).attr("opacity", 0.75);
+      }
     }
   }
 }
@@ -170,13 +314,16 @@ function _drawSubpopEllipses({g, subpopStats, groupNames, selectedFdi, colorMap,
 /**
  * @param {Object} options
  * @param {Array<number>}  options.selectedFdi
- * @param {Object}         options.kdeData     - {axis, grid_size, groups: {name: {teeth: {...}, n_pantos, n_per_fdi}}}
- * @param {Array<Object>}  options.toothStats  - eigendentadura completa (contexto)
- * @param {Array<Object>}  [options.subpopStats]  - tooth_stats_subpop filtrado al eje (opcional, para elipses 1σ)
+ * @param {Object}         options.kdeData       - {axis, grid_size, groups: {name: {teeth, n_pantos}}}
+ * @param {Array<Object>}  options.toothStats    - eigendentadura completa (contexto)
+ * @param {Array<Object>}  [options.subpopStats] - tooth_stats_subpop filtrado al eje
+ * @param {Object}         [options.diffData]    - kde_diff_*.json para modo "diff"
+ * @param {Object}         [options.bagplotData] - bagplot_outliers_*.json para modo "bagplot"
  * @param {"overlay"|"split"} [options.mode="overlay"]
- * @param {Object}         options.colorMap     - {groupName: hexColor}
- * @param {Object}         options.labelMap     - {groupName: humanLabel}
- * @param {boolean}        [options.showEllipses=false]
+ * @param {Object}         options.colorMap
+ * @param {Object}         options.labelMap
+ * @param {"kde"|"hdr"|"elipses"|"ambos"|"diff"|"bagplot"} [options.displayMode="kde"]
+ * @param {"equi"|"sigma12"|"sigma123"} [options.contoursMode="equi"]
  * @param {number}         [options.width=900]
  * @param {number}         [options.height=550]
  */
@@ -185,10 +332,13 @@ export function subpopKdePlot({
   kdeData,
   toothStats,
   subpopStats = null,
+  diffData = null,
+  bagplotData = null,
   mode = "overlay",
   colorMap,
   labelMap,
-  showEllipses = false,
+  displayMode = "kde",
+  contoursMode = "equi",
   width = 900,
   height = 550,
 } = {}) {
@@ -202,13 +352,13 @@ export function subpopKdePlot({
     y_min: d3.min(ys) - 0.3, y_max: d3.max(ys) + 0.3,
   };
 
-  if (mode === "split") {
-    return _renderSplit({groupNames, groups, gridSize, toothStats, subpopStats,
-                         colorMap, labelMap, selectedFdi, showEllipses,
+  if (mode === "split" && displayMode !== "diff") {
+    return _renderSplit({groupNames, groups, gridSize, toothStats, subpopStats, bagplotData,
+                         colorMap, labelMap, selectedFdi, displayMode, contoursMode,
                          viewExtent, width, height});
   }
-  return _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats,
-                         colorMap, labelMap, selectedFdi, showEllipses,
+  return _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats, diffData, bagplotData,
+                         colorMap, labelMap, selectedFdi, displayMode, contoursMode,
                          viewExtent, width, height});
 }
 
@@ -229,8 +379,8 @@ function _setupPanel({svg, x, y, w, h, viewExtent, label = null}) {
   return {g0, gContent, xScale0, yScale0, xAxisG, yAxisG};
 }
 
-function _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats,
-                          colorMap, labelMap, selectedFdi, showEllipses,
+function _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats, diffData = null, bagplotData = null,
+                          colorMap, labelMap, selectedFdi, displayMode, contoursMode,
                           viewExtent, width, height}) {
   const margin = {top: 20, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
@@ -258,14 +408,25 @@ function _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats,
 
   function draw() {
     gContent.selectAll("*").remove();
-    groupNames.forEach((gName, i) => {
-      _drawGroupContours({
-        g: gContent, group: groups[gName], selectedFdi,
-        color: colorMap[gName], gridSize, layerIndex: i, xScale, yScale,
-      });
-    });
-    if (showEllipses) {
+    if (displayMode === "diff") {
+      _drawDiffMap({g: gContent, diffData, selectedFdi, xScale, yScale});
       _drawSubpopEllipses({g: gContent, subpopStats, groupNames, selectedFdi, colorMap, xScale, yScale});
+    } else if (displayMode === "bagplot") {
+      _drawBagplot({g: gContent, bagplotData, subpopStats, groupNames, selectedFdi, colorMap, xScale, yScale});
+    } else {
+      if (displayMode !== "elipses") {
+        groupNames.forEach((gName, i) => {
+          _drawGroupContours({
+            g: gContent, group: groups[gName], selectedFdi,
+            color: colorMap[gName], gridSize, layerIndex: i, xScale, yScale,
+            linesOnly: displayMode === "kde",
+            contoursMode: displayMode === "hdr" ? "hdr" : contoursMode,
+          });
+        });
+      }
+      if (displayMode !== "kde" && displayMode !== "hdr") {
+        _drawSubpopEllipses({g: gContent, subpopStats, groupNames, selectedFdi, colorMap, xScale, yScale});
+      }
     }
     _drawEigendentaduraContext({g: gContent, toothStats, selectedFdi, xScale, yScale});
     _drawSubpopCentroids({g: gContent, subpopStats, groupNames, colorMap, selectedFdi, xScale, yScale});
@@ -301,8 +462,8 @@ function _renderOverlay({groupNames, groups, gridSize, toothStats, subpopStats,
   return svg.node();
 }
 
-function _renderSplit({groupNames, groups, gridSize, toothStats, subpopStats,
-                        colorMap, labelMap, selectedFdi, showEllipses,
+function _renderSplit({groupNames, groups, gridSize, toothStats, subpopStats, bagplotData = null,
+                        colorMap, labelMap, selectedFdi, displayMode, contoursMode,
                         viewExtent, width, height}) {
   const gap = 24;
   const margin = {top: 30, right: 16, bottom: 45, left: 50};
@@ -332,11 +493,19 @@ function _renderSplit({groupNames, groups, gridSize, toothStats, subpopStats,
 
     function draw() {
       gContent.selectAll("*").remove();
-      _drawGroupContours({
-        g: gContent, group: groups[gName], selectedFdi,
-        color: colorMap[gName], gridSize, layerIndex: i, xScale, yScale,
-      });
-      if (showEllipses) {
+      if (displayMode === "bagplot") {
+        const singleGroupStats = subpopStats ? subpopStats.filter(s => s.group === gName) : null;
+        _drawBagplot({g: gContent, bagplotData, subpopStats: singleGroupStats,
+                      groupNames: [gName], selectedFdi, colorMap, xScale, yScale});
+      } else if (displayMode !== "elipses") {
+        _drawGroupContours({
+          g: gContent, group: groups[gName], selectedFdi,
+          color: colorMap[gName], gridSize, layerIndex: i, xScale, yScale,
+          linesOnly: displayMode === "kde",
+          contoursMode: displayMode === "hdr" ? "hdr" : contoursMode,
+        });
+      }
+      if (displayMode !== "kde" && displayMode !== "hdr" && displayMode !== "bagplot") {
         _drawSubpopEllipses({
           g: gContent, subpopStats, groupNames: [gName], selectedFdi,
           colorMap, xScale, yScale,
