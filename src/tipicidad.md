@@ -64,6 +64,79 @@ $z_{ang}$ = media de $|z_{angle}|$ por diente.
 
 </div>
 
+## Distribución de z̄ — ranking de outliers
+
+Histograma de z̄ (score de tipicidad geométrica) para las **${typicalityExtremes.total_eligible.toLocaleString()} dentaduras** elegibles (≥${typicalityExtremes.min_teeth} dientes). Los **${typicalityExtremes.n_extremes} outliers formales** más atípicos aparecen en rojo.
+
+<details>
+<summary>Cómo leer este gráfico y la tabla</summary>
+
+- **Eje X (z̄)** — score de tipicidad: promedio de la distancia z estandarizada por diente. z̄ ≈ 1.0 indica dientes muy cercanos al promedio; z̄ > 2.5 indica dentadura globalmente atípica.
+- **Barras rojas** — las ${typicalityExtremes.n_extremes} dentaduras con mayor z̄ (outliers formales): sus dientes se ubican, en promedio, más lejos de la posición esperada.
+- **Barras azules** — resto de la población.
+- **Tabla** — ranking de los outliers más atípicos; hacé clic en una fila para seleccionarla y visualizarla en el gráfico de abajo.
+
+</details>
+
+```js
+{
+  const threshold = typicalityExtremes.atypical[typicalityExtremes.atypical.length - 1]?.z_mean ?? Infinity;
+  display(Plot.plot({
+    width: Math.min(width, 620),
+    height: 220,
+    marginBottom: 45,
+    x: {label: "z̄ (score de tipicidad)", domain: [0, d3.max(individuals, d => d.z_mean) + 0.1]},
+    y: {label: "N° dentaduras"},
+    color: {domain: ["Población", "Outliers formales"], range: ["#4c78a8", "#e15759"], legend: true},
+    marks: [
+      Plot.rectY(
+        individuals.filter(d => d.n_teeth >= typicalityExtremes.min_teeth),
+        Plot.binX(
+          {y: "count"},
+          {
+            x: "z_mean",
+            fill: d => d.z_mean >= threshold ? "Outliers formales" : "Población",
+            thresholds: 60,
+          }
+        )
+      ),
+      Plot.ruleX([threshold], {stroke: "#e15759", strokeDasharray: "5,3", strokeWidth: 1.5}),
+    ],
+  }));
+}
+```
+
+```js
+{
+  function simplifyFn(fn) {
+    return fn.replace(/^database_original__/, "").replace(/__json_url\.json$/, "").replace(/\.json$/, "");
+  }
+  const atypRows = typicalityExtremes.atypical.map(d => ({
+    "Rank (atípica)": d.rank,
+    "ID": simplifyFn(d.json_filename),
+    "Dientes": d.n_teeth,
+    "z̄": d.z_mean,
+  }));
+  const typRows = typicalityExtremes.typical.map(d => ({
+    "Rank (típica)": d.rank,
+    "ID": simplifyFn(d.json_filename),
+    "Dientes": d.n_teeth,
+    "z̄": d.z_mean,
+  }));
+
+  display(html`<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:0.5rem;">
+    <div>
+      <div style="font-size:0.78rem; font-weight:600; color:#e15759; margin-bottom:4px;">✕ ${typicalityExtremes.n_extremes} más atípicas</div>
+      ${Inputs.table(atypRows, {format: {"z̄": d3.format(".4f")}, rows: typicalityExtremes.n_extremes})}
+    </div>
+    <div>
+      <div style="font-size:0.78rem; font-weight:600; color:#2a7f62; margin-bottom:4px;">◆ ${typicalityExtremes.n_extremes} más típicas</div>
+      ${Inputs.table(typRows, {format: {"z̄": d3.format(".4f")}, rows: typicalityExtremes.n_extremes})}
+    </div>
+  </div>`);
+}
+```
+
 ## Dentaduras típicas y atípicas
 
 Dentaduras individuales ordenadas por su score de tipicidad (z̄: promedio de la distancia z por diente). Se muestran las **${typicalityExtremes.n_extremes} más típicas** (menor z̄) y las **${typicalityExtremes.n_extremes} más atípicas** (mayor z̄), de un total de ${typicalityExtremes.total_eligible.toLocaleString()} dentaduras con ≥${typicalityExtremes.min_teeth} dientes. Seleccioná una en los combos para visualizarla sobre la eigendentadura.

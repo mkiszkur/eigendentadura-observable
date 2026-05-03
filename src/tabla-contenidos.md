@@ -45,7 +45,7 @@ Acceso directo a cada sección y subsección del dashboard.
 <li><a href="./patologias#prevalencia-por-tipo-de-diente">Prevalencia por tipo de diente</a></li>
 <li><a href="./patologias#heatmap-fdi-patologia">Heatmap FDI × patología</a></li>
 <li><a href="./patologias#prevalencia-de-patologias-por-diente">Prevalencia por diente</a></li>
-<li><a href="./patologias#co-ocurrencias-upset-plot">Co-ocurrencias (UpSet)</a></li>
+<li><a href="./patologias#co-ocurrencias-up-set-plot">Co-ocurrencias (UpSet)</a></li>
 <li><a href="./patologias#multimorbilidad">Multimorbilidad</a></li>
 </ul>
 </div>

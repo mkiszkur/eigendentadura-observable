@@ -25,6 +25,17 @@ import * as d3 from "d3";
 
 Cada punto es una pantomografía. El color indica el número de **tipos de patología** presentes simultáneamente.
 
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+- **Eje X (z_pos)** — atipicidad posicional: desvío promedio de los centroides dentales respecto al promedio poblacional, en desvíos estándar. Valores altos = dientes muy desplazados de su posición típica.
+- **Eje Y (z_ang)** — atipicidad angular: desvío medio del ángulo de cada diente respecto al ángulo poblacional medio.
+- **Color** — gradiente de amarillo a rojo: cuántos tipos de patología distintos tiene esa dentadura (0 = sin patología registrada, valores mayores = más tipos simultáneos).
+- **Ausencia de gradiente visible** — si la nube de puntos no muestra gradiente de color claro, indica que los pacientes con más patologías no se concentran en ningún cuadrante particular.
+- Los ejes están recortados al percentil 99 para excluir valores extremos; los puntos fuera del corte representan < 1 % de la muestra.
+
+</details>
+
 ```js
 {
   const nMax = d3.max(geoPath.records, d => d.n_pathologies);
@@ -58,6 +69,20 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 
 ¿Tienen más atipicidad geométrica los individuos con más tipos de patología simultáneos?
 
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+- **Eje X** — número de tipos de patología distintos presentes simultáneamente en la dentadura.
+- **Eje Y (z_mean)** — atipicidad geométrica media: promedio de z_pos y z_ang por diente. Valores más altos = dentadura más alejada del patrón típico.
+- **Barra vertical** — rango intercuartílico (Q1–Q3) del grupo; refleja la dispersión dentro de cada grupo de carga patológica.
+- **Punto central** — mediana del grupo.
+- **Línea punteada** — media global de la población; sirve de referencia para comparar entre grupos.
+- **n** sobre cada barra — cantidad de dentaduras en ese grupo.
+
+Si los grupos con más patologías tuvieran mayor z_mean, aparecerían sistemáticamente por encima de la línea punteada.
+
+</details>
+
 ```js
 {
   const byN = geoPath.by_n_pathologies;
@@ -82,6 +107,21 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 ## Diferencia de z_mean: con vs. sin cada patología
 
 ¿Qué patologías están más asociadas a posiciones atípicas?
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+Gráfico de mancuernas (_dumbbell chart_): cada fila es una patología y compara dos grupos.
+
+- **Punto rojo** — mediana de z_mean de los pacientes **con** esa patología en algún diente.
+- **Punto azul** — mediana de z_mean de los pacientes **sin** esa patología.
+- **Línea conectora** — une los dos puntos del mismo par; su largo es la diferencia Δ entre grupos.
+- **Δ anotado** — diferencia de medianas: positivo (+) indica que los pacientes con esa patología son, en promedio, más atípicos geométricamente.
+- **Línea punteada vertical** — media global de z_mean en la población.
+- Las filas están ordenadas por Δ de mayor a menor: las patologías con mayor asociación geométrica aparecen arriba.
+- Una diferencia < 0.10 es clínicamente pequeña dado que z_mean tiene mediana ≈ 1.5 en esta cohorte.
+
+</details>
 
 ```js
 {
