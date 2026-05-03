@@ -5,7 +5,7 @@ title: Geometría Dental
 
 # Geometría Dental
 
-Análisis de la distribución espacial y angular de los dientes en **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos: densidad de posición (KDE), dispersión posicional, orientación angular y tipicidad individual.
+¿Dónde se ubica cada diente en la dentadura media? ¿Cuánto varía de individuo a individuo? Esta sección caracteriza la **eigendentadura** — la dentadura media de la población — y describe la distribución espacial y angular de las **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos.
 
 <details>
 <summary><strong>Universo de datos</strong> — ${metadata.total_teeth.toLocaleString()} dientes de ${metadata.unique_pantos.toLocaleString()} pantomografías <em>(clic para expandir)</em></summary>

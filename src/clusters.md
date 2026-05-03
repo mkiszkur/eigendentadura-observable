@@ -4,8 +4,9 @@ title: ¿Existen subtipos de dentadura?
 
 # ¿Existen subtipos de dentadura?
 
-Clustering de **${clustering.meta.n_dentitions}** dentaduras completas (32/32 FDI).
-Espacio de features: ${clustering.meta.n_features} z-scores → PCA (${clustering.pca.n_components_90} PCs, 90% varianza) → clustering.
+Si existieran fenotipos dentales discretos — por ejemplo, un "tipo angosto", un "tipo ancho" — deberían ser detectables como clusters separados en el espacio de z-scores. Evaluamos **5 algoritmos** sobre **${clustering.meta.n_dentitions}** dentaduras completas (32/32 FDI) para responder esta pregunta. La respuesta es **no** — y ese resultado es en sí mismo informativo sobre la naturaleza de la variabilidad dental.
+
+_Espacio de features: ${clustering.meta.n_features} z-scores → PCA (${clustering.pca.n_components_90} PCs, 90% varianza) → clustering._
 
 ```js
 import {algorithmSection} from "./components/algorithm-section.js";

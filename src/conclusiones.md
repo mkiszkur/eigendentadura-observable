@@ -1,8 +1,8 @@
 ---
-title: Conclusiones
+title: Conclusiones y síntesis
 ---
 
-# Conclusiones y estado del trabajo
+# Conclusiones
 
 ```js
 const ds = await FileAttachment("data/dataset_stats.json").json();
@@ -96,43 +96,4 @@ import * as d3 from "d3";
 
 </div>
 
-## Estado del trabajo
-
-```js
-{
-  const items = [
-    { area: "Infraestructura de datos", done: ["Pipeline de procesamiento (stages 10–51)", "Validación de consistencia flags (diente vs. dentadura)", "Exportación a JSON para Observable"], pending: [] },
-    { area: "Geometría poblacional", done: ["Eigendentadura (coordenadas landmark-normalized)", "KDE 2D por pieza", "Boxplots 2D de dispersión posicional", "Distribución y dispersión angular (rose plots, radar)", "Dentaduras típicas y atípicas (z-score Mahalanobis)", "Simetría bilateral", "Overlay de cuadrantes"], pending: ["Análisis de forma de contorno (minbbox, área, compacidad)"] },
-    { area: "Morfometría clínica", done: ["Forma de arcada (spline Catmull-Rom, ancho inter-canino/molar)", "Overbite y overjet (proxy por centroides)", "Índice de Bolton (anterior y overall)", "Simetría bilateral (boxplots + overlay pareado)", "Overlay de los 4 cuadrantes"], pending: [] },
-    { area: "Epidemiología de patologías", done: ["Prevalencia por diente (FDI) y por tipo de pieza", "Heatmap FDI × patología", "Odontograma de prevalencia interactivo", "Co-ocurrencias (UpSet plot)", "Multimorbilidad por dentadura", "Geometría × Patología (hallazgo: sin asociación significativa)"], pending: [] },
-    { area: "Clustering y subtipos", done: ["Comparación silhouette (KMeans, Ward, GMM, Spectral, HDBSCAN)", "PCA varianza explicada", "Visualización de dentaduras centroide por cluster"], pending: [] },
-    { area: "Subpoblaciones", done: ["Comparación por origen clínico (Centro A vs. B)", "Comparación por sexo biológico (inferido por nombre)"], pending: ["Validación tamaño muestral sexo (n ≈ 230 por grupo)"] },
-    { area: "Individuo vs. Población", done: ["Tabla de búsqueda con filtros", "Overlay individual vs. elipses poblacionales", "Z-scores por diente", "Rose plots individuales vs. población", "Scatter atipicidad posicional vs. angular"], pending: ["Mejoras de UX en selección de individuo"] },
-    { area: "Exploradores", done: ["Explorador de pantomografías (esquema D3)", "Explorador normalizado por landmarks"], pending: [] },
-    { area: "Próximos pasos", done: [], pending: ["Reunión con odontólogos (12 mayo 2026) — validación clínica", "Página Geometría × Patología", "Visual storytelling orientado a audiencias específicas", "Integración LLM (en evaluación)"] },
-  ];
-
-  const rows = items.map(item => {
-    const doneHtml = item.done.map(d => `<li style="color:#2d6a2d;">✓ ${d}</li>`).join("");
-    const pendHtml = item.pending.map(p => `<li style="color:#8a5200;">○ ${p}</li>`).join("");
-    return `<tr style="border-bottom: 1px solid #eee; vertical-align: top;">
-      <td style="padding: 8px 12px; font-weight:600; font-size:0.85rem; white-space:nowrap; color:#333;">${item.area}</td>
-      <td style="padding: 8px 12px; font-size:0.82rem; line-height:1.6;">
-        <ul style="margin:0; padding-left:1rem;">${doneHtml}${pendHtml}</ul>
-      </td>
-    </tr>`;
-  }).join("");
-
-  display(html`<table style="border-collapse:collapse; width:100%; margin: 1rem 0;">
-    <thead>
-      <tr style="border-bottom: 2px solid #ccc;">
-        <th style="padding:8px 12px; text-align:left; font-size:0.8rem; color:#666; font-weight:600; white-space:nowrap;">Área</th>
-        <th style="padding:8px 12px; text-align:left; font-size:0.8rem; color:#666; font-weight:600;">Realizaciones y pendientes</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div style="font-size:0.75rem; color:#999; margin-top:4px;">✓ completado &nbsp;·&nbsp; ○ pendiente</div>`);
-}
-```
 

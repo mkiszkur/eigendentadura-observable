@@ -22,10 +22,10 @@ export default {
       pages: [
         {name: "Universo de datos",    path: "/dataset"},
         {name: "Geometría Dental",     path: "/geometria-dental"},
+        {name: "Tipicidad y outliers",  path: "/tipicidad"},
         {name: "Morfometría clínica",  path: "/morfometria"},
         {name: "Patologías",           path: "/patologias"},
         {name: "Geometría × Patología", path: "/geo-patologia"},
-        {name: "Tipicidad y outliers",  path: "/tipicidad"},
         {name: "¿Existen subtipos?",   path: "/clusters"},
       ],
     },
@@ -52,6 +52,6 @@ export default {
         {name: "Pantos normalizadas", path: "/pantos-norm"},
       ],
     },
-    {path: "/conclusiones", name: "Conclusiones"},
+    {path: "/conclusiones", name: "Conclusiones y síntesis"},
   ],
 };

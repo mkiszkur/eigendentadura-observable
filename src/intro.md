@@ -57,3 +57,11 @@ individuos y subpoblaciones.
 </div>
 
 </div>
+
+---
+
+<div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
+  <a href="./resumen" style="display:inline-block; background:#4c78a8; color:white; padding:0.6rem 1.2rem; border-radius:6px; text-decoration:none; font-weight:600; font-size:0.9rem;">→ Resumen ejecutivo</a>
+  <a href="./dataset" style="display:inline-block; background:#f0f4ff; color:#4c78a8; border:1px solid #4c78a8; padding:0.6rem 1.2rem; border-radius:6px; text-decoration:none; font-weight:600; font-size:0.9rem;">→ Universo de datos</a>
+  <a href="./tabla-contenidos" style="display:inline-block; background:#f5f5f5; color:#555; border:1px solid #ddd; padding:0.6rem 1.2rem; border-radius:6px; text-decoration:none; font-weight:600; font-size:0.9rem;">→ Tabla de contenidos</a>
+</div>

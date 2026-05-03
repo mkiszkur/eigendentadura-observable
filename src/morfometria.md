@@ -4,7 +4,7 @@ title: Morfometría clínica
 
 # Morfometría clínica
 
-Métricas clínicas derivadas de la geometría dental de **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos: **forma de arcada**, **overbite / overjet**, **índice de Bolton** y **simetría bilateral**.
+¿Cuál es la forma de arcada predominante en esta población? ¿Qué tan simétrica es la dentadura media? Esta sección deriva métricas clínicas de la geometría dental: **forma de arcada**, **overbite / overjet**, **índice de Bolton** y **simetría bilateral**, sobre **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos.
 
 ```js
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
