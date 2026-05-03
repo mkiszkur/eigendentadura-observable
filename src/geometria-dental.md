@@ -113,8 +113,6 @@ display(teethSelector({
 }));
 ```
 
----
-
 ## Mapa de densidad (KDE)
 
 Un **KDE 2D** (_Kernel Density Estimation_) estima la densidad de probabilidad de la posición de cada diente a partir de las coordenadas de todas las pantomografías: las zonas de mayor densidad indican dónde se concentra la mayoría de los centroides dentales de la población. Seleccioná una o más piezas en el odontograma para ver su distribución espacial.

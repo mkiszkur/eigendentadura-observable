@@ -149,15 +149,14 @@ display(occlusionHistograms({occlusionData, width: Math.min(width, 1000)}));
 
 ## Diagrama poblacional (overjet vs overbite)
 
-Cada punto es una dentadura. La cruz negra marca la mediana poblacional; dentaduras alejadas del centro tienen oclusiones atípicas.
+Cada punto es una dentadura. El círculo negro marca la mediana poblacional; dentaduras alejadas del centro tienen oclusiones atípicas.
 
 <details>
 <summary>Cómo leer este gráfico</summary>
 
 - **Eje X** — overjet: separación horizontal entre centroides de incisivos superiores e inferiores. Valores más altos = mayor resalte anterior.
 - **Eje Y** — overbite: separación vertical entre centroides de incisivos superiores e inferiores. Valores positivos = superiores por encima de inferiores.
-- **Cruz negra** — mediana de ambas métricas en la población.
-- **Líneas punteadas** — medianas en cada eje por separado; dividen el espacio en 4 cuadrantes de oclusión.
+- **Círculo negro** — mediana de overjet y overbite en la población; el punto de referencia oclusal.
 - Ambos ejes están en unidades landmark-normalized (escala intercondílea = 1.0), no en milímetros clínicos.
 
 </details>
