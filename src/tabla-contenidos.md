@@ -43,8 +43,7 @@ Acceso directo a cada sección y subsección del dashboard.
 <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #e45756; border-bottom: 2px solid #e45756; padding-bottom: 4px; margin-bottom: 0.5rem;">Patologías</div>
 <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.83rem; line-height: 2;">
 <li><a href="./patologias#prevalencia-por-tipo-de-diente">Prevalencia por tipo de diente</a></li>
-<li><a href="./patologias#heatmap-fdi-patologia">Heatmap FDI × patología</a></li>
-<li><a href="./patologias#prevalencia-de-patologias-por-diente">Prevalencia por diente</a></li>
+<li><a href="./patologias#prevalencia-por-diente">Prevalencia por diente (Heatmap / Odontograma)</a></li>
 <li><a href="./patologias#co-ocurrencias-up-set-plot">Co-ocurrencias (UpSet)</a></li>
 <li><a href="./patologias#multimorbilidad">Multimorbilidad</a></li>
 </ul>

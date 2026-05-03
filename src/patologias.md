@@ -83,92 +83,73 @@ const splitArch = view(Inputs.toggle({label: "Separar por arcada (Superior / Inf
 display(prevalenceByToothType(prevalenceData, selectedPaths, {width: Math.min(width, splitArch ? 860 : 720), splitByArch: splitArch}));
 ```
 
-## Heatmap FDI × patología
-
-Prevalencia (%) por pieza dental y tipo de hallazgo. Cada celda = % de pacientes
-con esa patología en ese diente específico.
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-Grilla donde cada fila es un diente (código FDI) y cada columna una patología seleccionada en el filtro.
-
-- **Color más oscuro** — mayor prevalencia para esa combinación diente/patología.
-- **Número en la celda** — porcentaje de prevalencia (solo visible si supera el 5 % y hay espacio).
-- **Color del FDI** — indica el cuadrante: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4.
-- **Línea punteada horizontal** — separa arcada superior (11–28) de arcada inferior (31–48).
-
-Pasá el cursor sobre una celda para ver el valor exacto y el denominador.
-
-</details>
-
-```js
-display(fdiPathologyHeatmap(prevalenceData, {
-  width: Math.min(width, 760),
-  selectedPathologies: selectedPaths,
-}));
-```
-
-## Prevalencia de patologías por diente
+## Prevalencia por diente
 
 ¿Qué dientes concentran cada patología? Se usan **flags de diente** (nivel FDI, no dentadura). El denominador es la cantidad de dientes de ese tipo presentes en la muestra.
 
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se colorea según la prevalencia de la patología seleccionada.
-
-- **Color más saturado** — mayor porcentaje de dentaduras con ese diente afectado.
-- **Número pequeño** — fracción *casos / dientes presentes*: el denominador varía por pieza ya que no todas están en todas las dentaduras.
-- **Escala** — se reajusta por patología para resaltar el patrón espacial; no compares intensidades entre patologías distintas.
-
-</details>
-
-<details>
-<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtros</summary>
-
 ```js
-const pathology = view(Inputs.select(prevalenceData.pathologies, {
-  label: "Patología",
-  value: "Restauración",
-}));
+const vistaFDI = view(Inputs.radio(
+  new Map([["Heatmap (multi-patología)", "heatmap"], ["Odontograma (patología individual)", "odontograma"]]),
+  {value: "heatmap", label: "Vista"}
+));
 ```
 
-</details>
-
 ```js
-display(prevalenceLegend({prevalenceData, pathology, width: 360}));
-display(prevalenceOdontogram({
-  prevalenceData,
-  pathology,
-  selectedFdi: [],
-  width: Math.min(width, 1400),
-  cellW: 62,
-  cellH: 78,
-}));
-display(html`<div style="color:#666;font-size:11px;margin-top:6px">
-  n = ${prevalenceData.n_dentitions} dentaduras. El número chico en cada
-  celda indica <em>dientes con la patología / dientes presentes en la muestra</em>.
-</div>`);
+const pathologyInput = Inputs.select(prevalenceData.pathologies, {label: "Patología", value: "Restauración"});
+const pathology = Generators.input(pathologyInput);
 ```
 
-## Ranking por prevalencia (patología activa)
-
 ```js
-const rankRows = [...prevalenceData.teeth]
-  .map(t => ({
-    FDI: t.fdi,
-    "Dientes presentes": t.n_present,
-    "Con patología": t[pathology].count,
-    "Prevalencia": t[pathology].prevalence,
-  }))
-  .sort((a, b) => b["Prevalencia"] - a["Prevalencia"]);
-display(Inputs.table(rankRows, {
-  format: {
-    "Prevalencia": d => `${(d * 100).toFixed(2)}%`,
-  },
-  rows: 10,
-}));
+{
+  if (vistaFDI === "heatmap") {
+    display(html`<details><summary>Cómo leer este gráfico</summary>
+      <p style="margin:0.5rem 0 0.2rem">Grilla donde cada fila es un diente (código FDI) y cada columna una patología seleccionada en los filtros de arriba.</p>
+      <ul>
+        <li><strong>Color más oscuro</strong> — mayor prevalencia para esa combinación diente/patología.</li>
+        <li><strong>Número en la celda</strong> — porcentaje de prevalencia (solo visible si supera el 5 % y hay espacio).</li>
+        <li><strong>Color del FDI</strong> — indica el cuadrante: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4.</li>
+        <li><strong>Línea punteada horizontal</strong> — separa arcada superior (11–28) de arcada inferior (31–48).</li>
+      </ul>
+      <p style="margin:0.2rem 0">Pasá el cursor sobre una celda para ver el valor exacto y el denominador.</p>
+    </details>`);
+    display(fdiPathologyHeatmap(prevalenceData, {
+      width: Math.min(width, 760),
+      selectedPathologies: selectedPaths,
+    }));
+  } else {
+    display(pathologyInput);
+    display(html`<details><summary>Cómo leer este gráfico</summary>
+      <p style="margin:0.5rem 0 0.2rem">El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se colorea según la prevalencia de la patología seleccionada.</p>
+      <ul>
+        <li><strong>Color más saturado</strong> — mayor porcentaje de dentaduras con ese diente afectado.</li>
+        <li><strong>Número pequeño</strong> — fracción <em>casos / dientes presentes</em>: el denominador varía por pieza ya que no todas están en todas las dentaduras.</li>
+        <li><strong>Escala</strong> — se reajusta por patología para resaltar el patrón espacial; no compares intensidades entre patologías distintas.</li>
+      </ul>
+    </details>`);
+    display(prevalenceLegend({prevalenceData, pathology, width: 360}));
+    display(prevalenceOdontogram({
+      prevalenceData, pathology, selectedFdi: [],
+      width: Math.min(width, 1400), cellW: 62, cellH: 78,
+    }));
+    display(html`<div style="color:#666;font-size:11px;margin-top:6px">
+      n = ${prevalenceData.n_dentitions} dentaduras. El número chico en cada
+      celda indica <em>dientes con la patología / dientes presentes en la muestra</em>.
+    </div>`);
+    display(html`<h3 style="margin-top:2rem;">Ranking por prevalencia</h3>`);
+    const rankRows = [...prevalenceData.teeth]
+      .map(t => ({
+        FDI: t.fdi,
+        "Dientes presentes": t.n_present,
+        "Con patología": t[pathology].count,
+        "Prevalencia": t[pathology].prevalence,
+      }))
+      .sort((a, b) => b["Prevalencia"] - a["Prevalencia"]);
+    display(Inputs.table(rankRows, {
+      format: {"Prevalencia": d => `${(d * 100).toFixed(2)}%`},
+      rows: 10,
+    }));
+  }
+}
 ```
 
 ## Co-ocurrencias — UpSet plot
