@@ -136,8 +136,3 @@ import * as d3 from "d3";
 }
 ```
 
-<div style="font-size: 0.8rem; color: #999; border-top: 1px solid #eee; padding-top: 0.8rem; margin-top: 1rem;">
-  Maestría en Explotación de Datos y Descubrimiento del Conocimiento — UBA FCEN ·
-  Autor: Lic. Eduardo Miguel Kiszkurno ·
-  Directores: Dr. Claudio Delrieux, Dra. Debora Pollicelli
-</div>
