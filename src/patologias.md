@@ -22,27 +22,20 @@ const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").jso
 ```
 
 ```js
-const PATHOLOGY_GROUPS = [
-  {label: "Caries",                  paths: ["Caries", "Caries incipiente", "Caries moderada", "Caries avanzada"]},
-  {label: "Restauraciones y prótesis", paths: ["Restauración", "Corona sobre implante", "Poste/Implante", "Implante dental", "Pilar de puente"]},
-  {label: "Tratamientos",            paths: ["Tratamiento de conducto"]},
-  {label: "Otras patologías",        paths: ["Restos radiculares", "Pieza retenida", "Radiolucidez", "Neoplasia", "Agenesia"]},
-];
-
-const DEFAULT_PATHS = new Set(["Restauración", "Tratamiento de conducto", "Caries", "Caries avanzada", "Pieza retenida", "Radiolucidez"]);
-
-const cariesInput     = Inputs.checkbox(PATHOLOGY_GROUPS[0].paths, {label: PATHOLOGY_GROUPS[0].label,   value: PATHOLOGY_GROUPS[0].paths.filter(p => DEFAULT_PATHS.has(p))});
-const restaurInput    = Inputs.checkbox(PATHOLOGY_GROUPS[1].paths, {label: PATHOLOGY_GROUPS[1].label, value: PATHOLOGY_GROUPS[1].paths.filter(p => DEFAULT_PATHS.has(p))});
-const tratamInput     = Inputs.checkbox(PATHOLOGY_GROUPS[2].paths, {label: PATHOLOGY_GROUPS[2].label,  value: PATHOLOGY_GROUPS[2].paths.filter(p => DEFAULT_PATHS.has(p))});
-const otrasInput      = Inputs.checkbox(PATHOLOGY_GROUPS[3].paths, {label: PATHOLOGY_GROUPS[3].label,   value: PATHOLOGY_GROUPS[3].paths.filter(p => DEFAULT_PATHS.has(p))});
-```
-
-```js
-const cariesSel  = Generators.input(cariesInput);
-const restaurSel = Generators.input(restaurInput);
-const tratamSel  = Generators.input(tratamInput);
-const otrasSel   = Generators.input(otrasInput);
-const selectedPaths = [...cariesSel, ...restaurSel, ...tratamSel, ...otrasSel];
+const pathGroupInputs = {
+  caries:  Inputs.checkbox(
+    ["Caries", "Caries incipiente", "Caries moderada", "Caries avanzada"],
+    {label: "Caries", value: ["Caries", "Caries avanzada"]}),
+  restaur: Inputs.checkbox(
+    ["Restauración", "Corona sobre implante", "Poste/Implante", "Implante dental", "Pilar de puente"],
+    {label: "Restauraciones y prótesis", value: ["Restauración"]}),
+  tratam:  Inputs.checkbox(
+    ["Tratamiento de conducto"],
+    {label: "Tratamientos", value: ["Tratamiento de conducto"]}),
+  otras:   Inputs.checkbox(
+    ["Restos radiculares", "Pieza retenida", "Radiolucidez", "Neoplasia", "Agenesia"],
+    {label: "Otras patologías", value: ["Pieza retenida", "Radiolucidez"]}),
+};
 ```
 
 ## Prevalencia por tipo de diente
@@ -56,7 +49,6 @@ Barras horizontales agrupadas por patología. Dentro de cada grupo, una barra po
 
 - **Eje X** — prevalencia: fracción de piezas *de ese tipo* con la patología. El denominador varía por tipo, ya que no todas las piezas están en todas las dentaduras.
 - **Color** — cada color corresponde a un tipo de pieza (ver leyenda).
-- **Filtro "Patologías a mostrar"** — controla qué patologías se incluyen en este gráfico y en el heatmap de abajo.
 
 </details>
 
@@ -64,23 +56,25 @@ Barras horizontales agrupadas por patología. Dentro de cada grupo, una barra po
 <summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtros</summary>
 
 ```js
-display(html`<div style="display:flex; gap:20px; flex-wrap:wrap; padding:4px 0 8px;">
-  <div>${cariesInput}</div>
-  <div>${restaurInput}</div>
-  <div>${tratamInput}</div>
-  <div>${otrasInput}</div>
-</div>`);
+const pathForm = view(Inputs.form(pathGroupInputs));
 ```
 
 </details>
+
+```js
+const selectedPaths = [
+  ...(pathForm.caries  ?? []),
+  ...(pathForm.restaur ?? []),
+  ...(pathForm.tratam  ?? []),
+  ...(pathForm.otras   ?? []),
+];
+```
 
 <details>
 <summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
 
 ```js
-const splitArchInput = Inputs.toggle({label: "Separar por arcada (Superior / Inferior)", value: false});
-const splitArch = Generators.input(splitArchInput);
-display(splitArchInput);
+const splitArch = view(Inputs.toggle({label: "Separar por arcada (Superior / Inferior)", value: false}));
 ```
 
 </details>
@@ -127,7 +121,6 @@ El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se c
 - **Color más saturado** — mayor porcentaje de dentaduras con ese diente afectado.
 - **Número pequeño** — fracción *casos / dientes presentes*: el denominador varía por pieza ya que no todas están en todas las dentaduras.
 - **Escala** — se reajusta por patología para resaltar el patrón espacial; no compares intensidades entre patologías distintas.
-- **Ranking inferior** — lista los FDI de mayor a menor prevalencia para la patología activa.
 
 </details>
 
@@ -135,12 +128,10 @@ El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se c
 <summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtros</summary>
 
 ```js
-const pathologyInput = Inputs.select(prevalenceData.pathologies, {
+const pathology = view(Inputs.select(prevalenceData.pathologies, {
   label: "Patología",
   value: "Restauración",
-});
-const pathology = Generators.input(pathologyInput);
-display(pathologyInput);
+}));
 ```
 
 </details>
