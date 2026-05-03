@@ -53,7 +53,7 @@ Spline (Catmull–Rom) pasando por los centroides medios de cada arcada. Reporta
 
 Spline suave (Catmull–Rom) pasando por los centroides medios de cada arcada.
 
-- **Línea azul** — arcada maxilar (superior). **Línea roja** — arcada mandibular (inferior).
+- **Línea azul** — arcada maxilar (superior). **Línea roja** — arcada mandibular (inferior). Los puntos de cada diente se colorean por cuadrante FDI: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4.
 - **Forma de arcada** (entre paréntesis en la leyenda) — clasificación según ratio *profundidad / ancho intermolar*: **Cuadrada** (< 0.70), **Ovalada** (0.70–0.85), **Triangular** (> 0.85).
 - **Líneas de medición punteadas** (si están activas) — cada color corresponde a una medida clínica. Los valores numéricos aparecen en la leyenda de la esquina superior derecha:
   - <span style="color:#7C3AED">■</span> **intercanino sup** (13↔23) · <span style="color:#D97706">■</span> **intermolar sup** (16↔26)
@@ -147,10 +147,20 @@ Por basarse en centroides 2D, estos valores son útiles para comparar dentaduras
 display(occlusionHistograms({occlusionData, width: Math.min(width, 1000)}));
 ```
 
-### Diagrama poblacional (overjet vs overbite)
+## Diagrama poblacional (overjet vs overbite)
 
-Cada punto = una dentadura. La cruz negra marca la mediana poblacional;
-dentaduras lejos del centro tienen oclusiones atípicas.
+Cada punto es una dentadura. La cruz negra marca la mediana poblacional; dentaduras alejadas del centro tienen oclusiones atípicas.
+
+<details>
+<summary>Cómo leer este gráfico</summary>
+
+- **Eje X** — overjet: separación horizontal entre centroides de incisivos superiores e inferiores. Valores más altos = mayor resalte anterior.
+- **Eje Y** — overbite: separación vertical entre centroides de incisivos superiores e inferiores. Valores positivos = superiores por encima de inferiores.
+- **Cruz negra** — mediana de ambas métricas en la población.
+- **Líneas punteadas** — medianas en cada eje por separado; dividen el espacio en 4 cuadrantes de oclusión.
+- Ambos ejes están en unidades landmark-normalized (escala intercondílea = 1.0), no en milímetros clínicos.
+
+</details>
 
 ```js
 display(occlusionScatter({
@@ -248,8 +258,6 @@ Los 3 pares con mayor asimetría se etiquetan en el overlay.
 
 </details>
 
-### Distribución de la asimetría por par
-
 ```js
 display(symmetryBoxplot({
   symmetryData,
@@ -268,7 +276,7 @@ display(html`<p style="color:#555; font-size:13px;">
 </p>`);
 ```
 
-### Overlay de medianas pareadas en el espacio anatómico
+## Overlay de medianas pareadas en el espacio anatómico
 
 Cada par aporta **un** punto azul (diente izquierdo en su posición **mediana**
 de la población pareada) y **un** punto naranja (diente derecho homólogo

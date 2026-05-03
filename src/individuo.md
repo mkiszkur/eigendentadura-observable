@@ -499,53 +499,6 @@ if (indiv && indiv.teeth) {
 }
 ```
 
-## Atipicidad posicional vs angular — población completa
-
-¿Son los pacientes atípicos por su **posición** dental, por su **ángulo** de rotación, o por ambas cosas?
-Cada punto es una pantomografía. El paciente seleccionado aparece resaltado.
-
-<details>
-<summary>Cómo leer este gráfico</summary>
-
-- **Eje X (z_pos)** — atipicidad posicional: desvío promedio de los centroides dentales respecto a la media poblacional, en desvíos estándar. Valores altos = dientes muy desplazados de su posición típica.
-- **Eje Y (z_ang)** — atipicidad angular: desvío medio del ángulo de cada diente respecto al ángulo poblacional.
-- **Líneas punteadas** — mediana de la población en cada eje; dividen el espacio en 4 cuadrantes.
-- **Punto grande con borde** — paciente actualmente seleccionado en el panel de arriba.
-- **Color** — codificado según el selector (centro clínico o sexo biológico).
-
-Un paciente en el cuadrante superior derecho ("Atípico posición + ángulo") tiene dientes desplazados *y* rotados respecto a la distribución esperada.
-
-</details>
-
-```js
-const colorByInput = Inputs.select(
-  new Map([["Centro clínico", "origin"], ["Sexo", "sex"]]),
-  {label: "Colorear por", value: "origin"}
-);
-const colorBy = Generators.input(colorByInput);
-display(colorByInput);
-```
-
-```js
-display(atipicalityScatter(individuals, {
-  width: Math.min(width, 700),
-  height: 460,
-  colorBy,
-  minTeeth: 10,
-  selectedPanto: indiv?.json_filename ?? null,
-}));
-```
-
-<div class="note">
-
-**Datos**: ${allPantos.length.toLocaleString()} pantomografías con normalización por landmarks condíleos.
-Z-scores calculados como $z = (x - μ) / σ$ respecto a la media y desvío de cada diente.
-$z_{total} = \sqrt{z_x^2 + z_y^2 + z_{angle}^2}$ (norma euclidiana de los z-scores).
-$z_{pos} = \sqrt{z_x^2 + z_y^2}$ promediado sobre todos los dientes.
-$z_{ang}$ = media de $|z_{angle}|$ por diente.
-
-</div>
-
 <div style="border-left: 4px solid #b07aa1; background: #fdf7fd; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
-<strong>Hallazgo principal</strong> — Los z-scores permiten <strong>identificar piezas atípicas</strong> en un individuo en relación a la distribución poblacional, tanto en posición como en orientación. El scatter de atipicidad posicional vs. angular revela que la mayoría de los individuos son <strong>consistentemente típicos o consistentemente atípicos</strong> en ambas dimensiones: la dentadura de un individuo tiende a ser globalmente regular o globalmente irregular, sin una disociación marcada entre posición y ángulo.
+<strong>Hallazgo principal</strong> — Los z-scores permiten <strong>identificar piezas atípicas</strong> en un individuo en relación a la distribución poblacional, tanto en posición como en orientación. La distribución angular individual comparada contra la población revela las piezas con mayor desvío angular respecto al promedio. Ver la distribución completa de tipicidad en la población en <a href="./tipicidad">Tipicidad y outliers →</a>
 </div>

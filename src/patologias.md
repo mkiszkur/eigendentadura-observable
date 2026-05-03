@@ -21,9 +21,33 @@ const ds = await FileAttachment("data/dataset_stats.json").json();
 const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();
 ```
 
+```js
+const PATHOLOGY_GROUPS = [
+  {label: "Caries",                  paths: ["Caries", "Caries incipiente", "Caries moderada", "Caries avanzada"]},
+  {label: "Restauraciones y prótesis", paths: ["Restauración", "Corona sobre implante", "Poste/Implante", "Implante dental", "Pilar de puente"]},
+  {label: "Tratamientos",            paths: ["Tratamiento de conducto"]},
+  {label: "Otras patologías",        paths: ["Restos radiculares", "Pieza retenida", "Radiolucidez", "Neoplasia", "Agenesia"]},
+];
+
+const DEFAULT_PATHS = new Set(["Restauración", "Tratamiento de conducto", "Caries", "Caries avanzada", "Pieza retenida", "Radiolucidez"]);
+
+const cariesInput     = Inputs.checkbox(PATHOLOGY_GROUPS[0].paths, {label: PATHOLOGY_GROUPS[0].label,   value: PATHOLOGY_GROUPS[0].paths.filter(p => DEFAULT_PATHS.has(p))});
+const restaurInput    = Inputs.checkbox(PATHOLOGY_GROUPS[1].paths, {label: PATHOLOGY_GROUPS[1].label, value: PATHOLOGY_GROUPS[1].paths.filter(p => DEFAULT_PATHS.has(p))});
+const tratamInput     = Inputs.checkbox(PATHOLOGY_GROUPS[2].paths, {label: PATHOLOGY_GROUPS[2].label,  value: PATHOLOGY_GROUPS[2].paths.filter(p => DEFAULT_PATHS.has(p))});
+const otrasInput      = Inputs.checkbox(PATHOLOGY_GROUPS[3].paths, {label: PATHOLOGY_GROUPS[3].label,   value: PATHOLOGY_GROUPS[3].paths.filter(p => DEFAULT_PATHS.has(p))});
+```
+
+```js
+const cariesSel  = Generators.input(cariesInput);
+const restaurSel = Generators.input(restaurInput);
+const tratamSel  = Generators.input(tratamInput);
+const otrasSel   = Generators.input(otrasInput);
+const selectedPaths = [...cariesSel, ...restaurSel, ...tratamSel, ...otrasSel];
+```
+
 ## Prevalencia por tipo de diente
 
-¿Qué patologías concentran cada tipo de pieza?
+¿Qué patologías concentran cada tipo de pieza? Se usan **flags de diente** (presencia de la patología en esa pieza específica), no flags de dentadura.
 
 <details>
 <summary>Cómo leer este gráfico</summary>
@@ -36,20 +60,30 @@ Barras horizontales agrupadas por patología. Dentro de cada grupo, una barra po
 
 </details>
 
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtros</summary>
+
 ```js
-const pathSelectInput = Inputs.checkbox(prevalenceData.pathologies, {
-  label: "Patologías a mostrar",
-  value: ["Restauración", "Tratamiento de conducto", "Caries", "Caries avanzada", "Pieza retenida", "Radiolucidez"],
-});
-const selectedPaths = Generators.input(pathSelectInput);
-display(pathSelectInput);
+display(html`<div style="display:flex; gap:20px; flex-wrap:wrap; padding:4px 0 8px;">
+  <div>${cariesInput}</div>
+  <div>${restaurInput}</div>
+  <div>${tratamInput}</div>
+  <div>${otrasInput}</div>
+</div>`);
 ```
+
+</details>
+
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
 
 ```js
 const splitArchInput = Inputs.toggle({label: "Separar por arcada (Superior / Inferior)", value: false});
 const splitArch = Generators.input(splitArchInput);
 display(splitArchInput);
 ```
+
+</details>
 
 ```js
 display(prevalenceByToothType(prevalenceData, selectedPaths, {width: Math.min(width, splitArch ? 860 : 720), splitByArch: splitArch}));
@@ -67,7 +101,7 @@ Grilla donde cada fila es un diente (código FDI) y cada columna una patología 
 
 - **Color más oscuro** — mayor prevalencia para esa combinación diente/patología.
 - **Número en la celda** — porcentaje de prevalencia (solo visible si supera el 5 % y hay espacio).
-- **Color del FDI** — indica el cuadrante: azul Q1 (sup. der.), verde Q2 (sup. izq.), amarillo Q3 (inf. izq.), rojo Q4 (inf. der.).
+- **Color del FDI** — indica el cuadrante: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4.
 - **Línea punteada horizontal** — separa arcada superior (11–28) de arcada inferior (31–48).
 
 Pasá el cursor sobre una celda para ver el valor exacto y el denominador.
@@ -83,7 +117,7 @@ display(fdiPathologyHeatmap(prevalenceData, {
 
 ## Prevalencia de patologías por diente
 
-¿Qué dientes concentran cada patología?
+¿Qué dientes concentran cada patología? Se usan **flags de diente** (nivel FDI, no dentadura). El denominador es la cantidad de dientes de ese tipo presentes en la muestra.
 
 <details>
 <summary>Cómo leer este gráfico</summary>
@@ -97,12 +131,19 @@ El odontograma muestra los 32 dientes organizados por cuadrante. Cada celda se c
 
 </details>
 
+<details>
+<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtros</summary>
+
 ```js
-const pathology = view(Inputs.select(prevalenceData.pathologies, {
+const pathologyInput = Inputs.select(prevalenceData.pathologies, {
   label: "Patología",
   value: "Restauración",
-}));
+});
+const pathology = Generators.input(pathologyInput);
+display(pathologyInput);
 ```
+
+</details>
 
 ```js
 display(prevalenceLegend({prevalenceData, pathology, width: 360}));
@@ -120,7 +161,7 @@ display(html`<div style="color:#666;font-size:11px;margin-top:6px">
 </div>`);
 ```
 
-### Ranking por prevalencia (patología activa)
+## Ranking por prevalencia (patología activa)
 
 ```js
 const rankRows = [...prevalenceData.teeth]

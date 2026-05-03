@@ -122,6 +122,7 @@ export function archForm({
 
   const COLOR_UPPER = "#4e79a7";
   const COLOR_LOWER = "#e15759";
+  const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"};
 
   g.append("path")
     .attr("d", archPath(ARCH_UPPER, byFdi, x, y))
@@ -217,13 +218,13 @@ export function archForm({
     g.append("circle")
       .attr("cx", x(s.mean_x)).attr("cy", y(s.mean_y))
       .attr("r", isSel ? 5 : 3)
-      .attr("fill", isUpper ? COLOR_UPPER : COLOR_LOWER)
+      .attr("fill", QUADRANT_COLORS[s.quadrant] ?? (isUpper ? COLOR_UPPER : COLOR_LOWER))
       .attr("stroke", "#fff").attr("stroke-width", 1.2)
       .attr("opacity", isSel ? 1 : 0.8);
     if (isSel) {
       g.append("text").attr("x", x(s.mean_x)).attr("y", y(s.mean_y) + (isUpper ? -8 : 16))
         .attr("text-anchor", "middle").attr("font-size", 10)
-        .attr("font-weight", "bold").attr("fill", "#333")
+        .attr("font-weight", "bold").attr("fill", QUADRANT_COLORS[s.quadrant] ?? "#333")
         .text(String(s.fdi));
     }
   }

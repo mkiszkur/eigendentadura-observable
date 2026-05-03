@@ -25,7 +25,6 @@ Acceso directo a cada sección y subsección del dashboard.
 <li><a href="./geometria-dental#boxplots-2-d-dispersion-posicional">Boxplots 2D — Dispersión posicional</a></li>
 <li><a href="./geometria-dental#distribucion-angular-por-diente">Distribución angular</a></li>
 <li><a href="./geometria-dental#radar-dispersion-angular-por-diente">Radar angular</a></li>
-<li><a href="./geometria-dental#dentaduras-tipicas-y-atipicas">Dentaduras típicas y atípicas</a></li>
 </ul>
 </div>
 
@@ -60,6 +59,14 @@ Acceso directo a cada sección y subsección del dashboard.
 </div>
 
 <div style="border: 1px solid #dde3f0; border-radius: 6px; padding: 0.7rem 1rem;">
+<div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #54a24b; border-bottom: 2px solid #54a24b; padding-bottom: 4px; margin-bottom: 0.5rem;">Tipicidad y outliers</div>
+<ul style="list-style: none; padding: 0; margin: 0; font-size: 0.83rem; line-height: 2;">
+<li><a href="./tipicidad#atipicidad-posicional-vs-angular-poblacion-completa">Scatter atipicidad poblacional</a></li>
+<li><a href="./tipicidad#dentaduras-tipicas-y-atipicas">Dentaduras típicas y atípicas</a></li>
+</ul>
+</div>
+
+<div style="border: 1px solid #dde3f0; border-radius: 6px; padding: 0.7rem 1rem;">
 <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #f58518; border-bottom: 2px solid #f58518; padding-bottom: 4px; margin-bottom: 0.5rem;">¿Existen subtipos?</div>
 <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.83rem; line-height: 2;">
 <li><a href="./clusters#comparacion-de-silhouette">Comparación de Silhouette</a></li>
@@ -86,7 +93,7 @@ Acceso directo a cada sección y subsección del dashboard.
 <li><a href="./individuo#seleccion-de-individuo">Selección de individuo</a></li>
 <li><a href="./individuo#dentadura-individuo-vs-poblacion">Dentadura vs población</a></li>
 <li><a href="./individuo#z-scores-por-diente">Z-scores por diente</a></li>
-<li><a href="./individuo#atipicidad-posicional-vs-angular-poblacion-completa">Atipicidad posicional vs angular</a></li>
+<li><a href="./individuo#distribucion-angular-individuo-vs-poblacion">Distribución angular</a></li>
 </ul>
 </div>
 

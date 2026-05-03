@@ -25,6 +25,7 @@ export default {
         {name: "Morfometría clínica",  path: "/morfometria"},
         {name: "Patologías",           path: "/patologias"},
         {name: "Geometría × Patología", path: "/geo-patologia"},
+        {name: "Tipicidad y outliers",  path: "/tipicidad"},
         {name: "¿Existen subtipos?",   path: "/clusters"},
       ],
     },

@@ -79,7 +79,7 @@ const worstPair = symmetryData.pairs.reduce((a, b) => b.stats.distance.median > 
     display(html`<div style="background:${colors[i]}14; border:1px solid ${colors[i]}44; border-radius:6px; padding:1rem 1.2rem;">
       <div style="font-size:0.7rem;color:#777;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">${step.label}</div>
       <div style="font-size:2rem;font-weight:700;color:${colors[i]};line-height:1;">${step.n.toLocaleString("es-AR")}</div>
-      ${step.excluded ? `<div style="font-size:0.72rem;color:#e15759;margin-top:4px;">−${step.excluded.toLocaleString("es-AR")} ${step.excluded_label}</div>` : ""}
+      ${step.excluded ? html`<div style="font-size:0.72rem;color:#e15759;margin-top:4px;">−${step.excluded.toLocaleString("es-AR")} ${step.excluded_label}</div>` : ""}
     </div>`);
   }
 }

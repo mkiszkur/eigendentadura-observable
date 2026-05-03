@@ -64,7 +64,7 @@ const axisData = subpopStats.filter(d => d.axis === AXIS);
 ```
 
 ```js
-const selectedFdi = Mutable([11]);
+const selectedFdi = Mutable([...ALL_FDI]);
 function toggleTooth(fdi) {
   const cur = selectedFdi.value;
   selectedFdi.value = cur.includes(fdi) ? cur.filter(f => f !== fdi) : [...cur, fdi];
