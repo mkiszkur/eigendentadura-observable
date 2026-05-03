@@ -21,6 +21,7 @@ const nWithPath  = ds.pantos.filter(p => p["Patología"]).length;
 const nWithTreat = ds.pantos.filter(p => p["Tratamiento"]).length;
 const nTotal     = ds.pantos.length;
 const totalDientes = d3.sum(prevalenceData.teeth, t => t.n_present);
+const totalFlags = d3.sum(ds.pantos, p => d3.sum(ds.flag_labels, k => p[k] ?? 0));
 const cariesFields = ["Caries", "Caries incipiente", "Caries moderada", "Caries avanzada"];
 const totalCaries = d3.sum(prevalenceData.teeth, t => d3.sum(cariesFields, f => t[f]?.count ?? 0));
 const totalRestauraciones = d3.sum(prevalenceData.teeth, t => t["Restauración"]?.count ?? 0);
@@ -32,54 +33,52 @@ const worstPair = symmetryData.pairs.reduce((a, b) => b.stats.distance.median > 
 
 ---
 
-## El dataset
-
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:2rem;">
-
-<div style="background:#f0f4ff; border-left:4px solid #4c78a8; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Pantomografías totales</div>
-  <div style="font-size:2rem;font-weight:700;color:#4c78a8;line-height:1;">${ds.funnel[0].n.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">en la base de datos</div>
-</div>
-
-<div style="background:#f5f0ff; border-left:4px solid #7b52ab; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Dientes anotados</div>
-  <div style="font-size:2rem;font-weight:700;color:#7b52ab;line-height:1;">${totalDientes.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">presencias FDI registradas</div>
-</div>
-
-<div style="background:#f9f0ff; border-left:4px solid #b07aa1; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Dientes con geometría</div>
-  <div style="font-size:2rem;font-weight:700;color:#b07aa1;line-height:1;">${metadata.total_teeth.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">con coordenadas normalizadas</div>
-</div>
-
-<div style="background:#fff8f0; border-left:4px solid #f58518; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Anotaciones totales</div>
-  <div style="font-size:2rem;font-weight:700;color:#f58518;line-height:1;">~476k</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">shapes, landmarks y entidades</div>
-</div>
-
-<div style="background:#f0fff4; border-left:4px solid #54a24b; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Centros clínicos</div>
-  <div style="font-size:2rem;font-weight:700;color:#54a24b;line-height:1;">2</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">Centro A y Centro B</div>
-</div>
-
-</div>
-
 ## Universo de análisis
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:2rem;">
+Cómo se construye el dataset a partir de los JSONs crudos hasta los universos usados en cada sección del análisis.
 
 ```js
 {
-  const colors = ["#4c78a8","#54a24b","#7b52ab","#e45756"];
-  for (const [i, step] of ds.funnel.entries()) {
-    display(html`<div style="background:${colors[i]}14; border:1px solid ${colors[i]}44; border-radius:6px; padding:1rem 1.2rem;">
-      <div style="font-size:0.7rem;color:#777;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">${step.label}</div>
-      <div style="font-size:2rem;font-weight:700;color:${colors[i]};line-height:1;">${step.n.toLocaleString("es-AR")}</div>
-      ${step.excluded ? html`<div style="font-size:0.72rem;color:#e15759;margin-top:4px;">−${step.excluded.toLocaleString("es-AR")} ${step.excluded_label}</div>` : ""}
+  const COLORS = ["#4c78a8", "#4e8c9e", "#54a24b", "#7b52ab"];
+  display(html`<div style="display:flex; align-items:center; gap:0; margin:1rem 0 2rem; flex-wrap:nowrap; overflow-x:auto;">
+    ${ds.funnel.map((step, i) => html`
+      ${i > 0 ? html`<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; padding:0 0.7rem; text-align:center; min-width:fit-content;">
+        ${step.excluded ? html`<div style="font-size:0.68rem; color:#e15759; white-space:nowrap; font-weight:600;">−${step.excluded.toLocaleString("es-AR")}</div>` : ""}
+        <div style="color:#bbb; font-size:1.5rem; line-height:1.2;">→</div>
+        ${step.excluded ? html`<div style="font-size:0.63rem; color:#aaa; white-space:nowrap; max-width:90px; text-align:center; line-height:1.2;">${step.excluded_label}</div>` : ""}
+      </div>` : ""}
+      <div style="background:${COLORS[i]}18; border:1px solid ${COLORS[i]}55; border-radius:6px; padding:1rem 1.2rem; min-width:140px; flex:1 1 140px;">
+        <div style="font-size:0.65rem; color:#777; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; line-height:1.3;">${step.label}</div>
+        <div style="font-size:1.9rem; font-weight:700; color:${COLORS[i]}; line-height:1;">${step.n.toLocaleString("es-AR")}</div>
+      </div>
+    `)}
+  </div>`);
+}
+```
+
+---
+
+## El dataset
+
+### Pantomografías
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:1.5rem;">
+
+```js
+{
+  const f = ds.funnel;
+  const items = [
+    { label: "JSONs en la base",          value: f[0].n.toLocaleString("es-AR"), sub: "archivos de pantomografía",               color: "#4c78a8" },
+    { label: "Con anotaciones",           value: f[1].n.toLocaleString("es-AR"), sub: "al menos un hallazgo registrado",          color: "#4e8c9e" },
+    { label: "Con FDI permanente",        value: f[2].n.toLocaleString("es-AR"), sub: "universo epidemiológico",                  color: "#54a24b" },
+    { label: "Con landmarks condíleos",   value: f[3].n.toLocaleString("es-AR"), sub: "universo eigendentadura/geometría",        color: "#7b52ab" },
+    { label: "Centros clínicos",          value: "2",                            sub: "Centro A y Centro B",                      color: "#f58518" },
+  ];
+  for (const it of items) {
+    display(html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
+      <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
+      <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
+      <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
     </div>`);
   }
 }
@@ -87,47 +86,55 @@ const worstPair = symmetryData.pairs.reduce((a, b) => b.stats.distance.median > 
 
 </div>
 
-## Epidemiología de patologías
+### Anotaciones
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:1.5rem;">
+
+```js
+{
+  const items = [
+    { label: "Anotaciones totales",    value: "~476k",                               sub: "shapes, landmarks y entidades clínicas", color: "#f58518" },
+    { label: "Dientes anotados",       value: totalDientes.toLocaleString("es-AR"),   sub: "presencias FDI en pantomografías",        color: "#7b52ab" },
+    { label: "Con geometría",          value: metadata.total_teeth.toLocaleString("es-AR"), sub: "centroides normalizados por landmarks",  color: "#b07aa1" },
+  ];
+  for (const it of items) {
+    display(html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
+      <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
+      <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
+      <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
+    </div>`);
+  }
+}
+```
+
+</div>
+
+### Hallazgos clínicos
 
 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:2rem;">
 
-<div style="background:#fff7f7; border-left:4px solid #e45756; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Pantos con patología activa</div>
-  <div style="font-size:2rem;font-weight:700;color:#e45756;line-height:1;">${(nWithPath/nTotal*100).toFixed(1)}%</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">${nWithPath.toLocaleString("es-AR")} de ${nTotal.toLocaleString("es-AR")} pantos</div>
-</div>
-
-<div style="background:#fff9f0; border-left:4px solid #f58518; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Pantos con tratamiento</div>
-  <div style="font-size:2rem;font-weight:700;color:#f58518;line-height:1;">${(nWithTreat/nTotal*100).toFixed(1)}%</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">${nWithTreat.toLocaleString("es-AR")} de ${nTotal.toLocaleString("es-AR")} pantos</div>
-</div>
-
-<div style="background:#fff7f7; border-left:4px solid #c0392b; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Dientes con caries</div>
-  <div style="font-size:2rem;font-weight:700;color:#c0392b;line-height:1;">${totalCaries.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">incipiente, moderada y avanzada</div>
-</div>
-
-<div style="background:#f0f7f0; border-left:4px solid #54a24b; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Restauraciones</div>
-  <div style="font-size:2rem;font-weight:700;color:#54a24b;line-height:1;">${totalRestauraciones.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">dientes con restauración registrada</div>
-</div>
-
-<div style="background:#f5f0ff; border-left:4px solid #7b52ab; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Endodoncias</div>
-  <div style="font-size:2rem;font-weight:700;color:#7b52ab;line-height:1;">${totalEndodoncias.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">tratamientos de conducto</div>
-</div>
-
-<div style="background:#f0f4ff; border-left:4px solid #4c78a8; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Piezas retenidas</div>
-  <div style="font-size:2rem;font-weight:700;color:#4c78a8;line-height:1;">${totalRetenidos.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">predominantemente 3os molares</div>
-</div>
+```js
+{
+  const items = [
+    { label: "Flags totales",          value: totalFlags.toLocaleString("es-AR"),    sub: "hallazgos registrados a nivel diente",           color: "#e45756" },
+    { label: "Tipos de hallazgo",      value: ds.flag_labels.length.toString(),      sub: "patologías y tratamientos distintos",             color: "#e45756" },
+    { label: "Con patología activa",   value: nWithPath.toLocaleString("es-AR"),     sub: `de ${nTotal.toLocaleString("es-AR")} pantos con geometría`, color: "#c0392b" },
+    { label: "Con tratamiento",        value: nWithTreat.toLocaleString("es-AR"),    sub: "restauraciones, endodoncias, implantes",          color: "#f58518" },
+    { label: "Restauraciones",         value: totalRestauraciones.toLocaleString("es-AR"), sub: "el hallazgo más prevalente",               color: "#59a14f" },
+  ];
+  for (const it of items) {
+    display(html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
+      <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
+      <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
+      <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
+    </div>`);
+  }
+}
+```
 
 </div>
+
+---
 
 ## Geometría dental
 
