@@ -22,16 +22,23 @@ const nWithTreat = ds.pantos.filter(p => p["Tratamiento"]).length;
 const nTotal     = ds.pantos.length;
 const totalDientes = d3.sum(prevalenceData.teeth, t => t.n_present);
 const totalFlags = d3.sum(ds.pantos, p => d3.sum(ds.flag_labels, k => p[k] ?? 0));
-const cariesFields = ["Caries", "Caries incipiente", "Caries moderada", "Caries avanzada"];
-const totalCaries = d3.sum(prevalenceData.teeth, t => d3.sum(cariesFields, f => t[f]?.count ?? 0));
 const totalRestauraciones = d3.sum(prevalenceData.teeth, t => t["Restauración"]?.count ?? 0);
-const totalRetenidos      = d3.sum(prevalenceData.teeth, t => t["Pieza retenida"]?.count ?? 0);
-const totalEndodoncias    = d3.sum(prevalenceData.teeth, t => t["Tratamiento de conducto"]?.count ?? 0);
 const symMedian = d3.median(symmetryData.pairs, p => p.stats.distance.median);
 const worstPair = symmetryData.pairs.reduce((a, b) => b.stats.distance.median > a.stats.distance.median ? b : a);
-```
 
----
+function kpiCard(it) {
+  return html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
+    <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
+    <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
+    <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
+  </div>`;
+}
+function kpiGrid(items) {
+  return html`<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:1.5rem;">
+    ${items.map(kpiCard)}
+  </div>`;
+}
+```
 
 ## Universo de análisis
 
@@ -56,138 +63,64 @@ Cómo se construye el dataset a partir de los JSONs crudos hasta los universos u
 }
 ```
 
----
-
 ## El dataset
 
 ### Pantomografías
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:1.5rem;">
-
 ```js
 {
   const f = ds.funnel;
-  const items = [
-    { label: "JSONs en la base",          value: f[0].n.toLocaleString("es-AR"), sub: "archivos de pantomografía",               color: "#4c78a8" },
-    { label: "Con anotaciones",           value: f[1].n.toLocaleString("es-AR"), sub: "al menos un hallazgo registrado",          color: "#4e8c9e" },
-    { label: "Con FDI permanente",        value: f[2].n.toLocaleString("es-AR"), sub: "universo epidemiológico",                  color: "#54a24b" },
-    { label: "Con landmarks condíleos",   value: f[3].n.toLocaleString("es-AR"), sub: "universo eigendentadura/geometría",        color: "#7b52ab" },
-    { label: "Centros clínicos",          value: "2",                            sub: "Centro A y Centro B",                      color: "#f58518" },
-  ];
-  for (const it of items) {
-    display(html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
-      <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
-      <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
-      <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
-    </div>`);
-  }
+  display(kpiGrid([
+    { label: "JSONs en la base",        value: f[0].n.toLocaleString("es-AR"), sub: "archivos de pantomografía",          color: "#4c78a8" },
+    { label: "Con anotaciones",         value: f[1].n.toLocaleString("es-AR"), sub: "al menos un hallazgo registrado",    color: "#4e8c9e" },
+    { label: "Con FDI permanente",      value: f[2].n.toLocaleString("es-AR"), sub: "universo epidemiológico",            color: "#54a24b" },
+    { label: "Con landmarks condíleos", value: f[3].n.toLocaleString("es-AR"), sub: "universo eigendentadura/geometría",  color: "#7b52ab" },
+    { label: "Centros clínicos",        value: "2",                            sub: "Centro A y Centro B",                color: "#f58518" },
+  ]));
 }
 ```
-
-</div>
 
 ### Anotaciones
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:1.5rem;">
-
 ```js
-{
-  const items = [
-    { label: "Anotaciones totales",    value: "~476k",                               sub: "shapes, landmarks y entidades clínicas", color: "#f58518" },
-    { label: "Dientes anotados",       value: totalDientes.toLocaleString("es-AR"),   sub: "presencias FDI en pantomografías",        color: "#7b52ab" },
-    { label: "Con geometría",          value: metadata.total_teeth.toLocaleString("es-AR"), sub: "centroides normalizados por landmarks",  color: "#b07aa1" },
-  ];
-  for (const it of items) {
-    display(html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
-      <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
-      <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
-      <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
-    </div>`);
-  }
-}
+display(kpiGrid([
+  { label: "Anotaciones totales", value: "~476k",                                    sub: "shapes, landmarks y entidades clínicas",       color: "#f58518" },
+  { label: "Dientes anotados",    value: totalDientes.toLocaleString("es-AR"),        sub: "presencias FDI en pantomografías",             color: "#7b52ab" },
+  { label: "Con geometría",       value: metadata.total_teeth.toLocaleString("es-AR"), sub: "centroides normalizados por landmarks",       color: "#b07aa1" },
+]));
 ```
-
-</div>
 
 ### Hallazgos clínicos
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:2rem;">
-
 ```js
-{
-  const items = [
-    { label: "Flags totales",          value: totalFlags.toLocaleString("es-AR"),    sub: "hallazgos registrados a nivel diente",           color: "#e45756" },
-    { label: "Tipos de hallazgo",      value: ds.flag_labels.length.toString(),      sub: "patologías y tratamientos distintos",             color: "#e45756" },
-    { label: "Con patología activa",   value: nWithPath.toLocaleString("es-AR"),     sub: `de ${nTotal.toLocaleString("es-AR")} pantos con geometría`, color: "#c0392b" },
-    { label: "Con tratamiento",        value: nWithTreat.toLocaleString("es-AR"),    sub: "restauraciones, endodoncias, implantes",          color: "#f58518" },
-    { label: "Restauraciones",         value: totalRestauraciones.toLocaleString("es-AR"), sub: "el hallazgo más prevalente",               color: "#59a14f" },
-  ];
-  for (const it of items) {
-    display(html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
-      <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
-      <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
-      <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
-    </div>`);
-  }
-}
+display(kpiGrid([
+  { label: "Flags totales",        value: totalFlags.toLocaleString("es-AR"),         sub: "hallazgos registrados a nivel diente",                      color: "#e45756" },
+  { label: "Tipos de hallazgo",    value: ds.flag_labels.length.toString(),           sub: "patologías y tratamientos distintos",                       color: "#e45756" },
+  { label: "Con patología activa", value: nWithPath.toLocaleString("es-AR"),          sub: `de ${nTotal.toLocaleString("es-AR")} pantos con geometría`, color: "#c0392b" },
+  { label: "Con tratamiento",      value: nWithTreat.toLocaleString("es-AR"),         sub: "restauraciones, endodoncias, implantes",                    color: "#f58518" },
+  { label: "Restauraciones",       value: totalRestauraciones.toLocaleString("es-AR"), sub: "el hallazgo más prevalente",                              color: "#59a14f" },
+]));
 ```
-
-</div>
-
----
 
 ## Geometría dental
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-bottom:2rem;">
-
-<div style="background:#f5f0ff; border-left:4px solid #7b52ab; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Eigendentadura</div>
-  <div style="font-size:2rem;font-weight:700;color:#7b52ab;line-height:1;">${metadata.unique_pantos.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">pantos con forma media calculada</div>
-</div>
-
-<div style="background:#f0fff4; border-left:4px solid #54a24b; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Forma de arcada</div>
-  <div style="font-size:2rem;font-weight:700;color:#54a24b;line-height:1;">Cuadrada</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">ratio profundidad/ancho &lt; 0.70</div>
-</div>
-
-<div style="background:#fff9f0; border-left:4px solid #f58518; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Simetría bilateral</div>
-  <div style="font-size:2rem;font-weight:700;color:#f58518;line-height:1;">${symMedian.toFixed(3)}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">distancia mediana entre pares homólogos</div>
-</div>
-
-<div style="background:#fff7f7; border-left:4px solid #e45756; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Par menos simétrico</div>
-  <div style="font-size:2rem;font-weight:700;color:#e45756;line-height:1;">${worstPair.fdi_r}↔${worstPair.fdi_l}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">mediana: ${worstPair.stats.distance.median.toFixed(3)}</div>
-</div>
-
-</div>
+```js
+display(kpiGrid([
+  { label: "Eigendentadura",    value: metadata.unique_pantos.toLocaleString("es-AR"),        sub: "pantos con forma media calculada",       color: "#7b52ab" },
+  { label: "Forma de arcada",   value: "Cuadrada",                                             sub: "ratio profundidad/ancho < 0.70",         color: "#54a24b" },
+  { label: "Simetría bilateral", value: symMedian.toFixed(3),                                  sub: "distancia mediana entre pares homólogos", color: "#f58518" },
+  { label: "Par menos simétrico", value: `${worstPair.fdi_r}↔${worstPair.fdi_l}`,             sub: `mediana: ${worstPair.stats.distance.median.toFixed(3)}`, color: "#e45756" },
+]));
+```
 
 ## Oclusión (proxy poblacional)
 
 <small>Diferencia de centroides de incisivos centrales en coordenadas landmark-normalized, no en milímetros clínicos.</small>
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin:0.8rem 0 2rem;">
-
-<div style="background:#f0f4ff; border-left:4px solid #4c78a8; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Overjet (mediana)</div>
-  <div style="font-size:2rem;font-weight:700;color:#4c78a8;line-height:1;">${occlusionData.stats.overjet.median.toFixed(3)}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">IQR [${occlusionData.stats.overjet.q1.toFixed(3)}, ${occlusionData.stats.overjet.q3.toFixed(3)}]</div>
-</div>
-
-<div style="background:#f0fff4; border-left:4px solid #54a24b; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Overbite (mediana)</div>
-  <div style="font-size:2rem;font-weight:700;color:#54a24b;line-height:1;">${occlusionData.stats.overbite.median.toFixed(3)}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">IQR [${occlusionData.stats.overbite.q1.toFixed(3)}, ${occlusionData.stats.overbite.q3.toFixed(3)}]</div>
-</div>
-
-<div style="background:#f5f0ff; border-left:4px solid #7b52ab; padding:1rem 1.2rem; border-radius:6px;">
-  <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Dentaduras analizadas</div>
-  <div style="font-size:2rem;font-weight:700;color:#7b52ab;line-height:1;">${occlusionData.n_dentitions.toLocaleString("es-AR")}</div>
-  <div style="font-size:0.78rem;color:#666;margin-top:4px;">con los 4 incisivos centrales presentes</div>
-</div>
-
-</div>
+```js
+display(kpiGrid([
+  { label: "Overjet (mediana)",        value: occlusionData.stats.overjet.median.toFixed(3),  sub: `IQR [${occlusionData.stats.overjet.q1.toFixed(3)}, ${occlusionData.stats.overjet.q3.toFixed(3)}]`,   color: "#4c78a8" },
+  { label: "Overbite (mediana)",       value: occlusionData.stats.overbite.median.toFixed(3), sub: `IQR [${occlusionData.stats.overbite.q1.toFixed(3)}, ${occlusionData.stats.overbite.q3.toFixed(3)}]`, color: "#54a24b" },
+  { label: "Dentaduras analizadas",    value: occlusionData.n_dentitions.toLocaleString("es-AR"), sub: "con los 4 incisivos centrales presentes",                                                          color: "#7b52ab" },
+]));
+```
