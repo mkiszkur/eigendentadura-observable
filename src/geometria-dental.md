@@ -36,6 +36,7 @@ const kdeGrids = await FileAttachment("data/kde_grids.json").json();
 const metadata = await FileAttachment("data/metadata.json").json();
 const boxplotStats = await FileAttachment("data/tooth_boxplot_stats.json").json();
 const angleHistograms = await FileAttachment("data/tooth_angle_histograms.json").json();
+const boxplotOutliers = await FileAttachment("data/tooth_boxplot_outliers.json").json();
 ```
 
 ```js
@@ -62,43 +63,89 @@ La **eigendentadura** es la dentadura "promedio" de la población: la posición 
 {
   const QC = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"};
   const byFdi = Object.fromEntries(toothStats.map(t => [t.fdi, t]));
-  const upperLine = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28]
-    .filter(f => byFdi[f]).map(f => byFdi[f]);
-  const lowerLine = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38]
-    .filter(f => byFdi[f]).map(f => byFdi[f]);
+  const upperSeq = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28].filter(f => byFdi[f]);
+  const lowerSeq = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38].filter(f => byFdi[f]);
 
-  display(Plot.plot({
-    width: Math.min(width, 680),
-    height: 260,
-    marginTop: 24,
-    marginBottom: 20,
-    marginLeft: 10,
-    marginRight: 10,
-    x: {label: null, ticks: 0},
-    y: {reverse: true, label: null, ticks: 0},
-    marks: [
-      Plot.line(upperLine, {x: "mean_x", y: "mean_y", stroke: "#ddd", strokeWidth: 2}),
-      Plot.line(lowerLine, {x: "mean_x", y: "mean_y", stroke: "#ddd", strokeWidth: 2}),
-      Plot.link(toothStats, {
-        x1: d => d.mean_x - d.std_x, y1: "mean_y",
-        x2: d => d.mean_x + d.std_x, y2: "mean_y",
-        stroke: d => QC[d.quadrant], strokeWidth: 5, strokeOpacity: 0.18,
-      }),
-      Plot.dot(toothStats, {
-        x: "mean_x", y: "mean_y",
-        fill: d => QC[d.quadrant], r: 5, stroke: "white", strokeWidth: 1,
-      }),
-      Plot.text(toothStats, {
-        x: "mean_x", y: "mean_y",
-        text: d => String(d.fdi), fontSize: 8, dy: -10,
-        fill: d => QC[d.quadrant], fontWeight: "600",
-      }),
-    ]
-  }));
+  const W = Math.min(width, 680), H = 280;
+  const M = {top: 10, right: 10, bottom: 10, left: 10};
+  const iW = W - M.left - M.right, iH = H - M.top - M.bottom;
+
+  const xs = toothStats.map(d => d.mean_x);
+  const ys = toothStats.map(d => d.mean_y);
+  const padX = (d3.max(xs) - d3.min(xs)) * 0.08;
+  const padY = (d3.max(ys) - d3.min(ys)) * 0.12;
+
+  const xScale0 = d3.scaleLinear().domain([d3.min(xs) - padX, d3.max(xs) + padX]).range([0, iW]);
+  const yScale0 = d3.scaleLinear().domain([d3.min(ys) - padY, d3.max(ys) + padY]).range([0, iH]);
+
+  let xS = xScale0.copy(), yS = yScale0.copy();
+
+  const svg = d3.create("svg")
+    .attr("viewBox", [0, 0, W, H]).attr("width", "100%")
+    .style("font-family", "var(--sans-serif, system-ui, sans-serif)");
+
+  svg.append("defs").append("clipPath").attr("id", "eigen-clip")
+    .append("rect").attr("x", M.left).attr("y", M.top).attr("width", iW).attr("height", iH);
+
+  const gOuter = svg.append("g").attr("transform", `translate(${M.left},${M.top})`);
+  const gClip = gOuter.append("g").attr("clip-path", "url(#eigen-clip)");
+  const g = gClip.append("g");
+
+  // Zoom hint
+  gOuter.append("text").attr("x", iW).attr("y", -2)
+    .attr("text-anchor", "end").attr("font-size", 9).attr("fill", "#bbb")
+    .text("Scroll para zoom · Drag para mover · Doble-clic para resetear");
+
+  function draw() {
+    g.selectAll("*").remove();
+
+    // Arch connection lines
+    const lineGen = d3.line().x(f => xS(byFdi[f].mean_x)).y(f => yS(byFdi[f].mean_y));
+    g.append("path").attr("d", lineGen(upperSeq)).attr("fill","none").attr("stroke","#e8e8e8").attr("stroke-width", 2);
+    g.append("path").attr("d", lineGen(lowerSeq)).attr("fill","none").attr("stroke","#e8e8e8").attr("stroke-width", 2);
+
+    // ±1σ X bars
+    g.selectAll("line.sx").data(toothStats).join("line").attr("class","sx")
+      .attr("x1", d => xS(d.mean_x - d.std_x)).attr("x2", d => xS(d.mean_x + d.std_x))
+      .attr("y1", d => yS(d.mean_y)).attr("y2", d => yS(d.mean_y))
+      .attr("stroke", d => QC[d.quadrant]).attr("stroke-width", 5).attr("opacity", 0.18);
+
+    // ±1σ Y bars
+    g.selectAll("line.sy").data(toothStats).join("line").attr("class","sy")
+      .attr("x1", d => xS(d.mean_x)).attr("x2", d => xS(d.mean_x))
+      .attr("y1", d => yS(d.mean_y - d.std_y)).attr("y2", d => yS(d.mean_y + d.std_y))
+      .attr("stroke", d => QC[d.quadrant]).attr("stroke-width", 5).attr("opacity", 0.18);
+
+    // Dots
+    g.selectAll("circle").data(toothStats).join("circle")
+      .attr("cx", d => xS(d.mean_x)).attr("cy", d => yS(d.mean_y))
+      .attr("r", 5).attr("fill", d => QC[d.quadrant]).attr("stroke","white").attr("stroke-width", 1)
+      .append("title").text(d => `FDI ${d.fdi}\nμX=${d.mean_x.toFixed(4)} ±${d.std_x.toFixed(4)}\nμY=${d.mean_y.toFixed(4)} ±${d.std_y.toFixed(4)}\nμ∠=${d.mean_angle.toFixed(1)}° ±${d.std_angle.toFixed(1)}°`);
+
+    // Labels
+    g.selectAll("text.lbl").data(toothStats).join("text").attr("class","lbl")
+      .attr("x", d => xS(d.mean_x)).attr("y", d => yS(d.mean_y) - 8)
+      .attr("text-anchor","middle").attr("font-size", 8).attr("font-weight","600")
+      .attr("fill", d => QC[d.quadrant]).text(d => String(d.fdi));
+  }
+
+  const zoom = d3.zoom().scaleExtent([1, 30]).on("zoom", ev => {
+    xS = ev.transform.rescaleX(xScale0);
+    yS = ev.transform.rescaleY(yScale0);
+    draw();
+  });
+
+  gOuter.append("rect").attr("width", iW).attr("height", iH)
+    .attr("fill","none").attr("pointer-events","all")
+    .call(zoom)
+    .on("dblclick.zoom", () => gOuter.select("rect").transition().duration(300).call(zoom.transform, d3.zoomIdentity));
+
+  draw();
+  display(svg.node());
 }
 ```
 
-<small>Unidades intercondíleas (distancia cóndilo–cóndilo = 1.0). Colores por cuadrante FDI: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4. Barras tenues = dispersión ±1σ en X.</small>
+<small>Unidades intercondíleas (distancia cóndilo–cóndilo = 1.0). Colores por cuadrante FDI: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4. Barras tenues = dispersión ±1σ en X e Y.</small>
 
 ---
 
@@ -266,13 +313,17 @@ Colores por cuadrante: azul = Q1 (sup. der.), verde = Q2 (sup. izq.), amarillo =
 ```js
 const showAngleArcsInput = Inputs.toggle({label: "Mostrar dispersión angular", value: false});
 const showAngleArcs = Generators.input(showAngleArcsInput);
+const showOutliersInput = Inputs.toggle({label: "Mostrar outliers posicionales", value: false});
+const showOutliers = Generators.input(showOutliersInput);
 ```
 
 <details>
 <summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Opciones de visualización</summary>
 
 ```js
-display(showAngleArcsInput);
+display(html`<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;padding:4px 0;">
+  ${showAngleArcsInput}${showOutliersInput}
+</div>`);
 ```
 
 </details>
@@ -282,6 +333,8 @@ display(boxplot2dPlot({
   boxplotStats,
   selectedFdi: selectedFdi,
   showAngleArcs,
+  showOutliers,
+  outlierPoints: boxplotOutliers,
   width: width,
   height: 550,
 }));
@@ -399,12 +452,43 @@ const showAngleModal = (fdi) => {
   header.append(title, btn);
 
   const hint = document.createElement("div");
-  Object.assign(hint.style, {color: "#666", fontSize: "11px", marginBottom: "10px"});
+  Object.assign(hint.style, {color: "#666", fontSize: "11px", marginBottom: "6px"});
   hint.textContent = rotateToMean
     ? "Media rotada al eje vertical. Línea negra = media. Arco externo = ±1 σ."
     : "Inclinación real del diente. 90° = vertical canónico. Línea negra = media.";
 
-  panel.append(header, hint, angleRose({record, size: 380, rotateToMean}));
+  // Zoom controls + rose container
+  let zoomK = 1;
+  const roseWrap = document.createElement("div");
+  roseWrap.style.cssText = "overflow:hidden;display:flex;flex-direction:column;align-items:center;";
+
+  const zoomBar = document.createElement("div");
+  zoomBar.style.cssText = "display:flex;gap:6px;align-items:center;margin-bottom:6px;";
+  const makeBtn = (label, fn) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    Object.assign(b.style, {border:"1px solid #ddd", background:"#fafafa", borderRadius:"4px",
+      padding:"2px 10px", cursor:"pointer", fontSize:"13px"});
+    b.addEventListener("click", fn);
+    return b;
+  };
+  const roseContainer = document.createElement("div");
+  roseContainer.style.cssText = "transition:transform 0.2s;transform-origin:center top;";
+  const updateZoom = () => { roseContainer.style.transform = `scale(${zoomK})`; };
+
+  zoomBar.appendChild(makeBtn("−", () => { zoomK = Math.max(0.6, zoomK - 0.2); updateZoom(); }));
+  const zoomLbl = document.createElement("span");
+  zoomLbl.style.cssText = "font-size:11px;color:#888;min-width:32px;text-align:center;";
+  zoomLbl.textContent = "100%";
+  zoomBar.appendChild(zoomLbl);
+  zoomBar.appendChild(makeBtn("+", () => { zoomK = Math.min(3, zoomK + 0.2); updateZoom(); }));
+  zoomBar.appendChild(makeBtn("↺", () => { zoomK = 1; updateZoom(); }));
+  roseContainer.addEventListener("transitionend", () => { zoomLbl.textContent = Math.round(zoomK * 100) + "%"; });
+
+  roseContainer.appendChild(angleRose({record, size: 440, rotateToMean}));
+  roseWrap.append(zoomBar, roseContainer);
+
+  panel.append(header, hint, roseWrap);
   overlay.append(panel);
   overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
   document.body.append(overlay);

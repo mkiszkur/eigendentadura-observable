@@ -41,7 +41,8 @@ export default {
       name: "Individuo vs Población",
       open: true,
       pages: [
-        {name: "Individuo", path: "/individuo"},
+        {name: "Explorador de muestras", path: "/explorador-metricas"},
+        {name: "Individuo",              path: "/individuo"},
       ],
     },
     {

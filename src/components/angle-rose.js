@@ -19,7 +19,7 @@ const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"}
  * @param {number} [opts.angleMax=120]
  */
 export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, individualAngle = null, individualLabel = null, rotateToMean = true} = {}) {
-  const R = size / 2 - 18;
+  const R = size / 2 - 26;
   const cx = size / 2, cy = size / 2;
   const color = QUADRANT_COLORS[record.quadrant] || "#888";
   const bw = record.bin_width || 5;
@@ -69,10 +69,10 @@ export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, in
       .attr("stroke-dasharray", a === 90 ? "3,2" : null)
       .attr("stroke-width", a === 90 ? 1 : 0.6);
     g.append("text")
-      .attr("x", Math.sin(rad) * (R + 8))
-      .attr("y", -Math.cos(rad) * (R + 8) + 3)
-      .attr("text-anchor", "middle").attr("font-size", 9)
-      .attr("fill", a === 90 ? "#555" : "#999")
+      .attr("x", Math.sin(rad) * (R + 16))
+      .attr("y", -Math.cos(rad) * (R + 16) + 3)
+      .attr("text-anchor", "middle").attr("font-size", 8)
+      .attr("fill", a === 90 ? "#555" : "#bbb")
       .text(`${a}°`);
   }
 

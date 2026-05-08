@@ -9,6 +9,119 @@ Cruce de la atipicidad geométrica individual (z-scores de posición y ángulo) 
 ```js
 const geoPath = await FileAttachment("data/geo_patologia.json").json();
 import * as d3 from "d3";
+import {pantoSchematic} from "./components/panto-schematic.js";
+const pantosRawGeo = await FileAttachment("data/pantos_browser.json").json();
+const pantosMapGeo = new Map(pantosRawGeo.pantos.map(p => [p.archivo, p]));
+```
+
+```js
+const clickedGeo = Mutable(null);
+function setClickedGeo(d) { clickedGeo.value = d; }
+function clearClickedGeo() { clickedGeo.value = null; }
+```
+
+```js
+{
+  const d = clickedGeo;
+  if (d == null) {
+    display(html`<div></div>`);
+  } else {
+    const pb = pantosMapGeo.get(d.id);
+    let geomData = null;
+    try {
+      const resp = await fetch(`_file/data/pantos_geometry/${d.id}.json`);
+      if (resp.ok) geomData = await resp.json();
+    } catch(e) {}
+    const PATHO_LABELS = {
+      has_restauracion: "Restauración",
+      has_caries: "Caries",
+      has_endodoncia: "Endodoncia",
+      has_retenido: "Retenido",
+      has_radiolucidez: "Radiolucidez",
+      has_raiz_remanente: "Raíz remanente",
+    };
+    const PATHO_COLORS = {
+      has_restauracion: "#4e79a7",
+      has_caries: "#e15759",
+      has_endodoncia: "#59a14f",
+      has_retenido: "#f28e2b",
+      has_radiolucidez: "#b07aa1",
+      has_raiz_remanente: "#76b7b2",
+    };
+
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    overlay.addEventListener("click", e => { if (e.target === overlay) { clearClickedGeo(); overlay.remove(); } });
+
+    const modal = document.createElement("div");
+    modal.style.cssText = "background:#fff;border-radius:10px;padding:1.5rem 1.8rem;max-width:520px;width:95%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.22);position:relative;";
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "✕";
+    closeBtn.style.cssText = "position:absolute;top:0.7rem;right:0.9rem;border:none;background:none;font-size:1.1rem;cursor:pointer;color:#888;";
+    closeBtn.onclick = () => { clearClickedGeo(); overlay.remove(); };
+    modal.appendChild(closeBtn);
+
+    const title = document.createElement("div");
+    title.style.cssText = "font-size:0.78rem;color:#888;margin-bottom:0.8rem;";
+    title.textContent = `ID: ${d.id}`;
+    modal.appendChild(title);
+
+    // z-scores
+    const scores = document.createElement("div");
+    scores.style.cssText = "display:flex;gap:0.7rem;margin-bottom:1rem;flex-wrap:wrap;";
+    for (const [label, val, color] of [
+      ["z_mean", d.z_mean, "#4c78a8"],
+      ["z_pos", d.z_pos, "#72b7b2"],
+      ["z_ang", d.z_ang, "#54a24b"],
+    ]) {
+      const chip = document.createElement("div");
+      chip.style.cssText = `background:${color}18;border:1px solid ${color}44;border-radius:6px;padding:0.25rem 0.6rem;font-size:0.8rem;`;
+      chip.innerHTML = `<span style="color:#666">${label}</span> <strong style="color:${color}">${val.toFixed(3)}</strong>`;
+      scores.appendChild(chip);
+    }
+    const nTeethChip = document.createElement("div");
+    nTeethChip.style.cssText = "background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:0.25rem 0.6rem;font-size:0.8rem;";
+    nTeethChip.innerHTML = `<span style="color:#666">dientes</span> <strong>${d.n_teeth}</strong>`;
+    scores.appendChild(nTeethChip);
+    modal.appendChild(scores);
+
+    // Pathology tags
+    const pathoDiv = document.createElement("div");
+    pathoDiv.style.cssText = "display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;";
+    for (const [key, label] of Object.entries(PATHO_LABELS)) {
+      if (d[key]) {
+        const tag = document.createElement("span");
+        const c = PATHO_COLORS[key];
+        tag.style.cssText = `background:${c}22;border:1px solid ${c}66;color:${c};border-radius:12px;padding:2px 9px;font-size:0.76rem;font-weight:600;`;
+        tag.textContent = label;
+        pathoDiv.appendChild(tag);
+      }
+    }
+    if (d.n_pathologies === 0) {
+      const tag = document.createElement("span");
+      tag.style.cssText = "background:#f0f0f0;border:1px solid #ccc;color:#888;border-radius:12px;padding:2px 9px;font-size:0.76rem;";
+      tag.textContent = "Sin patologías registradas";
+      pathoDiv.appendChild(tag);
+    }
+    modal.appendChild(pathoDiv);
+
+    if (geomData) {
+      const schDiv = document.createElement("div");
+      schDiv.style.cssText = "margin-top:0.5rem;";
+      pantoSchematic(schDiv, geomData, {
+        showBbox: false, showPolygon: true, showCentroids: true,
+        showLabels: true, showDividers: true, showLandmarks: false,
+      });
+      modal.appendChild(schDiv);
+    }
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    invalidation.then(() => overlay.remove());
+    display(html`<div></div>`);
+  }
+}
 ```
 
 <details>
@@ -23,14 +136,15 @@ import * as d3 from "d3";
 
 ## Scatter: atipicidad posicional vs. angular
 
-Cada punto es una pantomografía. El color indica el número de **tipos de patología** presentes simultáneamente.
+Cada punto es una pantomografía. El color indica el número de **tipos de patología** presentes simultáneamente. Clic en un punto para ver el detalle.
 
 <details>
 <summary>Cómo leer este gráfico</summary>
 
 - **Eje X (z_pos)** — atipicidad posicional: desvío promedio de los centroides dentales respecto al promedio poblacional, en desvíos estándar. Valores altos = dientes muy desplazados de su posición típica.
 - **Eje Y (z_ang)** — atipicidad angular: desvío medio del ángulo de cada diente respecto al ángulo poblacional medio.
-- **Color** — gradiente de amarillo a rojo: cuántos tipos de patología distintos tiene esa dentadura (0 = sin patología registrada, valores mayores = más tipos simultáneos).
+- **Color** — gradiente de amarillo a rojo: cuántos de los 6 tipos de patología agregados tiene esa dentadura simultáneamente (0 = ninguno, 6 = todos). Los 6 tipos son: Restauración, Caries, Endodoncia, Pieza retenida, Radiolucidez y Raíz remanente. Hay 21 dentaduras con los 6 tipos a la vez.
+- **Nota**: este conteo difiere del indicador de multimorbilidad en la página Patologías, que usa 14 flags más granulares (ej. Caries incipiente / moderada / avanzada como tipos separados) y por eso llega a un máximo de 4.
 - **Ausencia de gradiente visible** — si la nube de puntos no muestra gradiente de color claro, indica que los pacientes con más patologías no se concentran en ningún cuadrante particular.
 - Los ejes están recortados al percentil 99 para excluir valores extremos; los puntos fuera del corte representan < 1 % de la muestra.
 
@@ -38,32 +152,74 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 
 ```js
 {
-  const nMax = d3.max(geoPath.records, d => d.n_pathologies);
-  display(Plot.plot({
-    width: Math.min(width, 700),
-    height: 380,
-    color: {
-      scheme: "YlOrRd",
-      domain: [0, nMax],
-      legend: true,
-      label: "N° tipos de patología",
-    },
-    x: {label: "Atipicidad posicional — z_pos", domain: [0, d3.quantile(geoPath.records.map(d=>d.z_pos).sort(d3.ascending), 0.99)]},
-    y: {label: "Atipicidad angular — z_ang", domain: [0, d3.quantile(geoPath.records.map(d=>d.z_ang).sort(d3.ascending), 0.99)]},
-    marks: [
-      Plot.dot(geoPath.records, {
-        x: "z_pos", y: "z_ang",
-        fill: "n_pathologies",
-        r: 2.5,
-        fillOpacity: 0.45,
-        clip: true,
-      }),
-    ],
-  }));
+  const records = geoPath.records;
+  const nMax = d3.max(records, d => d.n_pathologies);
+  const colorScale = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, nMax]);
+
+  const p99x = d3.quantile(records.map(d => d.z_pos).sort(d3.ascending), 0.99);
+  const p99y = d3.quantile(records.map(d => d.z_ang).sort(d3.ascending), 0.99);
+
+  const W = Math.min(width, 700), H = 380;
+  const margin = {top: 20, right: 30, bottom: 50, left: 55};
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top - margin.bottom;
+
+  const xS = d3.scaleLinear().domain([0, p99x]).range([0, iW]);
+  const yS = d3.scaleLinear().domain([0, p99y]).range([iH, 0]);
+
+  const svg = d3.create("svg").attr("viewBox", [0, 0, W, H]).attr("width", W).attr("height", H)
+    .style("font-family", "var(--sans-serif, system-ui)").style("cursor", "default");
+
+  const defs = svg.append("defs");
+  defs.append("clipPath").attr("id", "gp-clip")
+    .append("rect").attr("width", iW).attr("height", iH);
+
+  const gOuter = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // axes
+  gOuter.append("g").attr("transform", `translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
+    .append("text").attr("x", iW/2).attr("y", 38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",12)
+    .text("Atipicidad posicional — z_pos");
+  gOuter.append("g").call(d3.axisLeft(yS).ticks(5))
+    .append("text").attr("transform","rotate(-90)").attr("x", -iH/2).attr("y",-42).attr("fill","#555").attr("text-anchor","middle").attr("font-size",12)
+    .text("Atipicidad angular — z_ang");
+
+  const g = gOuter.append("g").attr("clip-path", "url(#gp-clip)");
+
+  g.selectAll("circle").data(records.filter(d => d.z_pos <= p99x && d.z_ang <= p99y)).join("circle")
+    .attr("cx", d => xS(d.z_pos))
+    .attr("cy", d => yS(d.z_ang))
+    .attr("r", 2.8)
+    .attr("fill", d => colorScale(d.n_pathologies))
+    .attr("opacity", 0.5)
+    .attr("stroke", "none")
+    .style("cursor", "pointer")
+    .on("mouseover", function() { d3.select(this).attr("r", 4.5).attr("opacity", 1); })
+    .on("mouseout", function() { d3.select(this).attr("r", 2.8).attr("opacity", 0.5); })
+    .on("click", (event, d) => { setClickedGeo(d); event.stopPropagation(); })
+    .append("title").text(d => `z_pos=${d.z_pos.toFixed(3)}  z_ang=${d.z_ang.toFixed(3)}\nN° patologías: ${d.n_pathologies}`);
+
+  // legend
+  const legendW = 140, legendH = 12;
+  const lgX = W - margin.right - legendW - 4;
+  const lgY = margin.top + 4;
+  const lgDefs = svg.append("defs");
+  const grad = lgDefs.append("linearGradient").attr("id","gp-grad").attr("x1","0%").attr("x2","100%");
+  d3.range(0, nMax + 1).forEach((v, i, arr) => {
+    grad.append("stop").attr("offset", `${(i / (arr.length - 1)) * 100}%`).attr("stop-color", colorScale(v));
+  });
+  const lgG = svg.append("g").attr("transform", `translate(${lgX},${lgY})`);
+  lgG.append("rect").attr("width", legendW).attr("height", legendH).attr("rx", 2)
+    .style("fill", "url(#gp-grad)");
+  lgG.append("text").attr("x", 0).attr("y", legendH + 11).attr("font-size", 9).attr("fill", "#666").text("0");
+  lgG.append("text").attr("x", legendW/2).attr("y", legendH + 11).attr("font-size", 9).attr("fill", "#666").attr("text-anchor","middle").text("N° tipos patología");
+  lgG.append("text").attr("x", legendW).attr("y", legendH + 11).attr("font-size", 9).attr("fill", "#666").attr("text-anchor","end").text(nMax);
+
+  display(svg.node());
 }
 ```
 
-<small>Eje recortado en el percentil 99 para excluir outliers extremos. Los puntos recortados representan &lt; 1% de la muestra.</small>
+<small>Eje recortado en el percentil 99 para excluir outliers extremos. Los puntos recortados representan &lt; 1% de la muestra. · El color cuenta <strong>6 flags agregados</strong> (Restauración, Caries, Endodoncia, Pieza retenida, Radiolucidez, Raíz remanente); el máximo posible es 6 y hay 21 dentaduras con los 6 a la vez. Esto difiere del gráfico de Multimorbilidad (pág. Patologías), que usa 14 flags más granulares y llega a un máximo de 4.</small>
 
 ## z_mean medio por carga patológica
 
@@ -96,7 +252,7 @@ Si los grupos con más patologías tuvieran mayor z_mean, aparecerían sistemát
       Plot.ruleX(byN, {x: "n_pathologies", y1: "q1", y2: "q3", stroke: "#4c78a8", strokeWidth: 8, strokeOpacity: 0.25}),
       Plot.dot(byN, {x: "n_pathologies", y: "median", fill: "#4c78a8", r: 5, stroke: "white", strokeWidth: 1}),
       Plot.text(byN, {x: "n_pathologies", y: "q3", text: d => `n=${d.n.toLocaleString("es-AR")}`, dy: -8, fontSize: 9, fill: "#888"}),
-      Plot.ruleY([d3.mean(geoPath.records, d => d.z_mean)], {stroke: "#aaa", strokeDasharray: "5,3", strokeOpacity: 0.8}),
+      Plot.ruleY([d3.mean(geoPath.records, d => d.z_mean)], {stroke: "#888", strokeDasharray: "6,3", strokeWidth: 1.5, strokeOpacity: 0.9}),
     ],
   }));
 }
@@ -147,10 +303,10 @@ Gráfico de mancuernas (_dumbbell chart_): cada fila es una patología y compara
     height: 260,
     marginLeft: 150,
     x: {label: "z_mean mediano", domain: xDomain},
-    y: {label: null},
+    y: {label: null, domain: rows.map(d => d.label).reverse()},
     color: {domain: ["Con patología", "Sin patología"], range: ["#e15759", "#4e79a7"], legend: true},
     marks: [
-      Plot.ruleX([globalMean], {stroke: "#ccc", strokeDasharray: "5,3"}),
+      Plot.ruleX([globalMean], {stroke: "#888", strokeDasharray: "6,3", strokeWidth: 1.5}),
       Plot.link(rows, {y: "label", x1: "without", x2: "with", stroke: "#e0e0e0", strokeWidth: 1.5}),
       Plot.dot(rows, {y: "label", x: "without", fill: () => "Sin patología", r: 6, tip: true, title: d => `Sin ${d.label}\nn=${geoPath.meta.n_records - d.n_with}\nmediana z_mean=${d.without.toFixed(3)}`}),
       Plot.dot(rows, {y: "label", x: "with", fill: () => "Con patología", r: 6, tip: true, title: d => `Con ${d.label}\nn=${d.n_with}\nmediana z_mean=${d.with.toFixed(3)}`}),
@@ -160,7 +316,7 @@ Gráfico de mancuernas (_dumbbell chart_): cada fila es una patología y compara
 }
 ```
 
-<small>Cada fila muestra la mediana de z_mean para el grupo **con** (rojo) y **sin** (azul) esa patología. La diferencia (Δ) se anota en el centro del conector. Línea punteada = media global.</small>
+<small>Cada fila muestra la mediana de z_mean para el grupo **con** (rojo) y **sin** (azul) esa patología. La diferencia (Δ) se anota en el centro del conector. Línea punteada = media global. Filas ordenadas de mayor a menor Δ.</small>
 
 ## Tabla de referencia
 

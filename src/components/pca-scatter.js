@@ -3,6 +3,8 @@
  *
  * Soporta zoom (scroll) y pan (drag). Doble-clic resetea.
  * Hover muestra el ID de la pantomografía.
+ * Clic en un punto llama a onDotClick(d) si se provee.
+ * Clic en leyenda toggle visibilidad del cluster.
  * Cluster -1 (ruido, HDBSCAN) se dibuja en gris claro.
  */
 import * as d3 from "d3";
@@ -22,12 +24,14 @@ const NOISE_COLOR = "#cccccc";
  * @param {string} [opts.title]
  * @param {number} [opts.width=800]
  * @param {number} [opts.height=550]
+ * @param {Function} [opts.onDotClick] - called with (d) when a dot is clicked
  * @returns {SVGElement}
  */
 export function pcaScatterPlot({
   dentitions, labels = [], pcaMeta,
   projection = "pca",
   title = "", width = 800, height = 550,
+  onDotClick = null,
 } = {}) {
   const margin = {top: 20, right: 30, bottom: 50, left: 60};
   const innerW = width - margin.left - margin.right;
@@ -71,6 +75,9 @@ export function pcaScatterPlot({
     .sort((a, b) => a - b);
   const colorForCluster = (c) => c === -1 ? NOISE_COLOR : CLUSTER_COLORS[clusterIds.indexOf(c) % CLUSTER_COLORS.length];
 
+  // Hidden clusters state
+  const hiddenClusters = new Set();
+
   // SVG
   const svg = d3.create("svg")
     .attr("viewBox", [0, 0, width, height])
@@ -79,9 +86,9 @@ export function pcaScatterPlot({
     .style("font", "12px sans-serif");
 
   // Clip
-  svg.append("defs").append("clipPath").attr("id", `clip-scatter-${Math.random().toString(36).slice(2, 8)}`)
+  const clipUid = `clip-scatter-${Math.random().toString(36).slice(2, 8)}`;
+  svg.append("defs").append("clipPath").attr("id", clipUid)
     .append("rect").attr("width", innerW).attr("height", innerH);
-  const clipId = svg.select("clipPath").attr("id");
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -112,7 +119,7 @@ export function pcaScatterPlot({
     .text(yLabel);
 
   // Points group
-  const plotArea = g.append("g").attr("clip-path", `url(#${clipId})`);
+  const plotArea = g.append("g").attr("clip-path", `url(#${clipUid})`);
 
   // Origin cross
   const originG = plotArea.append("g").attr("class", "origin");
@@ -152,20 +159,32 @@ export function pcaScatterPlot({
     .attr("fill", d => colorForCluster(d.cluster))
     .attr("opacity", d => d.cluster === -1 ? 0.3 : 0.6)
     .attr("stroke", "none")
+    .style("cursor", onDotClick ? "pointer" : "default")
     .on("mouseenter", (event, d) => {
+      if (hiddenClusters.has(d.cluster)) return;
       d3.select(event.currentTarget).attr("r", 6).attr("opacity", 1).attr("stroke", "#333").attr("stroke-width", 1.5);
       const clusterLabel = d.cluster === -1 ? "Ruido" : `Cluster ${d.cluster}`;
       const xv = d[xField].toFixed(2), yv = d[yField].toFixed(2);
       tooltip.style("opacity", 1)
-        .html(`<strong>${d.id.replace(/database_original__|__json_url\.json/g, "")}</strong><br>${clusterLabel}<br>${xLabel.split(" ")[0]}: ${xv}, ${yLabel.split(" ")[0]}: ${yv}`);
+        .html(`<strong>${d.id.replace(/database_original__|__json_url\.json/g, "")}</strong><br>${clusterLabel}<br>${xLabel.split(" ")[0]}: ${xv}, ${yLabel.split(" ")[0]}: ${yv}${onDotClick ? '<br><em style="color:#888">clic para detalles</em>' : ''}`);
     })
     .on("mousemove", (event) => {
       tooltip.style("left", (event.pageX + 12) + "px").style("top", (event.pageY - 20) + "px");
     })
     .on("mouseleave", (event, d) => {
-      d3.select(event.currentTarget).attr("r", 3).attr("opacity", d.cluster === -1 ? 0.3 : 0.6).attr("stroke", "none");
+      d3.select(event.currentTarget).attr("r", 3).attr("opacity", hiddenClusters.has(d.cluster) ? 0 : (d.cluster === -1 ? 0.3 : 0.6)).attr("stroke", "none");
       tooltip.style("opacity", 0);
+    })
+    .on("click", (event, d) => {
+      if (hiddenClusters.has(d.cluster)) return;
+      if (onDotClick) { onDotClick(d); event.stopPropagation(); }
     });
+
+  function refreshDotVisibility() {
+    dots
+      .attr("opacity", d => hiddenClusters.has(d.cluster) ? 0 : (d.cluster === -1 ? 0.3 : 0.6))
+      .attr("pointer-events", d => hiddenClusters.has(d.cluster) ? "none" : "all");
+  }
 
   // Zoom
   const zoom = d3.zoom()
@@ -183,22 +202,39 @@ export function pcaScatterPlot({
     svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
   });
 
-  // Legend
+  // Legend — clickable to toggle cluster visibility
   const legendItems = [...clusterIds];
   const hasNoise = data.some(d => d.cluster === -1);
   if (hasNoise) legendItems.push(-1);
 
-  const legend = g.append("g")
-    .attr("transform", `translate(${innerW - 120}, 10)`);
+  const legendX = innerW - 10;
+  const legendY = 10;
+  const legend = g.append("g").attr("transform", `translate(${legendX}, ${legendY})`);
+
+  const hintG = g.append("g").attr("transform", `translate(${legendX}, ${legendY - 14})`);
+  hintG.append("text").attr("x", 0).attr("y", 0).attr("text-anchor", "end")
+    .style("font-size", "10px").style("fill", "#aaa").text("clic = ocultar/mostrar");
 
   legendItems.forEach((c, i) => {
     const n = data.filter(d => d.cluster === c).length;
-    const row = legend.append("g").attr("transform", `translate(0, ${i * 20})`);
-    row.append("circle").attr("r", 5).attr("cx", 0).attr("cy", 0)
-      .attr("fill", colorForCluster(c));
-    row.append("text").attr("x", 12).attr("y", 4)
+    const row = legend.append("g")
+      .attr("transform", `translate(0, ${i * 22})`)
+      .style("cursor", "pointer")
+      .on("click", () => {
+        if (hiddenClusters.has(c)) hiddenClusters.delete(c);
+        else hiddenClusters.add(c);
+        const hidden = hiddenClusters.has(c);
+        circle.attr("fill-opacity", hidden ? 0.15 : 1).attr("stroke", hidden ? "#bbb" : "none");
+        label.style("fill", hidden ? "#bbb" : null).style("text-decoration", hidden ? "line-through" : null);
+        refreshDotVisibility();
+      });
+
+    const circle = row.append("circle").attr("r", 6).attr("cx", -8).attr("cy", 0)
+      .attr("fill", colorForCluster(c)).attr("stroke", "none");
+    const label = row.append("text").attr("x", 2).attr("y", 4)
+      .attr("text-anchor", "end")
       .style("font-size", "12px")
-      .text(c === -1 ? `Ruido (n=${n})` : `Cluster ${c} (n=${n})`);
+      .text(c === -1 ? `Ruido (n=${n})` : `C${c} (n=${n})`);
   });
 
   // Title

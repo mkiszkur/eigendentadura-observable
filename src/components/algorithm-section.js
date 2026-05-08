@@ -1,11 +1,12 @@
 /**
  * Self-contained algorithm section component.
- * Renders k selector, PCA scatter, cluster dentitions (small multiples),
- * and a representatives table with click-to-visualize.
+ * Renders k selector, PCA scatter (with cluster toggle + click→modal),
+ * cluster dentitions (one cluster at a time), and a representatives table.
  * All interactivity is managed via vanilla DOM events.
  */
 import * as d3 from "d3";
 import {pcaScatterPlot} from "./pca-scatter.js";
+import {pantoSchematic} from "./panto-schematic.js";
 
 const QUAD_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"};
 
@@ -35,14 +36,12 @@ function drawDentition({teeth, eigendentadura, title, w = 350, h = 280, showFdi 
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Eigendentadura
   eigendentadura.forEach(t => {
     g.append("circle")
       .attr("cx", xScale(t.cx)).attr("cy", yScale(t.cy))
       .attr("r", 5).attr("fill", "#eee").attr("stroke", "#ccc");
   });
 
-  // Overlay teeth
   teeth.forEach(t => {
     const q = Math.floor(t.fdi / 10);
     g.append("circle")
@@ -91,14 +90,12 @@ function drawClusterDentition({clusterTeeth, repTeeth, eigendentadura, title, w 
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Eigendentadura (grey)
   eigendentadura.forEach(t => {
     g.append("circle")
       .attr("cx", xScale(t.cx)).attr("cy", yScale(t.cy))
       .attr("r", 6).attr("fill", "#eee").attr("stroke", "#ccc");
   });
 
-  // Cluster mean (semi-transparent)
   clusterTeeth.forEach(t => {
     const q = Math.floor(t.fdi / 10);
     g.append("circle")
@@ -108,7 +105,6 @@ function drawClusterDentition({clusterTeeth, repTeeth, eigendentadura, title, w 
       .attr("stroke", QUAD_COLORS[q] || "#999").attr("stroke-width", 1);
   });
 
-  // Representative (solid, smaller)
   repTeeth.forEach(t => {
     const q = Math.floor(t.fdi / 10);
     g.append("circle")
@@ -129,17 +125,80 @@ function drawClusterDentition({clusterTeeth, repTeeth, eigendentadura, title, w 
   return svg.node();
 }
 
+/** Open a modal overlay with panto schematic for the clicked dentition. */
+async function openDentitionModal({d, pantosMap, clusterLabel}) {
+  const sid = shortId(d.id);
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+
+  const modal = document.createElement("div");
+  modal.style.cssText = "background:#fff;border-radius:10px;padding:1.5rem 1.8rem;max-width:520px;width:95%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.22);position:relative;";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "✕";
+  closeBtn.style.cssText = "position:absolute;top:0.7rem;right:0.9rem;border:none;background:none;font-size:1.1rem;cursor:pointer;color:#888;";
+  closeBtn.onclick = () => overlay.remove();
+  modal.appendChild(closeBtn);
+
+  const title = document.createElement("div");
+  title.style.cssText = "font-size:0.78rem;color:#888;margin-bottom:0.6rem;";
+  title.textContent = `ID: ${sid}`;
+  modal.appendChild(title);
+
+  if (clusterLabel) {
+    const badge = document.createElement("div");
+    badge.style.cssText = "display:inline-block;background:#4e79a718;border:1px solid #4e79a744;border-radius:6px;padding:2px 10px;font-size:0.8rem;font-weight:600;color:#4e79a7;margin-bottom:0.8rem;";
+    badge.textContent = clusterLabel;
+    modal.appendChild(badge);
+  }
+
+  const coords = document.createElement("div");
+  coords.style.cssText = "font-size:0.8rem;color:#888;margin-bottom:0.9rem;";
+  const parts = [];
+  if (d.pc1 != null) parts.push(`PC1: ${d.pc1.toFixed(3)}, PC2: ${d.pc2.toFixed(3)}`);
+  if (d.u1 != null) parts.push(`UMAP1: ${d.u1.toFixed(3)}, UMAP2: ${d.u2.toFixed(3)}`);
+  coords.textContent = parts.join("  ·  ");
+  modal.appendChild(coords);
+
+  const schDiv = document.createElement("div");
+  schDiv.style.cssText = "margin-top:0.3rem;";
+  modal.appendChild(schDiv);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  let geomData = null;
+  try {
+    const resp = await fetch(`_file/data/pantos_geometry/${sid}.json`);
+    if (resp.ok) geomData = await resp.json();
+  } catch(e) {}
+
+  if (!overlay.isConnected) return;
+  if (geomData) {
+    pantoSchematic(schDiv, geomData, {
+      showBbox: false, showPolygon: true, showCentroids: true,
+      showLabels: true, showDividers: true, showLandmarks: false,
+    });
+  } else {
+    schDiv.style.cssText = "color:#aaa;font-size:0.85rem;padding:1rem 0;";
+    schDiv.textContent = "Sin datos de pantomografía disponibles.";
+  }
+}
+
 /**
  * @param {Object} opts
- * @param {string} opts.algorithmKey - e.g. "kmeans"
- * @param {string} opts.algorithmLabel - e.g. "KMeans"
- * @param {Array} opts.runs - run objects for this algorithm (one per k)
- * @param {Object} opts.labels - {run_key: [label_per_dentition]}
- * @param {Array} opts.eigendentadura - [{fdi, cx, cy, angle}]
- * @param {Array} opts.dentitions - [{id, pc1, pc2}]
+ * @param {string} opts.algorithmKey
+ * @param {string} opts.algorithmLabel
+ * @param {Array} opts.runs
+ * @param {Object} opts.labels
+ * @param {Array} opts.eigendentadura
+ * @param {Array} opts.dentitions
  * @param {Object} opts.pcaMeta
- * @param {Object} opts.meta - {n_dentitions, ...}
+ * @param {Object} opts.meta
  * @param {number} opts.width
+ * @param {Map} [opts.pantosMap] - keyed by shortId (plain ID without prefix/suffix)
  * @returns {HTMLElement}
  */
 export function algorithmSection({
@@ -152,16 +211,18 @@ export function algorithmSection({
   pcaMeta,
   meta,
   width = 900,
+  pantosMap = null,
 }) {
   const container = document.createElement("div");
   container.style.marginBottom = "2rem";
 
   let currentK = runs[0]?.k ?? 3;
-  let currentProjection = "pca"; // 'pca' | 'umap'
+  let currentProjection = "pca";
   let scatterNode = null;
+  let activeOverlay = null;
   const hasKSelector = runs.length > 1;
 
-  // ── k toggle ──────────────────────────────────────────────────────────────
+  // ── Controls row ─────────────────────────────────────────────────────────
   const controlsRow = document.createElement("div");
   controlsRow.style.cssText = "display:flex; gap:1.5rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap;";
 
@@ -173,18 +234,14 @@ export function algorithmSection({
     for (const run of runs) {
       const btn = document.createElement("button");
       btn.textContent = `k = ${run.k}`;
-      btn.style.cssText = "padding:4px 16px; border:1px solid #ccc; border-radius:4px; cursor:pointer; font-size:13px; transition:background 0.15s;";
-      btn.addEventListener("click", () => {
-        currentK = run.k;
-        render();
-      });
+      btn.style.cssText = "padding:4px 16px; border:1px solid #ccc; border-radius:4px; cursor:pointer; font-size:13px;";
+      btn.addEventListener("click", () => { currentK = run.k; render(); });
       kButtons[run.k] = btn;
       kBlock.appendChild(btn);
     }
     controlsRow.appendChild(kBlock);
   }
 
-  // Projection toggle (PCA / UMAP)
   const projBlock = document.createElement("div");
   projBlock.style.cssText = "display:flex; gap:0.5rem; align-items:center;";
   projBlock.innerHTML = `<span style="font-weight:600;">Proyección:</span>`;
@@ -192,33 +249,25 @@ export function algorithmSection({
   for (const proj of ["pca", "umap"]) {
     const btn = document.createElement("button");
     btn.textContent = proj.toUpperCase();
-    btn.style.cssText = "padding:4px 16px; border:1px solid #ccc; border-radius:4px; cursor:pointer; font-size:13px; transition:background 0.15s;";
-    btn.addEventListener("click", () => {
-      currentProjection = proj;
-      render();
-    });
+    btn.style.cssText = "padding:4px 16px; border:1px solid #ccc; border-radius:4px; cursor:pointer; font-size:13px;";
+    btn.addEventListener("click", () => { currentProjection = proj; render(); });
     projButtons[proj] = btn;
     projBlock.appendChild(btn);
   }
   controlsRow.appendChild(projBlock);
   container.appendChild(controlsRow);
 
-  // ── Content (re-rendered on k/projection change) ─────────────────────────
   const content = document.createElement("div");
   container.appendChild(content);
 
   function render() {
-    // Cleanup old scatter tooltip
-    if (scatterNode && scatterNode.__tooltipCleanup) {
-      scatterNode.__tooltipCleanup();
-      scatterNode = null;
-    }
+    if (scatterNode && scatterNode.__tooltipCleanup) { scatterNode.__tooltipCleanup(); scatterNode = null; }
+    if (activeOverlay) { activeOverlay.remove(); activeOverlay = null; }
     content.innerHTML = "";
 
     const run = runs.find(r => r.k === currentK) || runs[0];
     if (!run) return;
 
-    // Update button styles
     if (hasKSelector) {
       for (const [k, btn] of Object.entries(kButtons)) {
         const active = parseInt(k) === currentK;
@@ -234,7 +283,7 @@ export function algorithmSection({
       btn.style.borderColor = active ? "#4e79a7" : "#ccc";
     }
 
-    // ── Summary ──────────────────────────────────────────────────────────────
+    // Summary
     const summary = document.createElement("p");
     summary.style.cssText = "margin:0.5rem 0 1rem; color:#555;";
     const sizes = run.clusters.map(c => `C${c.cluster}: ${c.n}`).join(" · ");
@@ -242,14 +291,12 @@ export function algorithmSection({
     let extra = "";
     if (run.n_noise != null) {
       extra = ` &nbsp;—&nbsp; Ruido: <strong>${run.n_noise}</strong> (${run.noise_pct}%)`;
-      if (run.min_cluster_size != null) {
-        extra += ` &nbsp;—&nbsp; min_cluster_size=${run.min_cluster_size}, min_samples=${run.min_samples}`;
-      }
+      if (run.min_cluster_size != null) extra += ` &nbsp;—&nbsp; min_cluster_size=${run.min_cluster_size}, min_samples=${run.min_samples}`;
     }
     summary.innerHTML = `k: <strong>${run.k}</strong> &nbsp;—&nbsp; Silhouette: <strong>${silStr}</strong> &nbsp;—&nbsp; ${sizes}${extra}`;
     content.appendChild(summary);
 
-    // ── Scatter (PCA or UMAP) ────────────────────────────────────────────────
+    // Scatter (6.1: click→modal, 6.3: cluster toggle legend)
     const scatterW = Math.min(width, 850);
     scatterNode = pcaScatterPlot({
       dentitions,
@@ -259,10 +306,14 @@ export function algorithmSection({
       title: `${algorithmLabel}${run.k ? `, k=${run.k}` : ""} — ${currentProjection.toUpperCase()}`,
       width: scatterW,
       height: 480,
+      onDotClick: pantosMap ? (d) => {
+        const lab = d.cluster === -1 ? "Ruido" : `Cluster ${d.cluster}`;
+        openDentitionModal({d, pantosMap, clusterLabel: lab});
+      } : null,
     });
     content.appendChild(scatterNode);
 
-    // ── Cluster dentitions — small multiples ─────────────────────────────────
+    // ── Cluster dentitions — one cluster at a time (6.2) ─────────────────────
     const dentHeader = document.createElement("h4");
     dentHeader.textContent = "Dentaduras por cluster";
     dentHeader.style.cssText = "margin:1.5rem 0 0.3rem;";
@@ -270,35 +321,96 @@ export function algorithmSection({
 
     const dentDesc = document.createElement("p");
     dentDesc.style.cssText = "color:#666; font-size:13px; margin:0 0 0.8rem;";
-    dentDesc.textContent = "Gris: eigendentadura · Semitransparente: media del cluster · Sólido: representante #1.";
+    dentDesc.textContent = "Gris: eigendentadura · Semitransparente: media del cluster · Sólido: representante #1. Clic en una tarjeta para ver la dentadura individual.";
     content.appendChild(dentDesc);
+
+    // Cluster selector tabs
+    let selectedCluster = run.clusters[0]?.cluster ?? 0;
+    const tabRow = document.createElement("div");
+    tabRow.style.cssText = "display:flex;gap:0.4rem;margin-bottom:0.8rem;flex-wrap:wrap;";
+
+    const clusterBtns = {};
+    for (const cluster of run.clusters) {
+      const pct = (cluster.n / meta.n_dentitions * 100).toFixed(1);
+      const btn = document.createElement("button");
+      btn.textContent = `C${cluster.cluster} (${pct}%)`;
+      btn.style.cssText = "padding:4px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;font-size:13px;";
+      btn.addEventListener("click", () => {
+        selectedCluster = cluster.cluster;
+        updateDentGrid();
+        for (const [c, b] of Object.entries(clusterBtns)) {
+          const a = parseInt(c) === selectedCluster;
+          b.style.background = a ? "#4e79a7" : "#fff";
+          b.style.color = a ? "#fff" : "#333";
+          b.style.borderColor = a ? "#4e79a7" : "#ccc";
+        }
+      });
+      clusterBtns[cluster.cluster] = btn;
+      tabRow.appendChild(btn);
+    }
+    content.appendChild(tabRow);
 
     const dentGrid = document.createElement("div");
     dentGrid.style.cssText = "display:flex; flex-wrap:wrap; gap:0.8rem;";
-    const nCards = Math.max(run.k, 1);
-    const cardW = nCards <= 3
-      ? Math.min(360, Math.floor((width - 30) / Math.max(nCards, 1)))
-      : Math.min(300, Math.floor((width - 50) / Math.min(nCards, 3)));
-
-    for (const cluster of run.clusters) {
-      const repList = run.representatives[String(cluster.cluster)];
-      const rep = repList[0];
-      const pct = (cluster.n / meta.n_dentitions * 100).toFixed(1);
-      const card = drawClusterDentition({
-        clusterTeeth: cluster.teeth,
-        repTeeth: rep.teeth,
-        eigendentadura,
-        title: `C${cluster.cluster} — n=${cluster.n} (${pct}%)`,
-        w: cardW,
-        h: Math.round(cardW * 0.75),
-      });
-      card.style.border = "1px solid #eee";
-      card.style.borderRadius = "4px";
-      dentGrid.appendChild(card);
-    }
     content.appendChild(dentGrid);
 
-    // ── Representatives table ────────────────────────────────────────────────
+    function updateDentGrid() {
+      dentGrid.innerHTML = "";
+      const cluster = run.clusters.find(c => c.cluster === selectedCluster);
+      if (!cluster) return;
+
+      const reps = run.representatives[String(cluster.cluster)] ?? [];
+      const cardW = Math.min(220, Math.floor((width - 80) / Math.min(reps.length, 4)));
+      const pct = (cluster.n / meta.n_dentitions * 100).toFixed(1);
+
+      // Cluster mean card
+      const meanCard = document.createElement("div");
+      meanCard.style.cssText = "border:2px solid #4e79a733;border-radius:6px;padding:4px;background:#f8faff;";
+      meanCard.appendChild(drawClusterDentition({
+        clusterTeeth: cluster.teeth,
+        repTeeth: cluster.teeth,
+        eigendentadura,
+        title: `C${cluster.cluster} — media (n=${cluster.n}, ${pct}%)`,
+        w: cardW + 60,
+        h: Math.round((cardW + 60) * 0.75),
+      }));
+      dentGrid.appendChild(meanCard);
+
+      // Representative cards
+      for (const rep of reps) {
+        const card = document.createElement("div");
+        card.style.cssText = "border:1px solid #eee;border-radius:6px;padding:4px;cursor:pointer;";
+        card.title = "Clic para ver detalles de esta dentadura";
+
+        const repDent = drawClusterDentition({
+          clusterTeeth: cluster.teeth,
+          repTeeth: rep.teeth,
+          eigendentadura,
+          title: `Rep #${rep.rank + 1} (dist=${rep.dist.toFixed(2)})`,
+          w: cardW,
+          h: Math.round(cardW * 0.75),
+        });
+        card.appendChild(repDent);
+        card.addEventListener("mouseover", () => { card.style.borderColor = "#4e79a7"; });
+        card.addEventListener("mouseout", () => { card.style.borderColor = "#eee"; });
+        card.addEventListener("click", () => {
+          const d = dentitions.find(dd => dd.id === rep.id) ?? {id: rep.id, pc1: rep.pc1, pc2: rep.pc2};
+          openDentitionModal({d, pantosMap, clusterLabel: `Cluster ${cluster.cluster}, rep #${rep.rank + 1}`});
+        });
+        dentGrid.appendChild(card);
+      }
+    }
+
+    // Init cluster tab buttons
+    for (const [c, b] of Object.entries(clusterBtns)) {
+      const a = parseInt(c) === selectedCluster;
+      b.style.background = a ? "#4e79a7" : "#fff";
+      b.style.color = a ? "#fff" : "#333";
+      b.style.borderColor = a ? "#4e79a7" : "#ccc";
+    }
+    updateDentGrid();
+
+    // Representatives table
     const repsHeader = document.createElement("h4");
     repsHeader.textContent = "Representativos — top 5 más cercanos al centroide";
     repsHeader.style.cssText = "margin:1.8rem 0 0.5rem;";
@@ -307,9 +419,9 @@ export function algorithmSection({
     const table = document.createElement("table");
     table.style.cssText = "border-collapse:collapse; width:100%; max-width:750px; font-size:13px;";
 
-    const thead = document.createElement("thead");
     const thStyle = "padding:6px 10px; border-bottom:2px solid #ddd; text-align:left; font-weight:600;";
     const thStyleR = "padding:6px 10px; border-bottom:2px solid #ddd; text-align:right; font-weight:600;";
+    const thead = document.createElement("thead");
     thead.innerHTML = `<tr>
       <th style="${thStyle}">Cluster</th>
       <th style="${thStyle}">#</th>
@@ -340,28 +452,20 @@ export function algorithmSection({
           <td style="${tdStyleR}">${rep.dist.toFixed(3)}</td>
           <td style="${tdStyleR}">${rep.pc1.toFixed(2)}</td>
           <td style="${tdStyleR}">${rep.pc2.toFixed(2)}</td>`;
-        tr.addEventListener("mouseenter", () => {
-          if (tr !== selectedRowEl) tr.style.background = "#f8f8f8";
-        });
-        tr.addEventListener("mouseleave", () => {
-          if (tr !== selectedRowEl) tr.style.background = "";
-        });
+        tr.addEventListener("mouseenter", () => { if (tr !== selectedRowEl) tr.style.background = "#f8f8f8"; });
+        tr.addEventListener("mouseleave", () => { if (tr !== selectedRowEl) tr.style.background = ""; });
         tr.addEventListener("click", () => {
           if (selectedRowEl) selectedRowEl.style.background = "";
           selectedRowEl = tr;
           tr.style.background = "#e8f0fe";
-          // Render selected panto
           repViz.innerHTML = "";
           const vizW = Math.min(width, 700);
-          const node = drawDentition({
+          repViz.appendChild(drawDentition({
             teeth: rep.teeth,
             eigendentadura,
             title: `${shortId(rep.id)} — Cluster ${cluster.cluster}, #${rep.rank + 1} (dist=${rep.dist.toFixed(3)})`,
-            w: vizW,
-            h: 400,
-            showFdi: true,
-          });
-          repViz.appendChild(node);
+            w: vizW, h: 400, showFdi: true,
+          }));
         });
         tbody.appendChild(tr);
       }

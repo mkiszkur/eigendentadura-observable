@@ -301,7 +301,7 @@ export function pantoSchematic(container, pantoData, options = {}) {
     for (const s of visibleShapes) {
       if (s.et === "landmark") continue; // landmarks handled above
       const tn = s.tn;
-      if (tn == null && !s.l) continue;
+      if (tn == null) continue; // only show actual FDI numbers
 
       // Position: centroid of polygon, else center of bbox, else centroid point
       let lx, ly;
@@ -316,7 +316,7 @@ export function pantoSchematic(container, pantoData, options = {}) {
         ly = s.b[1] + s.b[3] / 2;
       } else continue;
 
-      const text = tn != null ? String(tn) : (s.l || "");
+      const text = String(tn);
       const fontSize = 18;
       const approxW = text.length * 11 + 6;
       const approxH = 20;
@@ -426,6 +426,29 @@ export function pantoSchematic(container, pantoData, options = {}) {
 
       const eigenG = g.append("g").attr("class", "eigendentadura");
       const toothFilterSet = selectedTeeth ? new Set(selectedTeeth) : null;
+
+      // Build lookup: FDI → individual centroid pixel coords
+      const indivCentroidMap = new Map(
+        shapes
+          .filter(s => s.et === "tooth" && s.es === "tooth" && s.tn != null && s.c)
+          .map(s => [s.tn, s.c])
+      );
+
+      // Draw connection lines first (behind ellipses and circles)
+      for (const stat of eigendentaduraStats) {
+        if (toothFilterSet && !toothFilterSet.has(stat.fdi)) continue;
+        const [px, py] = lmToPixel(stat.mean_x, stat.mean_y);
+        const ic = indivCentroidMap.get(stat.fdi);
+        if (ic) {
+          eigenG.append("line")
+            .attr("x1", ic[0]).attr("y1", ic[1])
+            .attr("x2", px).attr("y2", py)
+            .attr("stroke", "#e15759")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,4")
+            .attr("opacity", 0.55);
+        }
+      }
 
       for (const stat of eigendentaduraStats) {
         if (toothFilterSet && !toothFilterSet.has(stat.fdi)) continue;

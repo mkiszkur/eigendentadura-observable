@@ -336,8 +336,46 @@ Dos violines simétricos por celda, uno por grupo, para cada diente seleccionado
 </details>
 
 ```js
+const violinQuadInput = Inputs.checkbox(
+  new Map([["Q1 (11–18)", 1], ["Q2 (21–28)", 2], ["Q3 (31–38)", 3], ["Q4 (41–48)", 4]]),
+  {value: [1, 2, 3, 4]}
+);
+const violinQuad = Generators.input(violinQuadInput);
+```
+
+```js
+{
+  function setVQ(qs) {
+    violinQuadInput.value = qs;
+    violinQuadInput.dispatchEvent(new Event("input", {bubbles: true}));
+  }
+  const presets = [
+    {label: "Superior (Q1+Q2)", qs: [1, 2]},
+    {label: "Inferior (Q3+Q4)", qs: [3, 4]},
+    {label: "Derecha (Q1+Q4)",  qs: [1, 4]},
+    {label: "Izquierda (Q2+Q3)", qs: [2, 3]},
+    {label: "Todos",            qs: [1, 2, 3, 4]},
+  ];
+  const btnRow = html`<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+    ${presets.map(({label, qs}) => {
+      const btn = html`<button style="font-size:11px; padding:3px 9px; border:1px solid #ccc; border-radius:4px; cursor:pointer; background:#f5f5f5;">${label}</button>`;
+      btn.addEventListener("click", () => setVQ(qs));
+      return btn;
+    })}
+  </div>`;
+  display(html`<details style="margin:0.5rem 0;"><summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtrar cuadrante</summary>
+    <div style="padding:6px 0;">${btnRow}${violinQuadInput}</div>
+  </details>`);
+}
+```
+
+```js
+const violinFdi = selectedFdi.filter(fdi => violinQuad.includes(Math.floor(fdi / 10)));
+```
+
+```js
 display(subpopViolinPlot({
-  selectedFdi,
+  selectedFdi: violinFdi,
   violinData: violinGenero,
   colorMap,
   labelMap,

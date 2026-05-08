@@ -168,7 +168,10 @@ const pathology = Generators.input(pathologyInput);
 </details>
 
 ```js
-display(upsetPlot(ds.upset, {width: Math.min(width, 780), maxIntersections: 20}));
+{
+  const el = upsetPlot(ds.upset, {width: Math.min(width, 780), maxIntersections: ds.upset.intersections.length});
+  display(html`<div style="overflow-x: auto;">${el}</div>`);
+}
 ```
 
 ## Multimorbilidad

@@ -15,6 +15,8 @@ import * as d3 from "d3";
 
 ```js
 const clustering = FileAttachment("data/clustering.json").json();
+const pantosRawCl = await FileAttachment("data/pantos_browser.json").json();
+const pantosMapCl = new Map(pantosRawCl.pantos.map(p => [p.archivo, p]));
 ```
 
 ## Comparación de Silhouette
@@ -102,6 +104,7 @@ const algKeys = [
     pcaMeta: clustering.pca,
     meta: clustering.meta,
     width: Math.min(width, 960),
+    pantosMap: pantosMapCl,
   }));
 }
 ```
@@ -121,6 +124,7 @@ const algKeys = [
     pcaMeta: clustering.pca,
     meta: clustering.meta,
     width: Math.min(width, 960),
+    pantosMap: pantosMapCl,
   }));
 }
 ```
@@ -140,6 +144,7 @@ const algKeys = [
     pcaMeta: clustering.pca,
     meta: clustering.meta,
     width: Math.min(width, 960),
+    pantosMap: pantosMapCl,
   }));
 }
 ```
@@ -159,6 +164,7 @@ const algKeys = [
     pcaMeta: clustering.pca,
     meta: clustering.meta,
     width: Math.min(width, 960),
+    pantosMap: pantosMapCl,
   }));
 }
 ```
@@ -179,6 +185,7 @@ A diferencia de los anteriores, HDBSCAN determina el número de clusters automá
     pcaMeta: clustering.pca,
     meta: clustering.meta,
     width: Math.min(width, 960),
+    pantosMap: pantosMapCl,
   }));
 }
 ```

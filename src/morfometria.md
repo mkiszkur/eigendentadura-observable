@@ -9,19 +9,122 @@ title: Morfometría clínica
 ```js
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
-import {occlusionHistograms, occlusionScatter} from "./components/occlusion.js";
+import {occlusionHistograms} from "./components/occlusion.js";
 import {boltonHistograms} from "./components/bolton.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import {quadrantOverlay} from "./components/quadrant-overlay.js";
+import {pantoSchematic} from "./components/panto-schematic.js";
 import * as d3 from "d3";
 ```
 
 ```js
-const toothStats = await FileAttachment("data/tooth_stats.json").json();
-const metadata = await FileAttachment("data/metadata.json").json();
-const symmetryData = await FileAttachment("data/symmetry_pairs.json").json();
-const occlusionData = await FileAttachment("data/occlusion.json").json();
-const boltonData = await FileAttachment("data/bolton.json").json();
+const toothStats         = await FileAttachment("data/tooth_stats.json").json();
+const metadata           = await FileAttachment("data/metadata.json").json();
+const symmetryData       = await FileAttachment("data/symmetry_pairs.json").json();
+const occlusionData      = await FileAttachment("data/occlusion.json").json();
+const boltonData         = await FileAttachment("data/bolton.json").json();
+const occIndividuals     = await FileAttachment("data/occlusion_individuals.json").json();
+const individualsRaw     = await FileAttachment("data/individual_scores.json").json();
+const pantosRawM         = await FileAttachment("data/pantos_browser.json").json();
+```
+
+```js
+// Lookup maps
+const indivMapM   = new Map(individualsRaw.map(d => [d.json_filename, d]));
+const pantosMapM  = new Map(pantosRawM.pantos.map(p => [p.archivo, p]));
+
+function extractIdM(fn) {
+  return fn?.match(/database_original__(.+?)__json_url\.json/)?.[1] ?? null;
+}
+function simplifyM(fn) {
+  return fn?.replace(/^database_original__/, "").replace(/__json_url\.json$/, "") ?? fn;
+}
+
+// Enrich occlusion individuals with z-scores + pantos_browser data
+const occEnriched = occIndividuals.map(d => {
+  const indiv = indivMapM.get(d.json_filename);
+  const id    = extractIdM(d.json_filename);
+  const pb    = id ? pantosMapM.get(id) : null;
+  return {...d, ...(indiv ? {z_mean: indiv.z_mean, z_pos: indiv.z_pos, z_ang: indiv.z_ang, teeth: indiv.teeth} : {}),
+    pb_flags: pb?.flags ?? null, pb_tooth_numbers: pb?.tooth_numbers ?? null};
+});
+
+// Bolton individuals enriched
+const boltEnriched = boltonData.individuals.filter(d => d.anterior_complete || d.overall_complete).map(d => {
+  const indiv = indivMapM.get(d.json_filename);
+  const id    = extractIdM(d.json_filename);
+  const pb    = id ? pantosMapM.get(id) : null;
+  return {...d, ...(indiv ? {z_mean: indiv.z_mean, data_origin: indiv.data_origin, sex: indiv.sex, n_teeth: indiv.n_teeth, teeth: indiv.teeth} : {}),
+    pb_flags: pb?.flags ?? null, pb_tooth_numbers: pb?.tooth_numbers ?? null};
+});
+```
+
+```js
+const clickedMorfo = Mutable(null);
+function setClickedMorfo(d) { clickedMorfo.value = d; }
+function clearClickedMorfo() { clickedMorfo.value = null; }
+```
+
+```js
+// Modal reactivo — mismo patrón que Tipicidad
+{
+  const clicked = clickedMorfo;
+  const id = extractIdM(clicked?.json_filename);
+  if (clicked && id) {
+    let geomData = null;
+    try {
+      const resp = await fetch(`_file/data/pantos_geometry/${id}.json`);
+      if (resp.ok) geomData = await resp.json();
+    } catch(e) {}
+    if (geomData) {
+      const overlay = document.createElement("div");
+      overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;";
+      const modal = document.createElement("div");
+      modal.style.cssText = "background:white;border-radius:10px;padding:1.5rem;max-width:min(980px,95vw);max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.35);";
+      const close = () => { overlay.remove(); clearClickedMorfo(); };
+      const closeBtn = document.createElement("button");
+      closeBtn.textContent = "×";
+      closeBtn.style.cssText = "position:absolute;top:10px;right:14px;font-size:22px;border:none;background:none;cursor:pointer;color:#888;line-height:1;";
+      closeBtn.addEventListener("click", close);
+
+      function zBadgeM(label, val, color = "#4c78a8") {
+        const c = val != null ? color : "#aaa";
+        return `<span style="display:inline-flex;align-items:center;gap:4px;background:${c}18;border:1px solid ${c}44;border-radius:4px;padding:2px 7px;margin-right:6px;margin-bottom:4px;font-size:0.78rem;"><span style="color:${c};font-weight:600;">${label}</span><span style="color:#333;">${val != null ? val.toFixed(4) : "–"}</span></span>`;
+      }
+
+      const flags = clicked.pb_flags;
+      const flagsHtml = flags && Object.keys(flags).length
+        ? `<div style="margin-bottom:0.6rem;">${Object.entries(flags).map(([k,v]) => `<span style="display:inline-flex;background:#fff5f0;border:1px solid #f4a46033;border-radius:3px;padding:1px 6px;font-size:0.77rem;margin:2px;"><span style="color:#e07020;">${k}</span><span style="color:#888;">&nbsp;(${v})</span></span>`).join("")}</div>`
+        : `<div style="margin-bottom:0.6rem;font-size:11px;color:#aaa;">Sin patologías registradas</div>`;
+
+      const morfoExtra = [
+        clicked.overjet  != null ? `overjet=${clicked.overjet.toFixed(4)}`  : null,
+        clicked.overbite != null ? `overbite=${clicked.overbite.toFixed(4)}` : null,
+        clicked.anterior_ratio != null ? `Bolton ant.=${clicked.anterior_ratio.toFixed(2)}` : null,
+        clicked.overall_ratio  != null ? `Bolton overall=${clicked.overall_ratio.toFixed(2)}` : null,
+      ].filter(Boolean).join(" · ");
+
+      const header = document.createElement("div");
+      header.innerHTML =
+        `<div style="margin-bottom:6px;padding-right:2rem;"><strong style="font-family:monospace;font-size:0.82rem;">${id}</strong><span style="color:#777;font-size:0.82rem;margin-left:0.8rem;">${clicked.data_origin ?? "–"} · ${clicked.sex ?? "–"} · ${clicked.n_teeth ?? "?"} dientes</span></div>` +
+        `<div style="margin-bottom:0.4rem;flex-wrap:wrap;display:flex;">${zBadgeM("z̄", clicked.z_mean, "#54a24b")}${zBadgeM("overjet", clicked.overjet, "#4c78a8")}${zBadgeM("overbite", clicked.overbite, "#72b7b2")}${clicked.anterior_ratio != null ? zBadgeM("Bolton ant.", clicked.anterior_ratio, "#f58518") : ""}${clicked.overall_ratio != null ? zBadgeM("Bolton overall", clicked.overall_ratio, "#7b52ab") : ""}</div>` +
+        flagsHtml;
+
+      const hint = document.createElement("div");
+      hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear · Círculos grises = eigendentadura";
+      hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:0.5rem;";
+
+      const schContainer = document.createElement("div");
+      pantoSchematic(schContainer, geomData, {showBbox:false, showPolygon:true, showCentroids:true, showLabels:true, showLandmarks:true, showDividers:true, showEigendentadura:true, eigendentaduraStats:toothStats});
+
+      modal.append(closeBtn, header, hint, schContainer);
+      overlay.appendChild(modal);
+      overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+      document.body.appendChild(overlay);
+      invalidation.then(() => overlay.remove());
+    }
+  }
+}
 ```
 
 ```js
@@ -162,11 +265,108 @@ Cada punto es una dentadura. El círculo negro marca la mediana poblacional; den
 </details>
 
 ```js
-display(occlusionScatter({
-  occlusionData,
-  width: Math.min(width, 720),
-  height: 460,
-}));
+const occColorInput = Inputs.select(
+  new Map([["Atipicidad (z̄)","atipicidad"],["N° dientes","n_teeth"],["Centro clínico","origin"],["Sexo","sex"]]),
+  {label: "Colorear por", value: "atipicidad"}
+);
+const occColor = Generators.input(occColorInput);
+display(occColorInput);
+```
+
+```js
+{
+  const data = occEnriched.filter(d => d.overjet != null && d.overbite != null);
+
+  const medJ = d3.median(data, d => d.overjet);
+  const medB = d3.median(data, d => d.overbite);
+
+  // Color scales
+  const origins = [...new Set(data.map(d => d.data_origin).filter(Boolean))].sort();
+  const sexes   = [...new Set(data.map(d => d.sex).filter(Boolean))].sort();
+  const colorOrig = d3.scaleOrdinal(["#4e79a7","#e15759","#59a14f","#f28e2b"]).domain(origins);
+  const colorSex  = d3.scaleOrdinal(["#4e79a7","#e15759"]).domain(sexes);
+  const maxZ = d3.max(data, d => d.z_mean ?? 0);
+  const colorAtip = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, maxZ]);
+  const teethExt  = d3.extent(data, d => d.n_teeth);
+  const colorTeeth = d3.scaleSequential(t => d3.interpolateRdYlBu(1 - t)).domain(teethExt);
+
+  function getCol(d) {
+    if (occColor === "origin") return colorOrig(d.data_origin) ?? "#aaa";
+    if (occColor === "sex")    return d.sex ? colorSex(d.sex) : "#ccc";
+    if (occColor === "n_teeth") return colorTeeth(d.n_teeth ?? teethExt[0]);
+    return colorAtip(d.z_mean ?? 0);
+  }
+
+  const W = Math.min(width, 680), H = 440;
+  const M = {top:20, right:160, bottom:50, left:60};
+  const iW = W - M.left - M.right, iH = H - M.top - M.bottom;
+
+  const xExt = d3.extent(data, d => d.overjet);
+  const yExt = d3.extent(data, d => d.overbite);
+  const xS = d3.scaleLinear().domain([xExt[0]*0.95, xExt[1]*1.05]).range([0, iW]);
+  const yS = d3.scaleLinear().domain([yExt[0] - (yExt[1]-yExt[0])*0.05, yExt[1]*1.05]).range([iH, 0]);
+
+  const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width","100%")
+    .style("font-family","var(--sans-serif,system-ui,sans-serif)");
+  const defs = svg.append("defs");
+  defs.append("clipPath").attr("id","occ-clip").append("rect").attr("width",iW).attr("height",iH);
+
+  const gO = svg.append("g").attr("transform",`translate(${M.left},${M.top})`);
+  const g  = gO.append("g").attr("clip-path","url(#occ-clip)");
+
+  // Grid + axes
+  gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
+    .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+    .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("y1",-iH));
+  gO.append("g").call(d3.axisLeft(yS).ticks(6))
+    .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+    .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("x2",iW));
+  gO.append("text").attr("x",iW/2).attr("y",iH+38).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Overjet (|Δx| landmark-normalized)");
+  gO.append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-44).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Overbite (Δy landmark-normalized)");
+
+  // Median crosshairs
+  g.append("line").attr("x1",xS(medJ)).attr("x2",xS(medJ)).attr("y1",0).attr("y2",iH)
+    .attr("stroke","#888").attr("stroke-dasharray","5,3").attr("stroke-width",1);
+  g.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(medB)).attr("y2",yS(medB))
+    .attr("stroke","#888").attr("stroke-dasharray","5,3").attr("stroke-width",1);
+
+  // Points
+  g.selectAll("circle.dot").data(data).join("circle").attr("class","dot")
+    .attr("cx", d => xS(d.overjet)).attr("cy", d => yS(d.overbite))
+    .attr("r", 2.5).attr("fill", d => getCol(d)).attr("opacity", 0.55)
+    .style("cursor","pointer")
+    .on("click", (event,d) => { event.stopPropagation(); setClickedMorfo(d); })
+    .append("title").text(d => `${simplifyM(d.json_filename)}\nOverjet=${d.overjet?.toFixed(4)} · Overbite=${d.overbite?.toFixed(4)}\nz̄=${d.z_mean?.toFixed(4) ?? "–"}\nClic para ver detalle`);
+
+  // Median label
+  gO.append("text").attr("x",xS(medJ)+6).attr("y",yS(medB)-6).attr("font-size",10).attr("fill","#555").text(`mediana`);
+
+  // Legend (color bar for atipicidad, categories for others)
+  const lx = iW + 16;
+  if (occColor === "atipicidad") {
+    const gradId = "occ-grad";
+    const barH = 90, barW = 12;
+    const grad = defs.append("linearGradient").attr("id",gradId).attr("x1","0").attr("x2","0").attr("y1","1").attr("y2","0");
+    [0,0.25,0.5,0.75,1].forEach(t => grad.append("stop").attr("offset",`${t*100}%`).attr("stop-color",colorAtip(t*maxZ)));
+    gO.append("text").attr("x",lx).attr("y",10).attr("font-size",9).attr("fill","#888").attr("font-weight","bold").text("z̄");
+    gO.append("rect").attr("x",lx).attr("y",14).attr("width",barW).attr("height",barH).attr("fill",`url(#${gradId})`).attr("rx",2);
+    gO.append("text").attr("x",lx+barW+4).attr("y",18).attr("font-size",9).attr("fill","#555").text(d3.format(".2f")(maxZ));
+    gO.append("text").attr("x",lx+barW+4).attr("y",14+barH).attr("font-size",9).attr("fill","#555").text("0");
+  } else {
+    const items = occColor === "origin" ? origins.map(o => ({l:o, c:colorOrig(o)}))
+      : occColor === "sex" ? sexes.map(s => ({l:s, c:colorSex(s)}))
+      : [{l:`${teethExt[0]}`, c:colorTeeth(teethExt[0])},{l:`${teethExt[1]}`, c:colorTeeth(teethExt[1])}];
+    gO.append("text").attr("x",lx).attr("y",10).attr("font-size",9).attr("fill","#888").attr("font-weight","bold").text(occColor === "origin" ? "Centro" : occColor === "sex" ? "Sexo" : "N° dientes");
+    items.forEach(({l,c},i) => {
+      gO.append("circle").attr("cx",lx+5).attr("cy",24+i*18).attr("r",5).attr("fill",c).attr("opacity",0.8);
+      gO.append("text").attr("x",lx+14).attr("y",28+i*18).attr("font-size",10).attr("fill","#333").text(l);
+    });
+  }
+
+  gO.append("text").attr("x",iW).attr("y",-5).attr("text-anchor","end").attr("font-size",9).attr("fill","#aaa").text("Clic en un punto para ver la pantomografía");
+
+  display(svg.node());
+}
 ```
 
 ```js
@@ -212,6 +412,103 @@ El ancho mesiodistal (MD) se aproxima por el **lado corto del rectángulo de ár
 
 ```js
 display(boltonHistograms({boltonData, width: Math.min(width, 1000)}));
+```
+
+### Scatter Bolton: anterior vs overall
+
+Cada punto es una dentadura con ambas medidas disponibles. Hacé clic para ver la pantomografía. Las bandas verdes marcan el rango normativo de Bolton (± 1 SD).
+
+```js
+const boltColorInput = Inputs.select(
+  new Map([["Atipicidad (z̄)","atipicidad"],["N° dientes","n_teeth"],["Centro clínico","origin"],["Sexo","sex"]]),
+  {label: "Colorear por", value: "atipicidad"}
+);
+const boltColor = Generators.input(boltColorInput);
+display(boltColorInput);
+```
+
+```js
+{
+  const data = boltEnriched.filter(d => d.anterior_complete && d.overall_complete);
+  const W = Math.min(width, 600), H = 440;
+  const M = {top:20, right:160, bottom:50, left:65};
+  const iW = W - M.left - M.right, iH = H - M.top - M.bottom;
+
+  const norms = boltonData.norms;
+  const xDom = [d3.min(data,d=>d.anterior_ratio)*0.995, d3.max(data,d=>d.anterior_ratio)*1.005];
+  const yDom = [d3.min(data,d=>d.overall_ratio)*0.995,  d3.max(data,d=>d.overall_ratio)*1.005];
+  const xS = d3.scaleLinear().domain(xDom).range([0, iW]);
+  const yS = d3.scaleLinear().domain(yDom).range([iH, 0]);
+
+  // Color scales (same as overjet scatter)
+  const origins2 = [...new Set(data.map(d => d.data_origin).filter(Boolean))].sort();
+  const sexes2   = [...new Set(data.map(d => d.sex).filter(Boolean))].sort();
+  const cOrig2  = d3.scaleOrdinal(["#4e79a7","#e15759","#59a14f","#f28e2b"]).domain(origins2);
+  const cSex2   = d3.scaleOrdinal(["#4e79a7","#e15759"]).domain(sexes2);
+  const maxZ2   = d3.max(data, d => d.z_mean ?? 0);
+  const cAtip2  = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, maxZ2]);
+  const tExt2   = d3.extent(data, d => d.n_teeth ?? 0);
+  const cTeeth2 = d3.scaleSequential(t => d3.interpolateRdYlBu(1-t)).domain(tExt2);
+
+  function getColB(d) {
+    if (boltColor === "origin") return cOrig2(d.data_origin) ?? "#aaa";
+    if (boltColor === "sex")    return d.sex ? cSex2(d.sex) : "#ccc";
+    if (boltColor === "n_teeth") return cTeeth2(d.n_teeth ?? tExt2[0]);
+    return cAtip2(d.z_mean ?? 0);
+  }
+
+  const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width","100%")
+    .style("font-family","var(--sans-serif,system-ui,sans-serif)");
+  const defs2 = svg.append("defs");
+  defs2.append("clipPath").attr("id","bolt-clip").append("rect").attr("width",iW).attr("height",iH);
+  const gO2 = svg.append("g").attr("transform",`translate(${M.left},${M.top})`);
+  const g2  = gO2.append("g").attr("clip-path","url(#bolt-clip)");
+
+  // Normative bands
+  const axBand = [norms.anterior.mean - norms.anterior.std, norms.anterior.mean + norms.anterior.std];
+  const oyBand = [norms.overall.mean  - norms.overall.std,  norms.overall.mean  + norms.overall.std];
+  if (xDom[0] < axBand[1] && xDom[1] > axBand[0]) {
+    g2.append("rect")
+      .attr("x", xS(Math.max(xDom[0], axBand[0]))).attr("y", 0)
+      .attr("width", xS(Math.min(xDom[1], axBand[1])) - xS(Math.max(xDom[0], axBand[0])))
+      .attr("height", iH).attr("fill","#59a14f").attr("opacity",0.07);
+  }
+  if (yDom[0] < oyBand[1] && yDom[1] > oyBand[0]) {
+    g2.append("rect")
+      .attr("x", 0).attr("y", yS(Math.min(yDom[1], oyBand[1])))
+      .attr("width", iW)
+      .attr("height", yS(Math.max(yDom[0], oyBand[0])) - yS(Math.min(yDom[1], oyBand[1])))
+      .attr("fill","#59a14f").attr("opacity",0.07);
+  }
+
+  // Axes
+  gO2.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
+    .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+    .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("y1",-iH));
+  gO2.append("g").call(d3.axisLeft(yS).ticks(6))
+    .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+    .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("x2",iW));
+  gO2.append("text").attr("x",iW/2).attr("y",iH+38).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Bolton Anterior (%)");
+  gO2.append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-50).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Bolton Overall (%)");
+
+  // Normative mean lines
+  if (xDom[0] < norms.anterior.mean && xDom[1] > norms.anterior.mean)
+    g2.append("line").attr("x1",xS(norms.anterior.mean)).attr("x2",xS(norms.anterior.mean)).attr("y1",0).attr("y2",iH).attr("stroke","#59a14f").attr("stroke-dasharray","5,3").attr("stroke-width",1.2);
+  if (yDom[0] < norms.overall.mean && yDom[1] > norms.overall.mean)
+    g2.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(norms.overall.mean)).attr("y2",yS(norms.overall.mean)).attr("stroke","#59a14f").attr("stroke-dasharray","5,3").attr("stroke-width",1.2);
+
+  // Points
+  g2.selectAll("circle.dot").data(data).join("circle").attr("class","dot")
+    .attr("cx", d => xS(d.anterior_ratio)).attr("cy", d => yS(d.overall_ratio))
+    .attr("r", 2.5).attr("fill", d => getColB(d)).attr("opacity", 0.55)
+    .style("cursor","pointer")
+    .on("click", (event,d) => { event.stopPropagation(); setClickedMorfo(d); })
+    .append("title").text(d => `${simplifyM(d.json_filename)}\nAnterior=${d.anterior_ratio?.toFixed(2)}% · Overall=${d.overall_ratio?.toFixed(2)}%\nz̄=${d.z_mean?.toFixed(4) ?? "–"}\nClic para ver detalle`);
+
+  gO2.append("text").attr("x",iW).attr("y",-5).attr("text-anchor","end").attr("font-size",9).attr("fill","#aaa").text("Clic en un punto para ver la pantomografía");
+
+  display(svg.node());
+}
 ```
 
 ```js
@@ -273,6 +570,82 @@ display(html`<p style="color:#555; font-size:13px;">
   5% y 95%. <code>n</code> arriba de cada caja es la cantidad de dentaduras
   con ambos dientes del par presentes.
 </p>`);
+```
+
+### Dispersión 2D de asimetría por par
+
+Para el par seleccionado, cada punto es una dentadura individual. El eje X muestra la diferencia entre el diente derecho reflejado y el izquierdo (Δx-reflejo); el eje Y la diferencia vertical (ΔY). El origen representa simetría perfecta.
+
+```js
+const symPairInput = Inputs.select(
+  symmetryData.pairs.map(p => p.fdi_r),
+  {
+    label: "Par homólogo",
+    format: v => {
+      const p = symmetryData.pairs.find(x => x.fdi_r === v);
+      return p ? `${p.fdi_r} ↔ ${p.fdi_l} (n=${p.n_paired.toLocaleString("es-AR")})` : v;
+    },
+    value: symmetryData.pairs[0]?.fdi_r,
+  }
+);
+const symPairSelected = Generators.input(symPairInput);
+display(symPairInput);
+```
+
+```js
+{
+  const pair = symmetryData.pairs.find(p => p.fdi_r === symPairSelected);
+  if (!pair) { display(html`<p style="color:#999">Par no encontrado.</p>`); }
+  else {
+    const pts = pair.points.map(p => ({
+      dx: p.cx_r_flipped - p.cx_l,
+      dy: p.cy_r - p.cy_l,
+      dist: Math.sqrt((p.cx_r_flipped - p.cx_l) ** 2 + (p.cy_r - p.cy_l) ** 2),
+    }));
+
+    const W = Math.min(width, 520), H = 400;
+    const margin = {top: 16, right: 20, bottom: 46, left: 52};
+    const iW = W - margin.left - margin.right;
+    const iH = H - margin.top - margin.bottom;
+
+    const xExt = d3.extent(pts, d => d.dx);
+    const yExt = d3.extent(pts, d => d.dy);
+    const pad = Math.max(Math.abs(xExt[0]), Math.abs(xExt[1]), Math.abs(yExt[0]), Math.abs(yExt[1])) * 1.12;
+
+    const xS = d3.scaleLinear().domain([-pad, pad]).range([0, iW]);
+    const yS = d3.scaleLinear().domain([-pad, pad]).range([iH, 0]);
+    const colorS = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, d3.quantile(pts.map(d => d.dist).sort(d3.ascending), 0.95)]);
+
+    const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).attr("height",H)
+      .style("font-family","var(--sans-serif, system-ui)");
+    const gO = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
+
+    gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6).tickFormat(d3.format(".4f")))
+      .append("text").attr("x",iW/2).attr("y",38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("Δx-reflejo (der. reflejado − izq.)");
+    gO.append("g").call(d3.axisLeft(yS).ticks(5).tickFormat(d3.format(".4f")))
+      .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-44).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("ΔY (der. − izq.)");
+
+    // Crosshairs at (0,0)
+    gO.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(0)).attr("y2",yS(0)).attr("stroke","#ccc").attr("stroke-dasharray","4,3");
+    gO.append("line").attr("x1",xS(0)).attr("x2",xS(0)).attr("y1",0).attr("y2",iH).attr("stroke","#ccc").attr("stroke-dasharray","4,3");
+
+    gO.selectAll("circle").data(pts).join("circle")
+      .attr("cx", d => xS(d.dx)).attr("cy", d => yS(d.dy))
+      .attr("r", 2).attr("fill", d => colorS(d.dist)).attr("opacity", 0.55).attr("stroke","none")
+      .append("title").text(d => `Δx=${d.dx.toFixed(4)}  ΔY=${d.dy.toFixed(4)}  dist=${d.dist.toFixed(4)}`);
+
+    // Medians
+    const mxDx = d3.median(pts, d => d.dx);
+    const mxDy = d3.median(pts, d => d.dy);
+    gO.append("circle").attr("cx",xS(mxDx)).attr("cy",yS(mxDy))
+      .attr("r",6).attr("fill","none").attr("stroke","#333").attr("stroke-width",1.8);
+    gO.append("text").attr("x",xS(mxDx)+8).attr("y",yS(mxDy)-6).attr("font-size",10).attr("fill","#333")
+      .text(`mediana (${mxDx.toFixed(4)}, ${mxDy.toFixed(4)})`);
+
+    display(svg.node());
+    display(html`<small style="color:#888">Cada punto = una dentadura. Color = magnitud de asimetría (dist). ◯ = mediana poblacional. Líneas punteadas = simetría perfecta (0,0).</small>`);
+  }
+}
 ```
 
 ## Overlay de medianas pareadas en el espacio anatómico
@@ -368,6 +741,73 @@ display(quadrantOverlay({
   width: Math.min(width, 760),
   height: 480,
 }));
+```
+
+## Z-scores morfométricos individuales
+
+Para cada individuo con datos completos, se calcula cuántos desvíos estándar se aleja de la media poblacional en cada métrica clínica. Un z-score cercano a 0 indica un individuo "típico"; valores > 2 o < −2 indican baja frecuencia clínica.
+
+```js
+{
+  // Compute per-individual morphometric z-scores
+  const ovStats = occlusionData.stats;
+
+  // Join: overjet/overbite individuals ∩ bolton individuals (by short ID)
+  const boltMap = new Map(boltEnriched.map(d => [d.short_filename, d]));
+
+  const morfoScores = occEnriched.map(d => {
+    const id = extractIdM(d.json_filename);
+    const b  = id ? boltMap.get(id) : null;
+    const z_overjet  = ovStats.overjet.std  > 0 ? (d.overjet  - ovStats.overjet.mean)  / ovStats.overjet.std  : null;
+    const z_overbite = ovStats.overbite.std > 0 ? (d.overbite - ovStats.overbite.mean) / ovStats.overbite.std : null;
+    return {
+      id,
+      json_filename: d.json_filename,
+      z_overjet, z_overbite,
+      z_bolton_ant: b?.anterior_z ?? null,
+      z_bolton_ov:  b?.overall_z  ?? null,
+      overjet: d.overjet, overbite: d.overbite,
+      anterior_ratio: b?.anterior_ratio ?? null,
+      overall_ratio:  b?.overall_ratio  ?? null,
+      data_origin: d.data_origin, sex: d.sex,
+    };
+  }).filter(d => d.z_overjet != null);
+
+  // Histogram of z_overjet
+  const W = Math.min(width, 620), H = 280;
+  const margin = {top: 16, right: 24, bottom: 44, left: 48};
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top - margin.bottom;
+
+  // Use Plot for histograms, one per metric
+  const metrics = [
+    {key: "z_overjet",  label: "z — Overjet",    data: morfoScores.filter(d => d.z_overjet  != null).map(d => d.z_overjet)},
+    {key: "z_overbite", label: "z — Overbite",   data: morfoScores.filter(d => d.z_overbite != null).map(d => d.z_overbite)},
+    {key: "z_bolton_ant", label: "z — Bolton ant.", data: morfoScores.filter(d => d.z_bolton_ant != null).map(d => d.z_bolton_ant)},
+    {key: "z_bolton_ov",  label: "z — Bolton overall", data: morfoScores.filter(d => d.z_bolton_ov  != null).map(d => d.z_bolton_ov)},
+  ];
+
+  const gridDiv = document.createElement("div");
+  gridDiv.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1rem;";
+
+  for (const {label, data} of metrics) {
+    const pMin = d3.min(data), pMax = d3.max(data);
+    const p = Plot.plot({
+      width: 280, height: 180,
+      marginLeft: 36, marginBottom: 36,
+      x: {label, domain: [Math.min(pMin, -3.5), Math.max(pMax, 3.5)]},
+      y: {label: null},
+      marks: [
+        Plot.rectY(data, Plot.binX({y: "count"}, {x: d => d, thresholds: 30, fill: "#4e79a7", fillOpacity: 0.7})),
+        Plot.ruleX([-2, 2], {stroke: "#e15759", strokeDasharray: "5,3", strokeWidth: 1.2}),
+        Plot.ruleX([0], {stroke: "#888", strokeDasharray: "4,3"}),
+      ],
+    });
+    gridDiv.appendChild(p);
+  }
+  display(gridDiv);
+  display(html`<small style="color:#888">Líneas rojas punteadas = ±2σ. Línea gris = z=0 (media poblacional). Las distribuciones son aproximadamente normales por construcción (los z-scores se calculan con la media y SD de la misma muestra).</small>`);
+}
 ```
 
 <div style="border-left: 4px solid #72b7b2; background: #f7fdfd; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">

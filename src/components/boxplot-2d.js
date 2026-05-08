@@ -18,7 +18,7 @@ const QUADRANT_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"}
  * @param {number} opts.height
  * @returns {SVGElement}
  */
-export function boxplot2dPlot({boxplotStats, selectedFdi = [], showAngleArcs = false, width = 800, height = 550} = {}) {
+export function boxplot2dPlot({boxplotStats, selectedFdi = [], showAngleArcs = false, showOutliers = false, outlierPoints = [], width = 800, height = 550} = {}) {
   const margin = {top: 20, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
@@ -93,6 +93,21 @@ export function boxplot2dPlot({boxplotStats, selectedFdi = [], showAngleArcs = f
       .attr("x", 18).attr("y", i * 18 + 10)
       .attr("font-size", 11).attr("fill", "#333")
       .text(`Q${q}`);
+  }
+
+  // Build outlier lookup map: fdi → points[]
+  const outlierMap = new Map(outlierPoints.map(d => [d.fdi, d.points]));
+
+  // Outlier legend entry
+  if (showOutliers) {
+    const y0 = Object.keys(QUADRANT_COLORS).length * 18 + 6;
+    legend.append("circle")
+      .attr("cx", 6).attr("cy", y0 + 5)
+      .attr("r", 2.5).attr("fill", "#e15759").attr("opacity", 0.5);
+    legend.append("text")
+      .attr("x", 18).attr("y", y0 + 9)
+      .attr("font-size", 10).attr("fill", "#555")
+      .text("Outliers");
   }
 
   // Angle arc legend entry (only when enabled)
@@ -277,6 +292,23 @@ export function boxplot2dPlot({boxplotStats, selectedFdi = [], showAngleArcs = f
           .attr("stroke", color)
           .attr("stroke-width", dimmed ? 0.5 : 2)
           .attr("opacity", dimmed ? 0.1 : 0.7);
+      }
+    }
+
+    // Outlier points layer
+    if (showOutliers) {
+      for (const t of allStats) {
+        const selected = selectedSet.has(t.fdi);
+        const dimmed = hasSelection && !selected;
+        const color = QUADRANT_COLORS[t.quadrant] || "#999";
+        const pts = outlierMap.get(t.fdi) ?? [];
+        gContent.selectAll(null).data(pts).join("circle")
+          .attr("cx", d => xScale(d.cx))
+          .attr("cy", d => yScale(d.cy))
+          .attr("r", 1.8)
+          .attr("fill", color)
+          .attr("opacity", dimmed ? 0.05 : 0.35)
+          .attr("stroke", "none");
       }
     }
 

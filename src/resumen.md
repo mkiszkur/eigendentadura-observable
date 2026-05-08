@@ -47,9 +47,9 @@ Cómo se construye el dataset a partir de los JSONs crudos hasta los universos u
 ```js
 {
   const COLORS = ["#4c78a8", "#4e8c9e", "#54a24b", "#7b52ab"];
-  display(html`<div style="display:flex; align-items:center; gap:0; margin:1rem 0 2rem; flex-wrap:nowrap; overflow-x:auto;">
+  display(html`<div style="display:flex; align-items:flex-end; gap:0; margin:1rem 0 2rem; flex-wrap:nowrap; overflow-x:auto;">
     ${ds.funnel.map((step, i) => html`
-      ${i > 0 ? html`<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; padding:0 0.7rem; text-align:center; min-width:fit-content;">
+      ${i > 0 ? html`<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; padding:0 0.7rem; text-align:center; min-width:fit-content; align-self:center;">
         ${step.excluded ? html`<div style="font-size:0.68rem; color:#e15759; white-space:nowrap; font-weight:600;">−${step.excluded.toLocaleString("es-AR")}</div>` : ""}
         <div style="color:#bbb; font-size:1.5rem; line-height:1.2;">→</div>
         ${step.excluded ? html`<div style="font-size:0.63rem; color:#aaa; white-space:nowrap; max-width:90px; text-align:center; line-height:1.2;">${step.excluded_label}</div>` : ""}
