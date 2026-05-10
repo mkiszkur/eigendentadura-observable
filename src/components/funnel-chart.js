@@ -171,17 +171,20 @@ export function flagPrevalenceChart(pantos, flagLabels, pathologyLabels, treatme
   return svg.node();
 }
 
-export function teethDistChart(teethDist, {width = 680} = {}) {
+export function teethDistChart(teethDist, {width = 680, maxY = null} = {}) {
   const M = {top: 20, right: 20, bottom: 40, left: 55};
   const innerW = width - M.left - M.right;
   const innerH = 160;
   const height = innerH + M.top + M.bottom;
 
+  const rawMax = d3.max(teethDist, d => d.count);
+  const yMax   = (maxY != null && maxY < rawMax) ? maxY : rawMax;
+
   const xScale = d3.scaleBand()
     .domain(teethDist.map(d => d.n_teeth))
     .range([0, innerW]).padding(0.1);
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(teethDist, d => d.count)])
+    .domain([0, yMax])
     .range([innerH, 0]).nice();
 
   const svg = d3.create("svg")
@@ -207,20 +210,45 @@ export function teethDistChart(teethDist, {width = 680} = {}) {
     .attr("text-anchor", "middle").attr("font-size", 11).attr("fill", "#666")
     .text("Pantomografías");
 
-  // Highlight 32-tooth bar
-  g.selectAll("rect")
-    .data(teethDist)
-    .join("rect")
-    .attr("x", d => xScale(d.n_teeth))
-    .attr("y", d => yScale(d.count))
-    .attr("width", xScale.bandwidth())
-    .attr("height", d => innerH - yScale(d.count))
-    .attr("fill", d => d.n_teeth === 32 ? "#2171b5" : "#6baed6")
-    .attr("opacity", d => d.n_teeth === 32 ? 0.9 : 0.65);
+  // Bars
+  for (const d of teethDist) {
+    const isClipped = d.count > yMax;
+    const displayCount = Math.min(d.count, yMax);
+    const barH = innerH - yScale(displayCount);
+    const barX = xScale(d.n_teeth);
+    const barW = xScale.bandwidth();
+    const barY = innerH - barH;
+    const fill = d.n_teeth === 32 ? "#2171b5" : "#6baed6";
+    const opacity = d.n_teeth === 32 ? 0.9 : 0.65;
 
-  // Annotation for 32 teeth
+    g.append("rect")
+      .attr("x", barX).attr("y", barY)
+      .attr("width", barW).attr("height", barH)
+      .attr("fill", fill).attr("opacity", opacity);
+
+    if (isClipped) {
+      // Zigzag truncation marker at top of bar
+      const zigs = Math.max(2, Math.floor(barW / 5));
+      const zw = barW / zigs;
+      let path = `M ${barX},${barY}`;
+      for (let i = 0; i < zigs; i++) {
+        path += ` L ${barX + (i + 0.5) * zw},${barY - 4} L ${barX + (i + 1) * zw},${barY}`;
+      }
+      g.append("path").attr("d", path)
+        .attr("fill", "none").attr("stroke", "white").attr("stroke-width", 1.5);
+
+      // Actual count label above the zigzag
+      g.append("text")
+        .attr("x", barX + barW / 2).attr("y", barY - 7)
+        .attr("text-anchor", "middle").attr("font-size", 8.5)
+        .attr("fill", fill).attr("opacity", opacity)
+        .text(d.count.toLocaleString("es-AR"));
+    }
+  }
+
+  // Annotation for non-clipped 32 peak
   const peak = teethDist.find(d => d.n_teeth === 32);
-  if (peak) {
+  if (peak && peak.count <= yMax) {
     g.append("text")
       .attr("x", xScale(32) + xScale.bandwidth() / 2)
       .attr("y", yScale(peak.count) - 5)

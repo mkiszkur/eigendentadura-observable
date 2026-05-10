@@ -8,6 +8,7 @@ Descripción del proceso de filtrado y la composición del universo de análisis
 
 ```js
 import {funnelChart, teethDistChart} from "./components/funnel-chart.js";
+import {zoomableChart} from "./components/zoomable-chart.js";
 import * as d3 from "d3";
 ```
 
@@ -54,7 +55,21 @@ Se excluyen de ambos universos:
 ## Distribución de dientes anotados por pantomografía
 
 ```js
-display(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680)}));
+const rawMax = d3.max(ds.teeth_dist, d => d.count);
+const yCapInput = Inputs.range([20, rawMax], {
+  label: "Máximo en Y",
+  step: 10,
+  value: rawMax,
+});
+const yCap = Generators.input(yCapInput);
+display(html`<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+  ${yCapInput}
+  <span style="font-size:11px;color:#aaa;">Bajá para ver las barras pequeñas</span>
+</div>`);
+```
+
+```js
+display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680), maxY: yCap})));
 ```
 
 ```js
