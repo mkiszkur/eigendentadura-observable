@@ -106,12 +106,14 @@ const colorByInput = Inputs.select(
 const colorBy = Generators.input(colorByInput);
 const minTeethInput = Inputs.range([4, 32], {label: "Mínimo de dientes", step: 1, value: 10});
 const minTeeth = Generators.input(minTeethInput);
+const highlightOutliersInput = Inputs.toggle({label: "Resaltar outliers", value: false});
+const highlightOutliers = Generators.input(highlightOutliersInput);
 ```
 
 ```js
 display(collapsible({
   title: "Opciones de visualización",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${minTeethInput}</div>`,
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${minTeethInput}${highlightOutliersInput}</div>`,
   open: false,
 }));
 ```
@@ -131,6 +133,7 @@ display(atipicalityScatter(individualsEnriched, {
   selectedPanto: null,
   onClickPanto: setClickedIndividual,
   threshold: iqrThreshold,
+  highlightOutliers,
 }));
 ```
 

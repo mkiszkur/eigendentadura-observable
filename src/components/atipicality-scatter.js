@@ -13,6 +13,7 @@ export function atipicalityScatter(scores, {
   selectedPanto = null,
   onClickPanto = null,
   threshold = null,        // z_mean umbral de outliers formales (para marcar en leyenda)
+  highlightOutliers = false,
 } = {}) {
   const data = scores.filter(d => d.n_teeth >= minTeeth && d.z_pos != null && d.z_ang != null);
 
@@ -109,12 +110,12 @@ export function atipicalityScatter(scores, {
     .attr("stroke","#bbb").attr("stroke-dasharray","4,3").attr("stroke-width",1);
 
   // Puntos — capa base (sombra de outlier, si aplica)
-  if (threshold != null) {
+  if (threshold != null && highlightOutliers) {
     g.selectAll("circle.outlier-ring").data(data.filter(d => d.z_mean >= threshold)).join("circle")
       .attr("class", "outlier-ring")
       .attr("cx", d => xScale(d.z_pos))
       .attr("cy", d => yScale(d.z_ang))
-      .attr("r", 5.5)
+      .attr("r", 4)
       .attr("fill", "none")
       .attr("stroke", "#e15759")
       .attr("stroke-width", 1.2)
@@ -127,7 +128,7 @@ export function atipicalityScatter(scores, {
     .attr("class", "dot")
     .attr("cx", d => xScale(d.z_pos))
     .attr("cy", d => yScale(d.z_ang))
-    .attr("r", d => selectedPanto === d.json_filename ? 6 : 2.5)
+    .attr("r", d => selectedPanto === d.json_filename ? 5 : 1.5)
     .attr("fill", d => getColor(d))
     .attr("opacity", d => selectedPanto === d.json_filename ? 1 : 0.55)
     .attr("stroke", d => selectedPanto === d.json_filename ? "#222" : "none")
