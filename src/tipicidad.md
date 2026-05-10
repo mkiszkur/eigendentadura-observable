@@ -46,6 +46,7 @@ const individualsEnriched = individuals.map(d => {
     n_pathologies:    nPathMap.get(geoId) ?? null,
     pb_flags:         pb?.flags         ?? null,
     pb_tooth_numbers: pb?.tooth_numbers ?? null,
+    pb_denticion:     pb?.denticion     ?? null,
   };
 });
 ```
@@ -109,6 +110,8 @@ const teethRangeInput = rangeSlider({label: "Cantidad de dientes", min: 4, max: 
 const teethRange = Generators.input(teethRangeInput);
 const highlightOutliersInput = Inputs.toggle({label: "Resaltar outliers", value: false});
 const highlightOutliers = Generators.input(highlightOutliersInput);
+const excludeMixtaInput = Inputs.toggle({label: "Excluir dentición mixta", value: true});
+const excludeMixta = Generators.input(excludeMixtaInput);
 
 // Sliders de z-scores (sólo visibles al colorear por Atipicidad)
 const zMeanMax = Math.ceil(d3.max(individualsEnriched, d => d.z_mean) * 10) / 10;
@@ -125,7 +128,7 @@ const zAngRange  = Generators.input(zAngSlider);
 ```js
 display(collapsible({
   title: "Opciones de visualización",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${teethRangeInput}${highlightOutliersInput}</div>`,
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${teethRangeInput}${highlightOutliersInput}${excludeMixtaInput}</div>`,
   open: false,
 }));
 ```
@@ -141,7 +144,11 @@ if (colorBy === "atipicidad") {
 ```
 
 ```js
-const visibleCount = individualsEnriched.filter(d =>
+const scatterData = excludeMixta
+  ? individualsEnriched.filter(d => d.pb_denticion !== "Mixta")
+  : individualsEnriched;
+
+const visibleCount = scatterData.filter(d =>
   d.n_teeth >= teethRange[0] && d.n_teeth <= teethRange[1] &&
   d.z_pos != null && d.z_ang != null &&
   d.z_mean >= zMeanRange[0] && d.z_mean <= zMeanRange[1] &&
@@ -158,7 +165,7 @@ function clearClickedIndividual() { clickedIndividual.value = null; }
 ```
 
 ```js
-display(atipicalityScatter(individualsEnriched, {
+display(atipicalityScatter(scatterData, {
   width: Math.min(width, 700),
   height: 460,
   colorBy,
