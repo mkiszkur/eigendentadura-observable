@@ -88,7 +88,9 @@ export async function openPantoModal({
   const toothNumbers = pantoMeta?.tooth_numbers ?? [];
   const presentSet = new Set(toothNumbers);
   const missing = ALL_FDI.filter(f => !presentSet.has(f));
-  const nTeeth = pantoMeta?.dientes ?? zScores?.n_teeth ?? toothNumbers.length;
+  const nPermanent = ALL_FDI.filter(f => presentSet.has(f)).length;
+  const nTemporary = toothNumbers.filter(f => f >= 51 && f <= 85).length;
+  const nSuper = geomData?.shapes?.filter(s => s.et === "tooth" && s.es === "supernumerary").length ?? 0;
 
   const headerGrid = document.createElement("div");
   headerGrid.style.cssText =
@@ -100,16 +102,19 @@ export async function openPantoModal({
     `<div style="font-family:monospace;font-size:0.82rem;font-weight:700;margin-bottom:4px;">${id}</div>` +
     `<div style="font-size:0.82rem;color:#666;">` +
       `${pantoMeta?.categoria ?? "–"} · ${pantoMeta?.denticion ?? zScores?.sex ?? "–"} · ` +
-      `${nTeeth} dientes` +
+      `${nPermanent} perm.${missing.length > 0 ? ` (${missing.length} faltantes)` : ""}` +
+      (nTemporary > 0 ? ` · ${nTemporary} temp.` : "") +
+      (nSuper > 0 ? ` · <span style="color:#e07020;font-weight:600;">${nSuper} supernumerario${nSuper > 1 ? "s" : ""}</span>` : "") +
     `</div>`;
 
   const odontDiv = document.createElement("div");
   odontDiv.style.cssText = "display:flex;flex-direction:column;align-items:flex-end;gap:3px;";
   odontDiv.appendChild(miniOdontograma({ toothNumbers, cellSize: 14, gap: 2 }));
+  const countParts = [`${nPermanent} perm. · ${missing.length} faltantes`];
+  if (nTemporary > 0) countParts.push(`${nTemporary} temp.`);
+  if (nSuper > 0) countParts.push(`${nSuper} supernum.`);
   odontDiv.innerHTML +=
-    `<span style="font-size:11px;color:#888;text-align:right;">` +
-      `${nTeeth} presentes · ${missing.length} faltantes` +
-    `</span>`;
+    `<span style="font-size:11px;color:#888;text-align:right;">${countParts.join(" · ")}</span>`;
 
   headerGrid.append(metaDiv, odontDiv);
   modal.appendChild(headerGrid);
