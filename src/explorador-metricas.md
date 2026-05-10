@@ -80,15 +80,15 @@ const fmt3 = d3.format(".3f"), fmt1 = d3.format(".1f");
 // Numeric range sliders
 const zmAll = joined.map(d => d.z_mean).filter(v => v != null);
 const zmSlider = rangeSlider({label: "z̄", min: d3.min(zmAll), max: d3.max(zmAll), value: [d3.min(zmAll), d3.max(zmAll)], step: 0.05, format: v => v.toFixed(2)});
-const [zmLo, zmHi] = Generators.input(zmSlider);
+const zmRange = Generators.input(zmSlider);
 
 const zxAll = joined.map(d => d.z_max).filter(v => v != null);
 const zxSlider = rangeSlider({label: "z_max", min: d3.min(zxAll), max: d3.max(zxAll), value: [d3.min(zxAll), d3.max(zxAll)], step: 0.05, format: v => v.toFixed(2)});
-const [zxLo, zxHi] = Generators.input(zxSlider);
+const zxRange = Generators.input(zxSlider);
 
 const ntAll = joined.map(d => d.n_teeth).filter(v => v != null);
 const ntSlider = rangeSlider({label: "Dientes", min: d3.min(ntAll), max: d3.max(ntAll), value: [d3.min(ntAll), d3.max(ntAll)], step: 1});
-const [ntLo, ntHi] = Generators.input(ntSlider);
+const ntRange = Generators.input(ntSlider);
 
 // Categorical filters
 const sexOptions = ["Todos", ...new Set(joined.map(d => d.sex).filter(Boolean))];
@@ -115,6 +115,12 @@ const cariesOnly = Generators.input(cariesOnlyInput);
 
 const endoOnlyInput = Inputs.toggle({label: "Con endodoncia", value: false});
 const endoOnly = Generators.input(endoOnlyInput);
+```
+
+```js
+const [zmLo, zmHi] = zmRange;
+const [zxLo, zxHi] = zxRange;
+const [ntLo, ntHi] = ntRange;
 ```
 
 ```js

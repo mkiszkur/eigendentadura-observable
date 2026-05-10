@@ -102,18 +102,24 @@ const lmFilter  = Generators.input(lmInput);
 // Tipicality range sliders (min–max)
 const zpVals = allPantosEnriched.map(p => p.z_pos).filter(v => v != null);
 const zpSlider = rangeSlider({label: "z_pos", min: 0, max: Math.ceil(d3.max(zpVals)*10)/10, value: [0, Math.ceil(d3.max(zpVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
-const [zpLo, zpHi] = Generators.input(zpSlider);
+const zpRange = Generators.input(zpSlider);
 
 const zaVals = allPantosEnriched.map(p => p.z_ang).filter(v => v != null);
 const zaSlider = rangeSlider({label: "z_ang", min: 0, max: Math.ceil(d3.max(zaVals)*10)/10, value: [0, Math.ceil(d3.max(zaVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
-const [zaLo, zaHi] = Generators.input(zaSlider);
+const zaRange = Generators.input(zaSlider);
 
 const azVals = allPantosEnriched.map(p => p.arch_z).filter(v => v != null);
 const azSlider = rangeSlider({label: "Δ arcada", min: 0, max: Math.ceil(d3.max(azVals)*10)/10, value: [0, Math.ceil(d3.max(azVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
-const [azLo, azHi] = Generators.input(azSlider);
+const azRange = Generators.input(azSlider);
 
 // Sort state — controlled by column header clicks in the table
 const sortState = Mutable({key: null, dir: "asc"});
+```
+
+```js
+const [zpLo, zpHi] = zpRange;
+const [zaLo, zaHi] = zaRange;
+const [azLo, azHi] = azRange;
 ```
 
 ```js
