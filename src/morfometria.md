@@ -538,7 +538,20 @@ display(boltonHistograms({boltonData, width: Math.min(width, 1000)}));
 
 ### Scatter Bolton: anterior vs overall
 
-Cada punto es una dentadura con ambas medidas disponibles. Hacé clic para ver la pantomografía. Las bandas verdes marcan el rango normativo de Bolton (± 1 SD).
+Cada punto es una dentadura con ambas medidas disponibles. Clic para ver la pantomografía. Las bandas verdes marcan el rango normativo de Bolton (± 1 SD). Scroll para zoom, drag para mover, doble-clic para resetear.
+
+<details>
+<summary style="cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;">¿Cómo leer este gráfico?</summary>
+<div style="padding:0.7rem 0.5rem 0.2rem;font-size:0.85rem;line-height:1.6;color:#444;">
+
+- **Eje X** — índice de Bolton anterior (43–33 / 13–23 × 100). Norma clínica: 77.2 ± 1.65.
+- **Eje Y** — índice de Bolton overall (46–36 / 16–26 × 100). Norma clínica: 91.3 ± 1.91.
+- **Banda verde** en cada eje — rango normativo (± 1 SD de Bolton, 1958/1962).
+- **Líneas verdes punteadas** — media de Bolton en cada índice.
+- Puntos fuera de la banda verde en alguno de los dos ejes presentan discrepancia maxilo-mandibular que podría requerir compensación ortodóntica.
+
+</div>
+</details>
 
 ```js
 const boltColorInput = Inputs.select(
@@ -546,7 +559,22 @@ const boltColorInput = Inputs.select(
   {label: "Colorear por", value: "atipicidad"}
 );
 const boltColor = Generators.input(boltColorInput);
-display(boltColorInput);
+```
+
+```js
+{
+  const vizDiv = document.createElement("details");
+  vizDiv.style.cssText = "margin-bottom:8px;";
+  const vizSum = document.createElement("summary");
+  vizSum.style.cssText = "cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;";
+  vizSum.textContent = "Opciones de visualización";
+  vizDiv.appendChild(vizSum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.5rem 0.3rem 0.2rem;";
+  inner.appendChild(boltColorInput);
+  vizDiv.appendChild(inner);
+  display(vizDiv);
+}
 ```
 
 ```js
@@ -559,10 +587,10 @@ display(boltColorInput);
   const norms = boltonData.norms;
   const xDom = [d3.min(data,d=>d.anterior_ratio)*0.995, d3.max(data,d=>d.anterior_ratio)*1.005];
   const yDom = [d3.min(data,d=>d.overall_ratio)*0.995,  d3.max(data,d=>d.overall_ratio)*1.005];
-  const xS = d3.scaleLinear().domain(xDom).range([0, iW]);
-  const yS = d3.scaleLinear().domain(yDom).range([iH, 0]);
+  const xS0 = d3.scaleLinear().domain(xDom).range([0, iW]);
+  const yS0 = d3.scaleLinear().domain(yDom).range([iH, 0]);
 
-  // Color scales (same as overjet scatter)
+  // Color scales
   const origins2 = [...new Set(data.map(d => d.data_origin).filter(Boolean))].sort();
   const sexes2   = [...new Set(data.map(d => d.sex).filter(Boolean))].sort();
   const cOrig2  = d3.scaleOrdinal(["#4e79a7","#e15759","#59a14f","#f28e2b"]).domain(origins2);
@@ -573,61 +601,98 @@ display(boltColorInput);
   const cTeeth2 = d3.scaleSequential(t => d3.interpolateRdYlBu(1-t)).domain(tExt2);
 
   function getColB(d) {
-    if (boltColor === "origin") return cOrig2(d.data_origin) ?? "#aaa";
-    if (boltColor === "sex")    return d.sex ? cSex2(d.sex) : "#ccc";
+    if (boltColor === "origin")  return cOrig2(d.data_origin) ?? "#aaa";
+    if (boltColor === "sex")     return d.sex ? cSex2(d.sex) : "#ccc";
     if (boltColor === "n_teeth") return cTeeth2(d.n_teeth ?? tExt2[0]);
     return cAtip2(d.z_mean ?? 0);
   }
 
   const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width","100%")
-    .style("font-family","var(--sans-serif,system-ui,sans-serif)");
+    .style("font-family","var(--sans-serif,system-ui,sans-serif)")
+    .style("cursor","grab");
   const defs2 = svg.append("defs");
   defs2.append("clipPath").attr("id","bolt-clip").append("rect").attr("width",iW).attr("height",iH);
   const gO2 = svg.append("g").attr("transform",`translate(${M.left},${M.top})`);
   const g2  = gO2.append("g").attr("clip-path","url(#bolt-clip)");
 
-  // Normative bands
-  const axBand = [norms.anterior.mean - norms.anterior.std, norms.anterior.mean + norms.anterior.std];
-  const oyBand = [norms.overall.mean  - norms.overall.std,  norms.overall.mean  + norms.overall.std];
-  if (xDom[0] < axBand[1] && xDom[1] > axBand[0]) {
-    g2.append("rect")
-      .attr("x", xS(Math.max(xDom[0], axBand[0]))).attr("y", 0)
-      .attr("width", xS(Math.min(xDom[1], axBand[1])) - xS(Math.max(xDom[0], axBand[0])))
-      .attr("height", iH).attr("fill","#59a14f").attr("opacity",0.07);
-  }
-  if (yDom[0] < oyBand[1] && yDom[1] > oyBand[0]) {
-    g2.append("rect")
-      .attr("x", 0).attr("y", yS(Math.min(yDom[1], oyBand[1])))
-      .attr("width", iW)
-      .attr("height", yS(Math.max(yDom[0], oyBand[0])) - yS(Math.min(yDom[1], oyBand[1])))
-      .attr("fill","#59a14f").attr("opacity",0.07);
-  }
-
-  // Axes
-  gO2.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
-    .call(ax => ax.select(".domain").attr("stroke","#ccc"))
-    .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("y1",-iH));
-  gO2.append("g").call(d3.axisLeft(yS).ticks(6))
-    .call(ax => ax.select(".domain").attr("stroke","#ccc"))
-    .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("x2",iW));
+  // Axes (redrawn on zoom)
+  const xAxis = gO2.append("g").attr("transform",`translate(0,${iH})`);
+  const yAxis = gO2.append("g");
   gO2.append("text").attr("x",iW/2).attr("y",iH+38).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Bolton Anterior (%)");
   gO2.append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-50).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Bolton Overall (%)");
+  gO2.append("text").attr("x",iW).attr("y",-5).attr("text-anchor","end").attr("font-size",9).attr("fill","#aaa").text("Scroll = zoom · Drag = mover · Doble-clic = resetear · Clic en punto = panto");
 
-  // Normative mean lines
-  if (xDom[0] < norms.anterior.mean && xDom[1] > norms.anterior.mean)
+  function drawAxes(xS, yS) {
+    xAxis.call(d3.axisBottom(xS).ticks(6))
+      .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+      .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("y1",-iH));
+    yAxis.call(d3.axisLeft(yS).ticks(6))
+      .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+      .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("x2",iW));
+  }
+
+  function drawContent(xS, yS) {
+    g2.selectAll("*").remove();
+    const axBand = [norms.anterior.mean - norms.anterior.std, norms.anterior.mean + norms.anterior.std];
+    const oyBand = [norms.overall.mean  - norms.overall.std,  norms.overall.mean  + norms.overall.std];
+    const xd = xS.domain(), yd = yS.domain();
+    // Normative bands
+    g2.append("rect").attr("x",xS(Math.max(xd[0],axBand[0]))).attr("y",0)
+      .attr("width",Math.max(0, xS(Math.min(xd[1],axBand[1]))-xS(Math.max(xd[0],axBand[0]))))
+      .attr("height",iH).attr("fill","#59a14f").attr("opacity",0.07);
+    g2.append("rect").attr("x",0).attr("y",yS(Math.min(yd[1],oyBand[1])))
+      .attr("width",iW)
+      .attr("height",Math.max(0, yS(Math.max(yd[0],oyBand[0]))-yS(Math.min(yd[1],oyBand[1]))))
+      .attr("fill","#59a14f").attr("opacity",0.07);
+    // Normative mean lines
     g2.append("line").attr("x1",xS(norms.anterior.mean)).attr("x2",xS(norms.anterior.mean)).attr("y1",0).attr("y2",iH).attr("stroke","#59a14f").attr("stroke-dasharray","5,3").attr("stroke-width",1.2);
-  if (yDom[0] < norms.overall.mean && yDom[1] > norms.overall.mean)
     g2.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(norms.overall.mean)).attr("y2",yS(norms.overall.mean)).attr("stroke","#59a14f").attr("stroke-dasharray","5,3").attr("stroke-width",1.2);
+    // Points
+    g2.selectAll("circle.dot").data(data).join("circle").attr("class","dot")
+      .attr("cx", d => xS(d.anterior_ratio)).attr("cy", d => yS(d.overall_ratio))
+      .attr("r", 2.5).attr("fill", d => getColB(d)).attr("opacity", 0.55)
+      .style("cursor","pointer")
+      .on("click", (event,d) => { event.stopPropagation(); setClickedMorfo(d); })
+      .append("title").text(d => `${simplifyM(d.json_filename)}\nAnterior=${d.anterior_ratio?.toFixed(2)}% · Overall=${d.overall_ratio?.toFixed(2)}%\nz̄=${d.z_mean?.toFixed(4) ?? "–"}\nClic para ver detalle`);
+  }
 
-  // Points
-  g2.selectAll("circle.dot").data(data).join("circle").attr("class","dot")
-    .attr("cx", d => xS(d.anterior_ratio)).attr("cy", d => yS(d.overall_ratio))
-    .attr("r", 2.5).attr("fill", d => getColB(d)).attr("opacity", 0.55)
-    .style("cursor","pointer")
-    .on("click", (event,d) => { event.stopPropagation(); setClickedMorfo(d); })
-    .append("title").text(d => `${simplifyM(d.json_filename)}\nAnterior=${d.anterior_ratio?.toFixed(2)}% · Overall=${d.overall_ratio?.toFixed(2)}%\nz̄=${d.z_mean?.toFixed(4) ?? "–"}\nClic para ver detalle`);
+  drawAxes(xS0, yS0);
+  drawContent(xS0, yS0);
 
-  gO2.append("text").attr("x",iW).attr("y",-5).attr("text-anchor","end").attr("font-size",9).attr("fill","#aaa").text("Clic en un punto para ver la pantomografía");
+  // Legend
+  const lx = iW + 16;
+  if (boltColor === "atipicidad") {
+    const gradId = "bolt-grad";
+    const barH = 90, barW = 12;
+    const grad = defs2.append("linearGradient").attr("id",gradId).attr("x1","0").attr("x2","0").attr("y1","1").attr("y2","0");
+    [0,0.25,0.5,0.75,1].forEach(t => grad.append("stop").attr("offset",`${t*100}%`).attr("stop-color",cAtip2(t*maxZ2)));
+    gO2.append("text").attr("x",lx).attr("y",10).attr("font-size",9).attr("fill","#888").attr("font-weight","bold").text("z̄");
+    gO2.append("rect").attr("x",lx).attr("y",14).attr("width",barW).attr("height",barH).attr("fill",`url(#${gradId})`).attr("rx",2);
+    gO2.append("text").attr("x",lx+barW+4).attr("y",18).attr("font-size",9).attr("fill","#555").text(d3.format(".2f")(maxZ2));
+    gO2.append("text").attr("x",lx+barW+4).attr("y",14+barH).attr("font-size",9).attr("fill","#555").text("0");
+  } else {
+    const items = boltColor === "origin" ? origins2.map(o => ({l:o, c:cOrig2(o)}))
+      : boltColor === "sex" ? sexes2.map(s => ({l:s, c:cSex2(s)}))
+      : [{l:`${tExt2[0]}`, c:cTeeth2(tExt2[0])},{l:`${tExt2[1]}`, c:cTeeth2(tExt2[1])}];
+    gO2.append("text").attr("x",lx).attr("y",10).attr("font-size",9).attr("fill","#888").attr("font-weight","bold").text(boltColor === "origin" ? "Centro" : boltColor === "sex" ? "Sexo" : "N° dientes");
+    items.forEach(({l,c},i) => {
+      gO2.append("circle").attr("cx",lx+5).attr("cy",24+i*18).attr("r",5).attr("fill",c).attr("opacity",0.8);
+      gO2.append("text").attr("x",lx+14).attr("y",28+i*18).attr("font-size",10).attr("fill","#333").text(l);
+    });
+  }
+
+  // Zoom
+  const zoom = d3.zoom().scaleExtent([0.5, 20]).on("zoom", (event) => {
+    const t = event.transform;
+    const xSz = t.rescaleX(xS0);
+    const ySz = t.rescaleY(yS0);
+    drawAxes(xSz, ySz);
+    drawContent(xSz, ySz);
+  });
+  svg.call(zoom);
+  svg.on("dblclick.zoom", () => {
+    svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
+  });
 
   display(svg.node());
 }
