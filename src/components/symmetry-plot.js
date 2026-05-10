@@ -115,19 +115,24 @@ export function symmetryOverlay({
     .attr("font-size", 10).attr("fill", "#666").attr("text-anchor", "middle")
     .text("plano sagital (x = 0)");
 
-  // Escala de color por magnitud de asimetría
+  // Escala de color por magnitud de asimetría (orange→red, evita amarillos invisibles en fondo blanco)
+  const minDist = d3.min(pairs, p => p.stats.distance.median) || 0;
   const maxDist = d3.max(pairs, p => p.stats.distance.median) || 0.01;
-  const color = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, maxDist]);
+  const color = d3.scaleSequential(d3.interpolateOrRd).domain([minDist * 0.5, maxDist]);
 
   const COLOR_L = "#2f6feb";
   const COLOR_R = "#d95f0e";
 
   // Pares ordenados de menor a mayor asimetría (los más asimétricos se dibujan al final)
   const pairsByAsym = [...pairs].sort((a, b) => a.stats.distance.median - b.stats.distance.median);
+  // Top N más asimétricos: los últimos N en la lista ordenada ascendente
+  const topNSet = new Set(
+    highlightTopN > 0 ? pairsByAsym.slice(-highlightTopN).map(p => p.fdi_r) : []
+  );
 
   for (const p of pairsByAsym) {
     const isSel = selSet.has(p.fdi_r) || selSet.has(p.fdi_l);
-    const topN = highlightTopN > 0 && pairs.slice(0, highlightTopN).includes(p);
+    const topN = topNSet.has(p.fdi_r);
     const emph = isSel || topN;
     const pos = p.summary_positions;
     const lx = x(pos[xKeyL]);
@@ -135,22 +140,24 @@ export function symmetryOverlay({
     const rx = x(-pos[xKeyR]);
     const ry = y(pos[yKeyR]);
 
-    // Línea par (color = magnitud de asimetría mediana)
+    // Línea par (color = magnitud de asimetría mediana, grosor proporcional)
+    const dist = p.stats.distance.median;
+    const lineW = emph ? 4 : 2 + (dist / maxDist) * 2;
     gContent.append("line")
       .attr("x1", lx).attr("y1", ly).attr("x2", rx).attr("y2", ry)
-      .attr("stroke", color(p.stats.distance.median))
-      .attr("stroke-width", emph ? 3 : 1.8)
-      .attr("opacity", emph ? 1 : 0.75)
+      .attr("stroke", color(dist))
+      .attr("stroke-width", lineW)
+      .attr("opacity", emph ? 1 : 0.85)
       .attr("stroke-linecap", "round");
 
     gContent.append("circle").attr("cx", lx).attr("cy", ly)
-      .attr("r", emph ? 5 : 3.5)
+      .attr("r", emph ? 5 : 4)
       .attr("fill", COLOR_L).attr("stroke", "#fff").attr("stroke-width", 1);
-    // Círculo derecho reflejado: color = asimetría (heatmap)
+    // Círculo derecho reflejado: color = asimetría
     gContent.append("circle").attr("cx", rx).attr("cy", ry)
-      .attr("r", emph ? 5 : 3.5)
-      .attr("fill", color(p.stats.distance.median))
-      .attr("stroke", "#333").attr("stroke-width", 1);
+      .attr("r", emph ? 5 : 4)
+      .attr("fill", color(dist))
+      .attr("stroke", "#333").attr("stroke-width", 0.8);
 
     if (emph) {
       gContent.append("text").attr("x", lx).attr("y", ly - 9)
