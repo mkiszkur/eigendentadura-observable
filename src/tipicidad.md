@@ -13,6 +13,7 @@ import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import {openPantoModal} from "./components/panto-modal.js";
 import {collapsible} from "./components/collapsible.js";
 import {rangeSlider} from "./components/range-slider.js";
+import {paginatedTable} from "./components/paginated-table.js";
 import * as d3 from "d3";
 ```
 
@@ -210,55 +211,71 @@ display(atipicalityScatter(scatterData, {
 
 ## Ranking de outliers — casos más atípicos
 
-**Criterio**: z̄ ≥ Q3 + 1.5·IQR = **${iqrThreshold.toFixed(3)}** (Q1=${iqrQ1.toFixed(3)}, Q3=${iqrQ3.toFixed(3)}, IQR=${iqrVal.toFixed(3)}). Las **${sortedDesc.filter(d => d.z_mean >= iqrThreshold).length} dentaduras** que superan este umbral se consideran outliers. Hacé clic en una fila para ver la pantomografía.
+<details>
+<summary>Cómo interpretar este ranking</summary>
+
+**Criterio de outlier**: z̄ ≥ Q3 + 1.5·IQR = **${iqrThreshold.toFixed(3)}** (Q1=${iqrQ1.toFixed(3)}, Q3=${iqrQ3.toFixed(3)}, IQR=${iqrVal.toFixed(3)}). Las **${sortedDesc.filter(d => d.z_mean >= iqrThreshold).length} dentaduras** que superan este umbral se consideran outliers moderados. Las que superan Q3 + 3·IQR = **${iqrExtreme.toFixed(3)}** son outliers extremos (z̄ en rojo oscuro).
+
+- **z̄** — score de atipicidad global (promedio de z_pos y z_ang).
+- **z_pos** — desvío posicional: cuánto se alejan los centroides dentales de la media poblacional.
+- **z_ang** — desvío angular: cuánto difieren los ángulos de cada diente respecto al ángulo típico.
+- Hacé clic en cualquier fila para abrir la pantomografía.
+
+</details>
+
+```js
+const rankZMeanSlider = rangeSlider({label: "z̄",     min: 0, max: zMeanMax, value: [iqrThreshold, zMeanMax], step: 0.1});
+const rankZPosSlider  = rangeSlider({label: "z_pos", min: 0, max: zPosMax,  value: [0, zPosMax],             step: 0.1});
+const rankZAngSlider  = rangeSlider({label: "z_ang", min: 0, max: zAngMax,  value: [0, zAngMax],             step: 0.1});
+const rankZMeanRange = Generators.input(rankZMeanSlider);
+const rankZPosRange  = Generators.input(rankZPosSlider);
+const rankZAngRange  = Generators.input(rankZAngSlider);
+display(collapsible({
+  title: "Filtros",
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${rankZMeanSlider}${rankZPosSlider}${rankZAngSlider}</div>`,
+  open: false,
+}));
+```
 
 ```js
 {
-  const outliers = sortedDesc.filter(d => d.z_mean >= iqrThreshold);
+  const rankData = sortedDesc
+    .filter(d => d.z_mean >= iqrThreshold)
+    .map((d, i) => ({
+      ...d,
+      rank:       i + 1,
+      display_id: simplifyFn(d.json_filename),
+      flags_str:  d.pb_flags ? Object.keys(d.pb_flags).join(", ") : "",
+    }));
 
-  const container = d3.create("div").style("overflow-x", "auto");
-  const table = container.append("table")
-    .style("border-collapse", "collapse")
-    .style("font-size", "12px")
-    .style("width", "100%");
+  const filtered = rankData.filter(d =>
+    d.z_mean >= rankZMeanRange[0] && d.z_mean <= rankZMeanRange[1] &&
+    d.z_pos  >= rankZPosRange[0]  && d.z_pos  <= rankZPosRange[1] &&
+    d.z_ang  >= rankZAngRange[0]  && d.z_ang  <= rankZAngRange[1]
+  );
 
-  table.append("thead").append("tr")
-    .selectAll("th")
-    .data(["#", "ID", "Centro", "Sexo", "Dientes", "z̄", "z_pos", "z_ang", "Patologías"])
-    .join("th")
-    .style("text-align", "left")
-    .style("padding", "4px 8px")
-    .style("border-bottom", "2px solid #eee")
-    .style("color", "#888")
-    .style("font-weight", "600")
-    .style("white-space", "nowrap")
-    .text(d => d);
-
-  const tbody = table.append("tbody");
-  tbody.selectAll("tr")
-    .data(outliers)
-    .join("tr")
-    .style("cursor", "pointer")
-    .style("border-bottom", "1px solid #f5f5f5")
-    .on("click", (event, d) => setClickedIndividual(d))
-    .on("mouseover", function() { d3.select(this).style("background", "#fdf5f5"); })
-    .on("mouseout",  function() { d3.select(this).style("background", null); })
-    .each(function(d, i) {
-      const tr  = d3.select(this);
-      const lvl = d.z_mean >= iqrExtreme ? "#c0392b" : "#e15759";
-      tr.append("td").style("padding", "3px 8px").style("color", "#aaa").text(i + 1);
-      tr.append("td").style("padding", "3px 8px").style("font-family", "monospace").style("font-size", "10px").text(simplifyFn(d.json_filename));
-      tr.append("td").style("padding", "3px 8px").style("color", "#555").text(d.data_origin ?? "–");
-      tr.append("td").style("padding", "3px 8px").style("color", "#555").text(d.sex ?? "–");
-      tr.append("td").style("padding", "3px 8px").style("text-align", "right").text(d.n_teeth);
-      tr.append("td").style("padding", "3px 8px").style("font-weight", "600").style("color", lvl).text(d.z_mean.toFixed(4));
-      tr.append("td").style("padding", "3px 8px").style("color", "#555").text(d.z_pos.toFixed(4));
-      tr.append("td").style("padding", "3px 8px").style("color", "#555").text(d.z_ang.toFixed(4));
-      tr.append("td").style("padding", "3px 8px").style("color", "#888").style("font-size", "10px")
-        .text(d.pb_flags ? Object.keys(d.pb_flags).join(", ") : "–");
-    });
-
-  display(container.node());
+  display(paginatedTable({
+    data: filtered,
+    columns: [
+      { key: "rank",        header: "#",          sortable: false,
+        cellStyle: () => ({color: "#aaa"}) },
+      { key: "display_id",  header: "ID",          sortable: false,
+        cellStyle: () => ({fontFamily: "monospace", fontSize: "10px"}) },
+      { key: "data_origin", header: "Centro",      type: "category" },
+      { key: "sex",         header: "Sexo",        type: "category" },
+      { key: "n_teeth",     header: "Dientes",     type: "number" },
+      { key: "z_mean",      header: "z̄",           type: "number",
+        format: d => d.toFixed(4),
+        cellStyle: d => ({fontWeight: "600", color: d >= iqrExtreme ? "#c0392b" : "#e15759"}) },
+      { key: "z_pos",       header: "z_pos",       type: "number", format: d => d.toFixed(4) },
+      { key: "z_ang",       header: "z_ang",       type: "number", format: d => d.toFixed(4) },
+      { key: "flags_str",   header: "Patologías",  sortable: false,
+        cellStyle: () => ({color: "#888", fontSize: "11px"}) },
+    ],
+    pageSize: 10,
+    filterable: true,
+    onRowClick: d => setClickedIndividual(d),
+  }));
 }
 ```
 
