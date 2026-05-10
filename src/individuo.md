@@ -628,7 +628,7 @@ Relación maxilar/mandibular anterior y total. El punto rojo es el individuo sel
 
 <details><summary>Cómo leer este gráfico</summary>
 
-El **índice de Bolton** compara el ancho mesiodistal total de los dientes maxilares y mandibulares. **Eje X — Bolton anterior**: razón entre los 6 dientes anteriores superiores e inferiores (norma ≈ 77,2 %). **Eje Y — Bolton total**: razón entre los 12 dientes (norma ≈ 91,3 %). Cada punto gris es un individuo de la población. Las líneas de referencia punteadas son las normas de Bolton. El **punto rojo** es el individuo seleccionado. Desviaciones grandes de las líneas de norma sugieren discrepancias de Bolton con relevancia clínica para ortodoncia.
+El **índice de Bolton** compara el ancho mesiodistal total de los dientes maxilares y mandibulares. **Eje X — Bolton anterior**: razón entre los 6 dientes anteriores superiores e inferiores (norma ≈ 77,2 %). **Eje Y — Bolton total**: razón entre los 12 dientes (norma ≈ 91,3 %). Cada punto púrpura es un individuo de la población. La **banda verde** marca el rango normativo (±1 SD de Bolton); las **líneas verdes punteadas**, la media. El **punto rojo** es el individuo seleccionado. Scroll para zoom, drag para mover, doble-clic para resetear.
 
 </details>
 
@@ -636,59 +636,99 @@ El **índice de Bolton** compara el ancho mesiodistal total de los dientes maxil
 {
   const {indivBolton} = selectedData;
   const pop = boltonData.individuals.filter(d => d.anterior_complete && d.overall_complete && d.anterior_ratio != null && d.overall_ratio != null);
+  const norms = boltonData.norms;
+  const ANT_MEAN = norms.anterior.mean, ANT_STD = norms.anterior.std;
+  const OV_MEAN  = norms.overall.mean,  OV_STD  = norms.overall.std;
 
-  const W = Math.min(width, 520), H = 360;
-  const margin = {top:20,right:24,bottom:52,left:56};
-  const iW = W-margin.left-margin.right, iH = H-margin.top-margin.bottom;
+  const W = Math.min(width, 560), H = 400;
+  const M = {top:20, right:24, bottom:52, left:60};
+  const iW = W - M.left - M.right, iH = H - M.top - M.bottom;
 
   const antVals = pop.map(d => d.anterior_ratio), ovVals = pop.map(d => d.overall_ratio);
   const p01a = d3.quantile(antVals.slice().sort(d3.ascending), 0.01);
   const p99a = d3.quantile(antVals.slice().sort(d3.ascending), 0.99);
   const p01o = d3.quantile(ovVals.slice().sort(d3.ascending),  0.01);
   const p99o = d3.quantile(ovVals.slice().sort(d3.ascending),  0.99);
+  const xS0 = d3.scaleLinear().domain([Math.min(p01a, ANT_MEAN-2), Math.max(p99a, ANT_MEAN+2)]).range([0, iW]).nice();
+  const yS0 = d3.scaleLinear().domain([Math.min(p01o, OV_MEAN-2),  Math.max(p99o, OV_MEAN+2)]).range([iH, 0]).nice();
 
-  const NORM_ANT = 77.2, NORM_OV = 91.3;
-  const xS = d3.scaleLinear().domain([Math.min(p01a, NORM_ANT-2), Math.max(p99a, NORM_ANT+2)]).range([0,iW]).nice();
-  const yS = d3.scaleLinear().domain([Math.min(p01o, NORM_OV-2),  Math.max(p99o, NORM_OV+2)]).range([iH,0]).nice();
-
-  const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).style("font-family","var(--sans-serif, system-ui)");
-  svg.append("defs").append("clipPath").attr("id","bol-clip").append("rect").attr("width",iW).attr("height",iH);
-  const gO = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
-
-  gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6).tickFormat(d => d+"%"))
-    .call(g => g.select(".domain").remove())
-    .append("text").attr("x",iW/2).attr("y",38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("Bolton anterior (%)");
-  gO.append("g").call(d3.axisLeft(yS).ticks(5).tickFormat(d => d+"%"))
-    .call(g => g.select(".domain").remove())
-    .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-44).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("Bolton total (%)");
-
-  const gc = gO.append("g").attr("clip-path","url(#bol-clip)");
-
-  // Bolton norm reference lines
-  gc.append("line").attr("x1",xS(NORM_ANT)).attr("x2",xS(NORM_ANT)).attr("y1",0).attr("y2",iH)
-    .attr("stroke","#aaa").attr("stroke-width",1.2).attr("stroke-dasharray","5,3");
-  gc.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(NORM_OV)).attr("y2",yS(NORM_OV))
-    .attr("stroke","#aaa").attr("stroke-width",1.2).attr("stroke-dasharray","5,3");
-  gO.append("text").attr("x",xS(NORM_ANT)).attr("y",-4).attr("text-anchor","middle").attr("font-size",9).attr("fill","#888").text(`Norma ${NORM_ANT}%`);
-  gO.append("text").attr("x",iW+3).attr("y",yS(NORM_OV)+4).attr("font-size",9).attr("fill","#888").text(`${NORM_OV}%`);
-
-  // Population cloud
-  gc.selectAll("circle.p").data(pop.filter(d => d.anterior_ratio>=xS.domain()[0]&&d.anterior_ratio<=xS.domain()[1]&&d.overall_ratio>=yS.domain()[0]&&d.overall_ratio<=yS.domain()[1])).join("circle")
-    .attr("cx",d=>xS(d.anterior_ratio)).attr("cy",d=>yS(d.overall_ratio)).attr("r",2).attr("fill","#7b52ab").attr("opacity",0.13);
-
-  // Selected individual
   const ba = indivBolton?.anterior_ratio, bo = indivBolton?.overall_ratio;
-  if (ba != null && isFinite(ba) && bo != null && isFinite(bo)) {
-    gc.append("circle").attr("cx",xS(ba)).attr("cy",yS(bo)).attr("r",10).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2);
-    gc.append("circle").attr("cx",xS(ba)).attr("cy",yS(bo)).attr("r",4.5).attr("fill","#e15759");
-    gc.append("text").attr("x",xS(ba)+13).attr("y",yS(bo)+4).attr("font-size",10).attr("fill","#e15759").attr("font-weight",600)
-      .text(`(${ba.toFixed(1)}%, ${bo.toFixed(1)}%)`);
-  } else {
-    gO.append("text").attr("x",iW/2).attr("y",iH/2).attr("text-anchor","middle").attr("font-size",12).attr("fill","#aaa").text("Sin dato de Bolton para este individuo");
+  const hasIndiv = ba != null && isFinite(ba) && bo != null && isFinite(bo);
+
+  const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width","100%")
+    .style("font-family","var(--sans-serif,system-ui,sans-serif)").style("cursor","grab");
+  const defs = svg.append("defs");
+  defs.append("clipPath").attr("id","bol-clip").append("rect").attr("width",iW).attr("height",iH);
+  const gO = svg.append("g").attr("transform",`translate(${M.left},${M.top})`);
+  const gc  = gO.append("g").attr("clip-path","url(#bol-clip)");
+
+  const xAxis = gO.append("g").attr("transform",`translate(0,${iH})`);
+  const yAxis = gO.append("g");
+  gO.append("text").attr("x",iW/2).attr("y",iH+38).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Bolton anterior (%)");
+  gO.append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-46).attr("text-anchor","middle").attr("font-size",11).attr("fill","#666").text("Bolton total (%)");
+  gO.append("text").attr("x",iW).attr("y",-5).attr("text-anchor","end").attr("font-size",9).attr("fill","#aaa").text("Scroll = zoom · Drag = mover · Doble-clic = resetear");
+
+  function drawAxes(xS, yS) {
+    xAxis.call(d3.axisBottom(xS).ticks(6).tickFormat(d => d + "%"))
+      .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+      .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("y1",-iH));
+    yAxis.call(d3.axisLeft(yS).ticks(5).tickFormat(d => d + "%"))
+      .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+      .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("x2",iW));
   }
 
+  function drawContent(xS, yS) {
+    gc.selectAll("*").remove();
+    const xd = xS.domain(), yd = yS.domain();
+    const axBand = [ANT_MEAN - ANT_STD, ANT_MEAN + ANT_STD];
+    const oyBand = [OV_MEAN  - OV_STD,  OV_MEAN  + OV_STD];
+    // Normative bands (green)
+    gc.append("rect")
+      .attr("x", xS(Math.max(xd[0], axBand[0]))).attr("y", 0)
+      .attr("width",  Math.max(0, xS(Math.min(xd[1], axBand[1])) - xS(Math.max(xd[0], axBand[0]))))
+      .attr("height", iH).attr("fill","#59a14f").attr("opacity",0.07);
+    gc.append("rect")
+      .attr("x", 0).attr("y", yS(Math.min(yd[1], oyBand[1])))
+      .attr("width", iW)
+      .attr("height", Math.max(0, yS(Math.max(yd[0], oyBand[0])) - yS(Math.min(yd[1], oyBand[1]))))
+      .attr("fill","#59a14f").attr("opacity",0.07);
+    // Normative mean lines (green dashed)
+    gc.append("line").attr("x1",xS(ANT_MEAN)).attr("x2",xS(ANT_MEAN)).attr("y1",0).attr("y2",iH)
+      .attr("stroke","#59a14f").attr("stroke-dasharray","5,3").attr("stroke-width",1.2);
+    gc.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(OV_MEAN)).attr("y2",yS(OV_MEAN))
+      .attr("stroke","#59a14f").attr("stroke-dasharray","5,3").attr("stroke-width",1.2);
+    // Population cloud
+    gc.selectAll("circle.pop").data(pop).join("circle").attr("class","pop")
+      .attr("cx", d => xS(d.anterior_ratio)).attr("cy", d => yS(d.overall_ratio))
+      .attr("r", 2).attr("fill","#7b52ab").attr("opacity",0.13);
+    // Individual point (drawn last to stay on top)
+    if (hasIndiv) {
+      gc.append("circle").attr("cx",xS(ba)).attr("cy",yS(bo)).attr("r",10)
+        .attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2);
+      gc.append("circle").attr("cx",xS(ba)).attr("cy",yS(bo)).attr("r",4.5).attr("fill","#e15759");
+      gc.append("text").attr("x",xS(ba)+13).attr("y",yS(bo)+4)
+        .attr("font-size",10).attr("fill","#e15759").attr("font-weight",600)
+        .text(`(${ba.toFixed(1)}%, ${bo.toFixed(1)}%)`);
+    } else {
+      gc.append("text").attr("x",iW/2).attr("y",iH/2)
+        .attr("text-anchor","middle").attr("font-size",12).attr("fill","#aaa")
+        .text("Sin dato de Bolton para este individuo");
+    }
+  }
+
+  drawAxes(xS0, yS0);
+  drawContent(xS0, yS0);
+
+  const zoom = d3.zoom().scaleExtent([0.5, 20]).on("zoom", (event) => {
+    const t = event.transform;
+    drawAxes(t.rescaleX(xS0), t.rescaleY(yS0));
+    drawContent(t.rescaleX(xS0), t.rescaleY(yS0));
+  });
+  svg.call(zoom);
+  svg.on("dblclick.zoom", () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
+
   display(svg.node());
-  display(html`<small style="color:#888">● púrpura = población · ● rojo = individuo · líneas punteadas = normas de Bolton.</small>`);
+  display(html`<small style="color:#888">● púrpura = población · ● rojo = individuo · banda verde = norma Bolton ±1 SD.</small>`);
 }
 ```
 
