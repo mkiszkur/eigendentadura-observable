@@ -212,7 +212,7 @@ export async function openPantoModal({
     togglesDiv.appendChild(lbl);
     togglesDiv.appendChild(makeToggle("Contornos",             "showPolygon"));
     togglesDiv.appendChild(makeToggle("Centroides",            "showCentroids"));
-    togglesDiv.appendChild(makeToggle("Etiquetas FDI",         "showEigenLabels"));
+    togglesDiv.appendChild(makeToggle("Etiquetas FDI",         "showLabels"));
     togglesDiv.appendChild(makeToggle("Supernumerarios",       "showSupernumeraries"));
     togglesDiv.appendChild(makeToggle("Centroides eigendent.", "showEigendentadura"));
     togglesDiv.appendChild(makeToggle("Elipses población",     "showPopEllipses"));
