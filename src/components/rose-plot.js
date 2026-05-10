@@ -37,7 +37,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
   // Position scales
   const xs = toothStats.map(s => s.mean_x);
   const ys = toothStats.map(s => s.mean_y);
-  const pad = 0.35;
+  const pad = 0.05;
   const xScale0 = d3.scaleLinear().domain([d3.min(xs) - pad, d3.max(xs) + pad]).range([0, innerW]);
   const yScale0 = d3.scaleLinear().domain([d3.min(ys) - pad, d3.max(ys) + pad]).range([0, innerH]);
   let xScale = xScale0.copy();
@@ -79,6 +79,9 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
     .attr("font-size", 9).attr("fill", "#999")
     .text("↑ = 90° dental (vertical) · pétalos = histograma");
 
+  // Base radius proportional to average area available per tooth at k=1
+  const baseRadius = Math.max(18, Math.sqrt((innerW * innerH) / Math.max(1, toothStats.length)) * 0.40);
+
   function draw(k = 1) {
     g.selectAll("*").remove();
 
@@ -98,8 +101,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
       .attr("y1", 0).attr("y2", innerH)
       .attr("stroke", "cyan").attr("stroke-dasharray", "4,3").attr("opacity", 0.4);
 
-    // Rose radius in pixels — crece proporcionalmente al zoom sin techo
-    const roseRadius = Math.max(20, 16 * k);
+    const roseRadius = baseRadius * k;
 
     for (const stats of toothStats) {
       const fdi = stats.fdi;
@@ -166,7 +168,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
         .attr("opacity", dimmed ? 0.15 : 0.7);
 
       // FDI label — colocado afuera del grupo rotado para no rotar con la rosa.
-      const fontSize = Math.max(7, 7 * Math.min(k, 4));
+      const fontSize = Math.max(9, Math.min(15, roseRadius * 0.42));
       g.append("text")
         .attr("x", cx).attr("y", cy - roseRadius - 3)
         .attr("text-anchor", "middle")

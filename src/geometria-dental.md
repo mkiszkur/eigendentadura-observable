@@ -579,8 +579,8 @@ display(rosePlot({
   toothStats,
   selectedFdi: selectedFdi,
   onToothClick: showAngleModal,
-  width: width,
-  height: 600,
+  width: Math.min(width, 900),
+  height: Math.max(600, Math.round(Math.min(width, 900) * 0.72)),
   rotateToMean,
 }));
 ```
