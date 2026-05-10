@@ -235,19 +235,12 @@ ${displayMode === "kde_std" ? html`<div style="display:flex; gap:24px; align-ite
 </details>
 
 ```js
-const plot = kdePlot({
-  selectedFdi: selectedFdi,
-  kdeGrids: kdeGrids,
-  toothStats: toothStats,
-  width: 800,
-  height: 550,
-  gamma: gamma,
-  minThreshold: minThreshold,
-  displayMode: displayMode,
-  contoursMode: contoursMode,
-  showCentroids: showCentroids,
-});
-display(plot);
+const kdeChart = kdePlot({ kdeGrids, toothStats, width: 800, height: 550 });
+display(kdeChart);
+```
+
+```js
+kdeChart.update({ selectedFdi, displayMode, contoursMode, showCentroids, minThreshold, gamma });
 ```
 
 ## Estadísticas de los dientes seleccionados

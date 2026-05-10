@@ -8,6 +8,9 @@
  *   elipses  — solo elipses ±1σ / ±2σ
  *   hdr      — regiones HDR 25 / 50 / 95 %
  * contoursMode (solo aplica a displayMode="kde"): "equi" | "sigma12" | "sigma123"
+ *
+ * El SVG y el zoom se crean una sola vez. Llamar node.update(newParams)
+ * para actualizar parámetros reactivos sin resetear el zoom/pan.
  */
 import * as d3 from "d3";
 
@@ -48,12 +51,16 @@ function ellipsePts({mx, my, sx, sy, cov, nSigma, xScale, yScale}) {
 }
 
 export function kdePlot({
-  selectedFdi, kdeGrids, toothStats,
-  width = 800, height = 550,
-  gamma = 1, minThreshold = 0.05,
-  displayMode = "kde_std",
-  contoursMode = "equi",
-  showCentroids = true,
+  selectedFdi: initSelectedFdi = [],
+  kdeGrids,
+  toothStats,
+  width = 800,
+  height = 550,
+  gamma: initGamma = 1,
+  minThreshold: initMinThreshold = 0.05,
+  displayMode: initDisplayMode = "kde_std",
+  contoursMode: initContoursMode = "equi",
+  showCentroids: initShowCentroids = true,
 } = {}) {
   const {grid_size, teeth: kdeTeeth} = kdeGrids;
   const margin = {top: 20, right: 30, bottom: 45, left: 55};
@@ -97,10 +104,20 @@ export function kdePlot({
 
   const statsMap = new Map(toothStats.map(s => [s.fdi, s]));
 
+  // Mutable params — updated via node.update() without recreating the SVG
+  let p = {
+    selectedFdi: initSelectedFdi,
+    gamma: initGamma,
+    minThreshold: initMinThreshold,
+    displayMode: initDisplayMode,
+    contoursMode: initContoursMode,
+    showCentroids: initShowCentroids,
+  };
+
   function drawContours() {
+    const {selectedFdi, displayMode, contoursMode, minThreshold, gamma} = p;
     const isStd = displayMode === "kde_std";
     const isHdr = displayMode === "hdr";
-    // "kde" mode always draws lines; "kde_std" always draws filled
     const linesOnly = !isStd && !isHdr;
     const isSigma = !isStd && !isHdr &&
       (contoursMode === "sigma12" || contoursMode === "sigma123");
@@ -163,7 +180,7 @@ export function kdePlot({
             })
           : (linesOnly ? "none" : d => colorScale(d.value)))
         .attr("stroke", color)
-        .attr("stroke-width", (isSigma || isHdr) ? 1.2 : (linesOnly ? 1.2 : 0.5))
+        .attr("stroke-width", 0.5)
         .attr("stroke-opacity", isSigma ? 0.85 : (isHdr ? 0.75 : 0.4));
 
       // Labels para sigma
@@ -172,7 +189,7 @@ export function kdePlot({
         contours.forEach((c, ci) => {
           if (!c.coordinates?.[0]?.[0]) return;
           const pts = c.coordinates[0][0];
-          const rightmost = pts.reduce((best, p) => p[0] > best[0] ? p : best, pts[0]);
+          const rightmost = pts.reduce((best, pt) => pt[0] > best[0] ? pt : best, pts[0]);
           g.append("text")
             .attr("x", xScale(xGrid(rightmost[0])) + 3)
             .attr("y", yScale(yGrid(rightmost[1])) - 2)
@@ -187,7 +204,7 @@ export function kdePlot({
         contours.forEach((c, ci) => {
           if (!c.coordinates?.[0]?.[0]) return;
           const pts = c.coordinates[0][0];
-          const rightmost = pts.reduce((best, p) => p[0] > best[0] ? p : best, pts[0]);
+          const rightmost = pts.reduce((best, pt) => pt[0] > best[0] ? pt : best, pts[0]);
           g.append("text")
             .attr("x", xScale(xGrid(rightmost[0])) + 3)
             .attr("y", yScale(yGrid(rightmost[1])) - 2)
@@ -199,6 +216,7 @@ export function kdePlot({
   }
 
   function drawEllipses() {
+    const {selectedFdi} = p;
     for (const fdi of selectedFdi) {
       const s = statsMap.get(fdi);
       if (!s) continue;
@@ -207,7 +225,6 @@ export function kdePlot({
       const base = {mx: s.mean_x, my: s.mean_y, sx: s.std_x, sy: s.std_y,
                     cov: s.cov_xy, xScale, yScale};
 
-      // 2σ — borde punteado
       const pts2 = ellipsePts({...base, nSigma: 2});
       g.append("path").attr("d", d3.line()(pts2))
         .attr("fill", "none").attr("stroke", color)
@@ -215,7 +232,6 @@ export function kdePlot({
       g.append("text").attr("x", pts2[0][0] + 3).attr("y", pts2[0][1] - 2)
         .attr("font-size", 9).attr("fill", color).attr("opacity", 0.55).text("2σ");
 
-      // 1σ — relleno semitransparente
       const pts1 = ellipsePts({...base, nSigma: 1});
       g.append("path").attr("d", d3.line()(pts1))
         .attr("fill", color).attr("fill-opacity", 0.18)
@@ -227,14 +243,12 @@ export function kdePlot({
 
   function draw() {
     g.selectAll("*").remove();
+    const {selectedFdi, displayMode, showCentroids} = p;
     const selectedSet = new Set(selectedFdi);
 
-    // Contornos (todos los modos menos "elipses")
     if (displayMode !== "elipses") drawContours();
-    // Elipses (solo cuando displayMode = "elipses")
     if (displayMode === "elipses") drawEllipses();
 
-    // Eigendentadura centroids
     for (const s of toothStats) {
       const isSel = selectedSet.has(s.fdi);
       if (!showCentroids) continue;
@@ -283,5 +297,7 @@ export function kdePlot({
     .attr("text-anchor", "end").attr("font-size", 10).attr("fill", "#aaa")
     .text("Scroll para zoom · Drag para mover · Doble-clic para resetear");
 
-  return svg.node();
+  const node = svg.node();
+  node.update = (newParams) => { p = {...p, ...newParams}; draw(); };
+  return node;
 }
