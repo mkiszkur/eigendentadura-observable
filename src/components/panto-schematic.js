@@ -470,6 +470,8 @@ export function pantoSchematic(container, pantoData, options = {}) {
       }
 
       const eigenFontSize = Math.round(12 * img_w / width);
+      const eigenR        = Math.round(8 * img_w / width);
+      const eigenGap      = Math.round(3 * img_w / width);
       for (const stat of eigendentaduraStats) {
         if (toothFilterSet && !toothFilterSet.has(stat.fdi)) continue;
         const [px, py] = lmToPixel(stat.mean_x, stat.mean_y);
@@ -498,20 +500,29 @@ export function pantoSchematic(container, pantoData, options = {}) {
 
         eigenG.append("circle")
           .attr("cx", px).attr("cy", py)
-          .attr("r", 6)
+          .attr("r", eigenR)
           .attr("fill", "#888")
           .attr("stroke", "#555")
-          .attr("stroke-width", 1)
+          .attr("stroke-width", Math.round(img_w / width))
           .attr("opacity", 0.6);
 
         if (showEigenLabels) {
+          const labelY = py - eigenR - eigenGap;
+          const labelText = String(stat.fdi);
+          const bgW = labelText.length * eigenFontSize * 0.65 + eigenFontSize * 0.3;
+          const bgH = eigenFontSize * 1.1;
+          eigenG.append("rect")
+            .attr("x", px - bgW / 2).attr("y", labelY - bgH * 0.85)
+            .attr("width", bgW).attr("height", bgH)
+            .attr("rx", Math.round(eigenFontSize * 0.15))
+            .attr("fill", "white").attr("opacity", 0.7);
           eigenG.append("text")
-            .attr("x", px).attr("y", py + eigenFontSize * 0.35)
+            .attr("x", px).attr("y", labelY)
             .attr("text-anchor", "middle")
             .attr("font-size", eigenFontSize)
-            .attr("fill", "#666")
-            .attr("opacity", 0.7)
-            .text(String(stat.fdi));
+            .attr("fill", "#555")
+            .attr("opacity", 0.85)
+            .text(labelText);
         }
       }
     }
