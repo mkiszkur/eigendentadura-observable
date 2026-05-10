@@ -7,7 +7,7 @@ title: Explorador de muestras
 Tabla completa de todas las pantomografías con sus métricas geométricas, morfométricas y de patología. Usá los controles para filtrar y ordenar. Clic en una fila para ver el detalle del individuo.
 
 ```js
-import {cleanArchivo} from "./components/panto-table.js";
+import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {rangeSlider} from "./components/range-slider.js";
 import * as d3 from "d3";
 ```
@@ -29,28 +29,32 @@ function computeSymmetry(teeth) {
   const pairs = [[11,21],[12,22],[13,23],[14,24],[15,25],[16,26],[17,27],[18,28],
                  [41,31],[42,32],[43,33],[44,34],[45,35],[46,36],[47,37],[48,38]];
   let sum = 0, n = 0;
-  for (const [a,b] of pairs) {
+  for (const [a, b] of pairs) {
     const ta = byFdi.get(a), tb = byFdi.get(b);
     if (ta && tb) { sum += Math.hypot(ta.cx + tb.cx, ta.cy - tb.cy); n++; }
   }
   return n > 0 ? sum / n : null;
 }
 
+// joined — includes archivo/dientes/categoria aliases for pantoTable
 const joined = individualsRaw.map(d => {
   const sid = cleanArchivo(d.json_filename);
   const pb  = pbMap.get(sid) ?? {};
   const occ = occMap.get(sid) ?? {};
   const bol = bolMap.get(sid) ?? {};
   return {
+    archivo:      sid,
+    dientes:      d.n_teeth,
+    categoria:    pb.categoria  ?? null,
     id:           sid,
     n_teeth:      d.n_teeth,
     z_mean:       d.z_mean,
     z_max:        d.z_max,
     z_pos:        d.z_pos,
     z_ang:        d.z_ang,
-    sex:          d.sex ?? null,
+    sex:          d.sex         ?? null,
     origin:       d.data_origin ?? null,
-    denticion:    pb.denticion ?? null,
+    denticion:    pb.denticion  ?? null,
     fdi_completo: pb.fdi_completo ?? false,
     lm_completo:  pb.lm_completo  ?? false,
     overjet:      occ.overjet  ?? null,
@@ -68,7 +72,7 @@ const joined = individualsRaw.map(d => {
 ```
 
 ```js
-// ── Filter elements (created once; no reactive deps beyond static `joined`) ──
+// ── Filter elements (non-reactive; depend only on static `joined`) ──
 const fmt3 = d3.format(".3f"), fmt1 = d3.format(".1f");
 
 function sliderFor(field, label, step, fmtFn) {
@@ -94,15 +98,15 @@ const dentOptions = ["Todos", ...new Set(joined.map(d => d.denticion).filter(Boo
 const sexInput    = Inputs.select(sexOptions,  {value: "Todos", label: "Sexo"});
 const origInput   = Inputs.select(origOptions, {value: "Todos", label: "Origen"});
 const dentInput   = Inputs.select(dentOptions, {value: "Todos", label: "Dentición"});
-
 const fdiOnlyInput    = Inputs.toggle({label: "FDI completo",   value: false});
 const lmOnlyInput     = Inputs.toggle({label: "LM completos",   value: false});
 const cariesOnlyInput = Inputs.toggle({label: "Con caries",     value: false});
 const endoOnlyInput   = Inputs.toggle({label: "Con endodoncia", value: false});
+const pageSizeInput   = Inputs.select([10, 25, 50, 100], {value: 15, label: "Filas por página"});
 ```
 
 ```js
-// ── Reactive generators (one per slider/input) ──
+// ── Reactive generators ──
 const zmRange  = Generators.input(zmSlider);
 const zxRange  = Generators.input(zxSlider);
 const ntRange  = Generators.input(ntSlider);
@@ -118,17 +122,18 @@ const fdiOnly    = Generators.input(fdiOnlyInput);
 const lmOnly     = Generators.input(lmOnlyInput);
 const cariesOnly = Generators.input(cariesOnlyInput);
 const endoOnly   = Generators.input(endoOnlyInput);
+const pageSize   = Generators.input(pageSizeInput);
 ```
 
 ```js
 // ── Display filters ──
 {
-  const filtersDiv = document.createElement("details");
-  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  const wrap = document.createElement("details");
+  wrap.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
   const sum = document.createElement("summary");
   sum.style.cssText = "padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
   sum.textContent = "Filtros";
-  filtersDiv.appendChild(sum);
+  wrap.appendChild(sum);
   const inner = document.createElement("div");
   inner.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.6rem 1.2rem;padding:0.9rem 1rem;border-top:1px solid #e5e5ec;";
   for (const sl of [zmSlider, zxSlider, ntSlider, symSlider, ojSlider, obSlider, baSlider, boSlider]) {
@@ -141,13 +146,13 @@ const endoOnly   = Generators.input(endoOnlyInput);
   togDiv.style.cssText = "display:flex;flex-direction:column;gap:4px;padding-top:4px;";
   for (const t of [fdiOnlyInput, lmOnlyInput, cariesOnlyInput, endoOnlyInput]) togDiv.appendChild(t);
   inner.appendChild(togDiv);
-  filtersDiv.appendChild(inner);
-  display(filtersDiv);
+  wrap.appendChild(inner);
+  display(wrap);
 }
 ```
 
 ```js
-// ── Filter (lo/hi inlined as local vars) ──
+// ── Filter (lo/hi used as local vars, not exported) ──
 const filtered = joined.filter(d => {
   const [zmLo, zmHi] = zmRange;
   const [zxLo, zxHi] = zxRange;
@@ -172,78 +177,69 @@ const filtered = joined.filter(d => {
 ```
 
 ```js
-// ── Pagination state ──
-const pageSizeInput = Inputs.select([10, 25, 50, 100], {value: 10, label: "Filas por página"});
-const pageSize = Generators.input(pageSizeInput);
-const currentPage = Mutable(0);
-function goToPage(p) { currentPage.value = p; }
+// ── Table state — Mutables + mutation functions (closures over wrappers) ──
+const selectedId = Mutable(null);
+const setSelectedId = id => { selectedId.value = id; };
+
+const tablePage = Mutable(0);
+const setPage   = p  => { tablePage.value = p; };
+
+const sortState = Mutable({key: "z_mean", dir: "desc"});
+const setSort   = ({key, dir}) => { sortState.value = {key, dir}; };
 ```
 
 ```js
-{ filtered; pageSize; goToPage(0); }
+// Reset page when filters or sort change
+{ filtered; sortState; tablePage.value = 0; }
 ```
 
 ```js
-const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-const safePage   = Math.min(currentPage, totalPages - 1);
-const pageSlice  = filtered.slice(safePage * pageSize, (safePage + 1) * pageSize);
+// Sort filtered data
+const sortedFiltered = (() => {
+  const {key, dir} = sortState;
+  if (!key) return filtered;
+  return [...filtered].sort((a, b) => {
+    const va = a[key] ?? (dir === "asc" ? Infinity : -Infinity);
+    const vb = b[key] ?? (dir === "asc" ? Infinity : -Infinity);
+    return dir === "asc" ? (va < vb ? -1 : va > vb ? 1 : 0) : (va > vb ? -1 : va < vb ? 1 : 0);
+  });
+})();
 ```
 
 ```js
+// ── Tabla principal — pantoTable con paginación abajo-derecha ──
 {
-  display(html`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:0.4rem;">
-    <div style="font-size:12px;color:#888;">
-      Mostrando <strong>${pageSlice.length}</strong> de <strong>${filtered.length.toLocaleString("es-AR")}</strong> muestras
-      (${joined.length.toLocaleString("es-AR")} total)
-    </div>
+  display(html`<div style="font-size:12px;color:#888;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <span><strong>${filtered.length.toLocaleString("es-AR")}</strong> de ${joined.length.toLocaleString("es-AR")} muestras</span>
     <div>${pageSizeInput}</div>
   </div>`);
-}
-```
 
-```js
-// ── Tabla — view() muestra y suscribe en una sola celda; sin `rows` para evitar paginación nativa ──
-const selectedRow = view(Inputs.table(pageSlice, {
-  columns: ["id","n_teeth","z_mean","z_max","z_pos","z_ang","symmetry","overjet","overbite","bolton_ant","bolton_ov","sex","origin","denticion","fdi_completo","n_caries","n_endo","n_resto"],
-  header: {
-    id:"Archivo", n_teeth:"N°", z_mean:"z̄", z_max:"z_max",
-    z_pos:"z_pos", z_ang:"z_ang", symmetry:"Asimetría",
-    overjet:"Overjet", overbite:"Overbite",
-    bolton_ant:"Bolton ant", bolton_ov:"Bolton total",
-    sex:"Sexo", origin:"Origen", denticion:"Dentición",
-    fdi_completo:"FDI", n_caries:"Caries", n_endo:"Endo", n_resto:"Resto",
-  },
-  format: {
-    z_mean:     v => v != null ? fmt1(v) : "—",
-    z_max:      v => v != null ? fmt1(v) : "—",
-    z_pos:      v => v != null ? fmt1(v) : "—",
-    z_ang:      v => v != null ? fmt1(v) : "—",
-    symmetry:   v => v != null ? fmt3(v) : "—",
-    overjet:    v => v != null ? fmt3(v) : "—",
-    overbite:   v => v != null ? fmt3(v) : "—",
-    bolton_ant: v => v != null ? fmt1(v)+"%" : "—",
-    bolton_ov:  v => v != null ? fmt1(v)+"%" : "—",
-    fdi_completo: v => v ? "✓" : "—",
-    sex:      v => v ?? "—",
-    origin:   v => v ?? "—",
-    denticion:v => v ?? "—",
-  },
-  width: {id:160, n_teeth:45, z_mean:55, z_max:55, z_pos:55, z_ang:55, symmetry:75, overjet:70, overbite:70, bolton_ant:85, bolton_ov:85},
-  sort: "z_mean",
-  reverse: true,
-  multiple: false,
-}));
-```
+  const extraCols = [
+    {key:"z_mean",    header:"z̄",           format: v => v != null ? fmt1(v)  : "—", sortKey:"z_mean",    width:"55px",  align:"center"},
+    {key:"z_max",     header:"z_max",        format: v => v != null ? fmt1(v)  : "—", sortKey:"z_max",     width:"55px",  align:"center"},
+    {key:"z_pos",     header:"z_pos",        format: v => v != null ? fmt1(v)  : "—", sortKey:"z_pos",     width:"55px",  align:"center"},
+    {key:"z_ang",     header:"z_ang",        format: v => v != null ? fmt1(v)  : "—", sortKey:"z_ang",     width:"55px",  align:"center"},
+    {key:"symmetry",  header:"Asimetría",    format: v => v != null ? fmt3(v)  : "—", sortKey:"symmetry",  width:"75px",  align:"center"},
+    {key:"overjet",   header:"Overjet",      format: v => v != null ? fmt3(v)  : "—", sortKey:"overjet",   width:"70px",  align:"center"},
+    {key:"overbite",  header:"Overbite",     format: v => v != null ? fmt3(v)  : "—", sortKey:"overbite",  width:"70px",  align:"center"},
+    {key:"bolton_ant",header:"Bolton ant",   format: v => v != null ? fmt1(v)+"%" : "—", sortKey:"bolton_ant", width:"80px", align:"center"},
+    {key:"bolton_ov", header:"Bolton tot",   format: v => v != null ? fmt1(v)+"%" : "—", sortKey:"bolton_ov",  width:"80px", align:"center"},
+    {key:"sex",       header:"Sexo",         format: v => v ?? "—",             width:"55px",  align:"center"},
+    {key:"origin",    header:"Origen",       format: v => v ?? "—",             width:"70px",  align:"center"},
+  ];
 
-```js
-{
-  display(html`<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px;font-size:12px;color:#666;">
-    <button onclick=${() => goToPage(0)} style="padding:3px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;" ${safePage===0?"disabled":""}>⏮</button>
-    <button onclick=${() => goToPage(Math.max(0,safePage-1))} style="padding:3px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;" ${safePage===0?"disabled":""}>◀</button>
-    <span>Pág. ${safePage+1} / ${totalPages}</span>
-    <button onclick=${() => goToPage(Math.min(totalPages-1,safePage+1))} style="padding:3px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;" ${safePage>=totalPages-1?"disabled":""}>▶</button>
-    <button onclick=${() => goToPage(totalPages-1)} style="padding:3px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;" ${safePage>=totalPages-1?"disabled":""}>⏭</button>
-  </div>`);
+  display(pantoTable({
+    pantos: sortedFiltered,
+    page: tablePage,
+    pageSize,
+    selectedA: selectedId,
+    onSelectA: setSelectedId,
+    onPage: setPage,
+    extraColumns: extraCols,
+    sortKey: sortState.key,
+    sortDir: sortState.dir,
+    onSortChange: setSort,
+  }));
 }
 ```
 
@@ -251,10 +247,10 @@ const selectedRow = view(Inputs.table(pageSlice, {
 
 ```js
 {
-  if (!selectedRow) {
+  const d = selectedId ? joined.find(r => r.id === selectedId) : null;
+  if (!d) {
     display(html`<p style="color:#aaa;font-size:13px;margin-top:1rem;">Clic en una fila para ver el detalle del individuo.</p>`);
   } else {
-    const d = selectedRow;
     display(html`<div style="border:1px solid #dde3f0;border-radius:8px;padding:1rem 1.2rem;margin-top:1rem;background:#fafbfd;">
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.7rem;color:#333;">${d.id}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;">
