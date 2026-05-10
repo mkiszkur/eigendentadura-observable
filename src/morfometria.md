@@ -137,15 +137,13 @@ function toggleTooth(fdi) {
 function setSelection(fdis) { selectedFdi.value = fdis; }
 ```
 
-<details>
-<summary style="cursor: pointer; font-size: 13px; color: #666;">Filtro de dientes (resaltado en gráficos)</summary>
+## Filtro de dientes
+
+Seleccionar qué dientes se resaltan en los gráficos de esta sección.
 
 ```js
 display(teethSelector({selected: selectedFdi, onToggle: toggleTooth, onSetSelection: setSelection, fdiNombres: {}}));
 ```
-
-</details>
-
 
 ## Forma de arcada
 
