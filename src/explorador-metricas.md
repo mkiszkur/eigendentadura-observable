@@ -118,9 +118,9 @@ const endoOnly = Generators.input(endoOnlyInput);
 ```
 
 ```js
-const [zmLo, zmHi] = zmRange;
-const [zxLo, zxHi] = zxRange;
-const [ntLo, ntHi] = ntRange;
+const zmLo = zmRange[0], zmHi = zmRange[1];
+const zxLo = zxRange[0], zxHi = zxRange[1];
+const ntLo = ntRange[0], ntHi = ntRange[1];
 ```
 
 ```js

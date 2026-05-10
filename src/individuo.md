@@ -117,9 +117,9 @@ const sortState = Mutable({key: null, dir: "asc"});
 ```
 
 ```js
-const [zpLo, zpHi] = zpRange;
-const [zaLo, zaHi] = zaRange;
-const [azLo, azHi] = azRange;
+const zpLo = zpRange[0], zpHi = zpRange[1];
+const zaLo = zaRange[0], zaHi = zaRange[1];
+const azLo = azRange[0], azHi = azRange[1];
 ```
 
 ```js
