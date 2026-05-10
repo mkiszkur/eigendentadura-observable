@@ -89,3 +89,63 @@ display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680)
 <strong>Composición del universo</strong> — El dataset parte de <strong>${ds.funnel[0].n.toLocaleString("es-AR")} pantomografías</strong>, de las cuales ${ds.funnel[2].n.toLocaleString("es-AR")} tienen al menos un diente permanente anotado (universo epidemiológico) y ${ds.funnel[3].n.toLocaleString("es-AR")} cuentan además con landmarks condíleos completos (universo geométrico). Esta distinción define qué preguntas puede responder cada análisis: prevalencia de patologías usa el universo más amplio; eigendentadura, z-scores y morfometría requieren el universo geométrico.
 </div>
 
+## Composición por cuadrante, maxilar y tipo de diente
+
+Para cada valor de N° de dientes anotados por pantomografía, las barras muestran cuántos de esos dientes provienen de cada grupo. En dentaduras completas (32 piezas) la distribución es uniforme; a medida que bajan las piezas se puede ver en qué grupo se concentran las ausencias.
+
+```js
+const groupSelInput = Inputs.select(
+  new Map([
+    ["Cuadrante", "quadrant"],
+    ["Maxilar", "jaw"],
+    ["Tipo de diente", "type"],
+  ]),
+  { label: "Desglosar por" }
+);
+const groupSel = Generators.input(groupSelInput);
+display(groupSelInput);
+```
+
+```js
+{
+  const source = groupSel === "quadrant" ? ds.teeth_by_quadrant
+    : groupSel === "jaw"      ? ds.teeth_by_jaw
+    : ds.teeth_by_type;
+
+  const COLOR = groupSel === "quadrant"
+    ? { domain: ["Q1","Q2","Q3","Q4"], range: ["#4c78a8","#72b7b2","#f28e2b","#e45756"] }
+    : groupSel === "jaw"
+    ? { domain: ["Superior","Mandíbula"], range: ["#4c78a8","#e45756"] }
+    : { domain: ["Anterior","Molar","Premolar"], range: ["#7b52ab","#e15759","#54a24b"] };
+
+  const long = source.flatMap(row =>
+    COLOR.domain.map(g => ({ n_teeth: row.n_teeth, group: g, value: row[g] ?? 0 }))
+  );
+
+  display(Plot.plot({
+    width: Math.min(width, 680),
+    height: 240,
+    marginBottom: 42,
+    marginTop: 10,
+    x: {
+      label: "N° de dientes por pantomografía",
+      tickSpacing: 18,
+    },
+    y: {
+      label: "Media de dientes",
+      grid: true,
+    },
+    color: { ...COLOR, legend: true },
+    marks: [
+      Plot.barY(long, Plot.stackY({
+        x: "n_teeth",
+        y: "value",
+        fill: "group",
+        order: COLOR.domain,
+        tip: true,
+      })),
+    ],
+  }));
+}
+```
+
