@@ -11,6 +11,7 @@ title: Análisis de casos atípicos
 ```js
 import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import {pantoSchematic} from "./components/panto-schematic.js";
+import {collapsible} from "./components/collapsible.js";
 import * as d3 from "d3";
 ```
 
@@ -103,13 +104,16 @@ const colorByInput = Inputs.select(
   {label: "Colorear por", value: "atipicidad"}
 );
 const colorBy = Generators.input(colorByInput);
-display(colorByInput);
+const minTeethInput = Inputs.range([4, 32], {label: "Mínimo de dientes", step: 1, value: 10});
+const minTeeth = Generators.input(minTeethInput);
 ```
 
 ```js
-const minTeethInput = Inputs.range([4, 32], {label: "Mínimo de dientes", step: 1, value: 10});
-const minTeeth = Generators.input(minTeethInput);
-display(minTeethInput);
+display(collapsible({
+  title: "Opciones de visualización",
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${minTeethInput}</div>`,
+  open: false,
+}));
 ```
 
 ```js
