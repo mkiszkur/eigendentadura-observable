@@ -9,12 +9,29 @@ Cruce de la atipicidad geométrica individual (z-scores de posición y ángulo) 
 ```js
 const geoPath = await FileAttachment("data/geo_patologia.json").json();
 import * as d3 from "d3";
-import {pantoSchematic} from "./components/panto-schematic.js";
+import {openPantoModal} from "./components/panto-modal.js";
+const toothStatsGeo = await FileAttachment("data/tooth_stats.json").json();
 const pantosRawGeo = await FileAttachment("data/pantos_browser.json").json();
 const pantosMapGeo = new Map(pantosRawGeo.pantos.map(p => [p.archivo, p]));
 ```
 
 ```js
+const PATHO_LABELS = {
+  has_restauracion: "Restauración",
+  has_caries: "Caries",
+  has_endodoncia: "Endodoncia",
+  has_retenido: "Retenido",
+  has_radiolucidez: "Radiolucidez",
+  has_raiz_remanente: "Raíz remanente",
+};
+const PATHO_COLORS = {
+  has_restauracion: "#4e79a7",
+  has_caries: "#e15759",
+  has_endodoncia: "#59a14f",
+  has_retenido: "#f28e2b",
+  has_radiolucidez: "#b07aa1",
+  has_raiz_remanente: "#76b7b2",
+};
 const clickedGeo = Mutable(null);
 function setClickedGeo(d) { clickedGeo.value = d; }
 function clearClickedGeo() { clickedGeo.value = null; }
@@ -23,103 +40,16 @@ function clearClickedGeo() { clickedGeo.value = null; }
 ```js
 {
   const d = clickedGeo;
-  if (d == null) {
-    display(html`<div></div>`);
-  } else {
-    const pb = pantosMapGeo.get(d.id);
-    let geomData = null;
-    try {
-      const resp = await fetch(`_file/data/pantos_geometry/${d.id}.json`);
-      if (resp.ok) geomData = await resp.json();
-    } catch(e) {}
-    const PATHO_LABELS = {
-      has_restauracion: "Restauración",
-      has_caries: "Caries",
-      has_endodoncia: "Endodoncia",
-      has_retenido: "Retenido",
-      has_radiolucidez: "Radiolucidez",
-      has_raiz_remanente: "Raíz remanente",
-    };
-    const PATHO_COLORS = {
-      has_restauracion: "#4e79a7",
-      has_caries: "#e15759",
-      has_endodoncia: "#59a14f",
-      has_retenido: "#f28e2b",
-      has_radiolucidez: "#b07aa1",
-      has_raiz_remanente: "#76b7b2",
-    };
-
-    const overlay = document.createElement("div");
-    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;";
-    overlay.addEventListener("click", e => { if (e.target === overlay) { clearClickedGeo(); overlay.remove(); } });
-
-    const modal = document.createElement("div");
-    modal.style.cssText = "background:#fff;border-radius:10px;padding:1.5rem 1.8rem;max-width:520px;width:95%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.22);position:relative;";
-
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "✕";
-    closeBtn.style.cssText = "position:absolute;top:0.7rem;right:0.9rem;border:none;background:none;font-size:1.1rem;cursor:pointer;color:#888;";
-    closeBtn.onclick = () => { clearClickedGeo(); overlay.remove(); };
-    modal.appendChild(closeBtn);
-
-    const title = document.createElement("div");
-    title.style.cssText = "font-size:0.78rem;color:#888;margin-bottom:0.8rem;";
-    title.textContent = `ID: ${d.id}`;
-    modal.appendChild(title);
-
-    // z-scores
-    const scores = document.createElement("div");
-    scores.style.cssText = "display:flex;gap:0.7rem;margin-bottom:1rem;flex-wrap:wrap;";
-    for (const [label, val, color] of [
-      ["z_mean", d.z_mean, "#4c78a8"],
-      ["z_pos", d.z_pos, "#72b7b2"],
-      ["z_ang", d.z_ang, "#54a24b"],
-    ]) {
-      const chip = document.createElement("div");
-      chip.style.cssText = `background:${color}18;border:1px solid ${color}44;border-radius:6px;padding:0.25rem 0.6rem;font-size:0.8rem;`;
-      chip.innerHTML = `<span style="color:#666">${label}</span> <strong style="color:${color}">${val.toFixed(3)}</strong>`;
-      scores.appendChild(chip);
-    }
-    const nTeethChip = document.createElement("div");
-    nTeethChip.style.cssText = "background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:0.25rem 0.6rem;font-size:0.8rem;";
-    nTeethChip.innerHTML = `<span style="color:#666">dientes</span> <strong>${d.n_teeth}</strong>`;
-    scores.appendChild(nTeethChip);
-    modal.appendChild(scores);
-
-    // Pathology tags
-    const pathoDiv = document.createElement("div");
-    pathoDiv.style.cssText = "display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;";
-    for (const [key, label] of Object.entries(PATHO_LABELS)) {
-      if (d[key]) {
-        const tag = document.createElement("span");
-        const c = PATHO_COLORS[key];
-        tag.style.cssText = `background:${c}22;border:1px solid ${c}66;color:${c};border-radius:12px;padding:2px 9px;font-size:0.76rem;font-weight:600;`;
-        tag.textContent = label;
-        pathoDiv.appendChild(tag);
-      }
-    }
-    if (d.n_pathologies === 0) {
-      const tag = document.createElement("span");
-      tag.style.cssText = "background:#f0f0f0;border:1px solid #ccc;color:#888;border-radius:12px;padding:2px 9px;font-size:0.76rem;";
-      tag.textContent = "Sin patologías registradas";
-      pathoDiv.appendChild(tag);
-    }
-    modal.appendChild(pathoDiv);
-
-    if (geomData) {
-      const schDiv = document.createElement("div");
-      schDiv.style.cssText = "margin-top:0.5rem;";
-      pantoSchematic(schDiv, geomData, {
-        showBbox: false, showPolygon: true, showCentroids: true,
-        showLabels: true, showDividers: true, showLandmarks: false,
-      });
-      modal.appendChild(schDiv);
-    }
-
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-    invalidation.then(() => overlay.remove());
-    display(html`<div></div>`);
+  if (d != null) {
+    const pb = pantosMapGeo.get(d.id) ?? null;
+    const pathoBadges = Object.entries(PATHO_LABELS)
+      .filter(([k]) => d[k])
+      .map(([k, label]) => ({label, value: "✓", color: PATHO_COLORS[k]}));
+    openPantoModal({
+      id: d.id, pantoMeta: pb, toothStats: toothStatsGeo,
+      zScores: {z_mean: d.z_mean, z_pos: d.z_pos, z_ang: d.z_ang},
+      extraBadges: pathoBadges, onClose: clearClickedGeo, invalidation,
+    });
   }
 }
 ```
@@ -154,18 +84,19 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 {
   const records = geoPath.records;
   const nMax = d3.max(records, d => d.n_pathologies);
-  const colorScale = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, nMax]);
+  const colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, nMax]);
 
   const p99x = d3.quantile(records.map(d => d.z_pos).sort(d3.ascending), 0.99);
   const p99y = d3.quantile(records.map(d => d.z_ang).sort(d3.ascending), 0.99);
+  const vis = records.filter(d => d.z_pos <= p99x && d.z_ang <= p99y);
 
   const W = Math.min(width, 700), H = 380;
   const margin = {top: 20, right: 30, bottom: 50, left: 55};
   const iW = W - margin.left - margin.right;
   const iH = H - margin.top - margin.bottom;
 
-  const xS = d3.scaleLinear().domain([0, p99x]).range([0, iW]);
-  const yS = d3.scaleLinear().domain([0, p99y]).range([iH, 0]);
+  const xS0 = d3.scaleLinear().domain([0, p99x]).range([0, iW]);
+  const yS0 = d3.scaleLinear().domain([0, p99y]).range([iH, 0]);
 
   const svg = d3.create("svg").attr("viewBox", [0, 0, W, H]).attr("width", W).attr("height", H)
     .style("font-family", "var(--sans-serif, system-ui)").style("cursor", "default");
@@ -175,29 +106,46 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
     .append("rect").attr("width", iW).attr("height", iH);
 
   const gOuter = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // axes
-  gOuter.append("g").attr("transform", `translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
-    .append("text").attr("x", iW/2).attr("y", 38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",12)
-    .text("Atipicidad posicional — z_pos");
-  gOuter.append("g").call(d3.axisLeft(yS).ticks(5))
-    .append("text").attr("transform","rotate(-90)").attr("x", -iH/2).attr("y",-42).attr("fill","#555").attr("text-anchor","middle").attr("font-size",12)
-    .text("Atipicidad angular — z_ang");
-
+  const gAxes = gOuter.append("g");
   const g = gOuter.append("g").attr("clip-path", "url(#gp-clip)");
 
-  g.selectAll("circle").data(records.filter(d => d.z_pos <= p99x && d.z_ang <= p99y)).join("circle")
-    .attr("cx", d => xS(d.z_pos))
-    .attr("cy", d => yS(d.z_ang))
-    .attr("r", 2.8)
-    .attr("fill", d => colorScale(d.n_pathologies))
-    .attr("opacity", 0.5)
-    .attr("stroke", "none")
-    .style("cursor", "pointer")
-    .on("mouseover", function() { d3.select(this).attr("r", 4.5).attr("opacity", 1); })
-    .on("mouseout", function() { d3.select(this).attr("r", 2.8).attr("opacity", 0.5); })
-    .on("click", (event, d) => { setClickedGeo(d); event.stopPropagation(); })
-    .append("title").text(d => `z_pos=${d.z_pos.toFixed(3)}  z_ang=${d.z_ang.toFixed(3)}\nN° patologías: ${d.n_pathologies}`);
+  function drawAxes(xS, yS) {
+    gAxes.selectAll("*").remove();
+    gAxes.append("g").attr("transform", `translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
+      .append("text").attr("x", iW/2).attr("y", 38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",12)
+      .text("Atipicidad posicional — z_pos");
+    gAxes.append("g").call(d3.axisLeft(yS).ticks(5))
+      .append("text").attr("transform","rotate(-90)").attr("x", -iH/2).attr("y",-42).attr("fill","#555").attr("text-anchor","middle").attr("font-size",12)
+      .text("Atipicidad angular — z_ang");
+  }
+
+  function drawPoints(xS, yS) {
+    g.selectAll("circle").data(vis).join("circle")
+      .attr("cx", d => xS(d.z_pos))
+      .attr("cy", d => yS(d.z_ang))
+      .attr("r", 2.8)
+      .attr("fill", d => colorScale(d.n_pathologies))
+      .attr("opacity", 0.5)
+      .attr("stroke", "none")
+      .style("cursor", "pointer")
+      .on("mouseover", function() { d3.select(this).attr("r", 4.5).attr("opacity", 1); })
+      .on("mouseout", function() { d3.select(this).attr("r", 2.8).attr("opacity", 0.5); })
+      .on("click", (event, d) => { setClickedGeo(d); event.stopPropagation(); })
+      .append("title").text(d => `z_pos=${d.z_pos.toFixed(3)}  z_ang=${d.z_ang.toFixed(3)}\nN° patologías: ${d.n_pathologies}`);
+  }
+
+  drawAxes(xS0, yS0);
+  drawPoints(xS0, yS0);
+
+  const zoom = d3.zoom().scaleExtent([0.5, 20]).on("zoom", (event) => {
+    const t = event.transform;
+    const xS = t.rescaleX(xS0);
+    const yS = t.rescaleY(yS0);
+    drawAxes(xS, yS);
+    drawPoints(xS, yS);
+  });
+  svg.call(zoom);
+  svg.on("dblclick.zoom", () => { svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity); });
 
   // legend
   const legendW = 140, legendH = 12;
@@ -219,7 +167,7 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 }
 ```
 
-<small>Eje recortado en el percentil 99 para excluir outliers extremos. Los puntos recortados representan &lt; 1% de la muestra. · El color cuenta <strong>6 flags agregados</strong> (Restauración, Caries, Endodoncia, Pieza retenida, Radiolucidez, Raíz remanente); el máximo posible es 6 y hay 21 dentaduras con los 6 a la vez. Esto difiere del gráfico de Multimorbilidad (pág. Patologías), que usa 14 flags más granulares y llega a un máximo de 4.</small>
+<small>Eje recortado en el percentil 99 para excluir outliers extremos. Los puntos recortados representan &lt; 1% de la muestra. Scroll/pinch para hacer zoom; doble clic para resetear. · El color cuenta <strong>6 flags agregados</strong> (Restauración, Caries, Endodoncia, Pieza retenida, Radiolucidez, Raíz remanente); el máximo posible es 6 y hay 21 dentaduras con los 6 a la vez. Esto difiere del gráfico de Multimorbilidad (pág. Patologías), que usa 14 flags más granulares y llega a un máximo de 4.</small>
 
 ## z_mean medio por carga patológica
 
