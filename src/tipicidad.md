@@ -119,6 +119,11 @@ display(collapsible({
 ```
 
 ```js
+const visibleCount = individualsEnriched.filter(d => d.n_teeth >= minTeeth && d.z_pos != null && d.z_ang != null).length;
+display(html`<p style="font-size:0.82rem;color:#888;margin:0.3rem 0 0.5rem;">Mostrando <strong>${visibleCount.toLocaleString("es-AR")}</strong> de ${individuals.length.toLocaleString("es-AR")} pantomografías</p>`);
+```
+
+```js
 const clickedIndividual = Mutable(null);
 function setClickedIndividual(d) { clickedIndividual.value = d; }
 function clearClickedIndividual() { clickedIndividual.value = null; }
