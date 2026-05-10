@@ -67,6 +67,9 @@ export function pantoSchematic(container, pantoData, options = {}) {
     selectedTeeth = null,
     showEigendentadura = false,
     eigendentaduraStats = null,
+    showEigenLabels = true,
+    thinStrokes = false,
+    showSupernumeraries = true,
   } = options;
 
   // Tooth number filter: null/undefined = show all
@@ -138,9 +141,12 @@ export function pantoSchematic(container, pantoData, options = {}) {
 
   // Filter shapes by entity type (exclude minbbox/centroid/fiducial sub-types)
   // and optionally by selected tooth numbers
+  const isSupernumerary = (tn) => tn != null && (tn < 11 || tn > 48);
+
   const visibleShapes = shapes.filter(s => {
     if (s.et === "tooth") {
       if (s.es !== "tooth") return false;
+      if (!showSupernumeraries && isSupernumerary(s.tn)) return false;
       if (toothFilter && s.tn != null && !toothFilter.has(s.tn)) return false;
       return true;
     }
@@ -160,12 +166,13 @@ export function pantoSchematic(container, pantoData, options = {}) {
       if (!s.pg || s.pg.length < 3) continue;
       if (s.et === "metal" || s.et === "tooth") {
         const pathData = "M" + s.pg.map(p => p.join(",")).join("L") + "Z";
-        polyG.append("path")
+        const polyPath = polyG.append("path")
           .attr("d", pathData)
           .attr("fill", "none")
           .attr("stroke", shapeColor(s))
-          .attr("stroke-width", 3)
+          .attr("stroke-width", thinStrokes ? 1.5 : 3)
           .attr("opacity", 0.7);
+        if (thinStrokes) polyPath.attr("vector-effect", "non-scaling-stroke");
       }
     }
   }
@@ -176,12 +183,13 @@ export function pantoSchematic(container, pantoData, options = {}) {
     for (const s of shapes.filter(sh => sh.et === "metal" && metalSubtypes.has(sh.es))) {
       if (!s.pg || s.pg.length < 3) continue;
       const pathData = "M" + s.pg.map(p => p.join(",")).join("L") + "Z";
-      metalPolyG.append("path")
+      const mp = metalPolyG.append("path")
         .attr("d", pathData)
         .attr("fill", "none")
         .attr("stroke", METAL_COLOR)
-        .attr("stroke-width", 3)
+        .attr("stroke-width", thinStrokes ? 1.5 : 3)
         .attr("opacity", 0.7);
+      if (thinStrokes) mp.attr("vector-effect", "non-scaling-stroke");
     }
   }
 
@@ -487,13 +495,15 @@ export function pantoSchematic(container, pantoData, options = {}) {
           .attr("stroke-width", 1)
           .attr("opacity", 0.6);
 
-        eigenG.append("text")
-          .attr("x", px).attr("y", py + 5)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 14)
-          .attr("fill", "#666")
-          .attr("opacity", 0.7)
-          .text(String(stat.fdi));
+        if (showEigenLabels) {
+          eigenG.append("text")
+            .attr("x", px).attr("y", py + 5)
+            .attr("text-anchor", "middle")
+            .attr("font-size", 14)
+            .attr("fill", "#666")
+            .attr("opacity", 0.7)
+            .text(String(stat.fdi));
+        }
       }
     }
   }
