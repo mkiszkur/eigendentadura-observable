@@ -190,7 +190,7 @@ const setSort   = ({key, dir}) => { sortState.value = {key, dir}; };
 
 ```js
 // Reset page when filters or sort change
-{ filtered; sortState; tablePage.value = 0; }
+{ filtered; sortState; setPage(0); }
 ```
 
 ```js
