@@ -109,6 +109,17 @@ const teethRangeInput = rangeSlider({label: "Cantidad de dientes", min: 4, max: 
 const teethRange = Generators.input(teethRangeInput);
 const highlightOutliersInput = Inputs.toggle({label: "Resaltar outliers", value: false});
 const highlightOutliers = Generators.input(highlightOutliersInput);
+
+// Sliders de z-scores (sólo visibles al colorear por Atipicidad)
+const zMeanMax = Math.ceil(d3.max(individualsEnriched, d => d.z_mean) * 10) / 10;
+const zPosMax  = Math.ceil(d3.max(individualsEnriched, d => d.z_pos)  * 10) / 10;
+const zAngMax  = Math.ceil(d3.max(individualsEnriched, d => d.z_ang)  * 10) / 10;
+const zMeanSlider = rangeSlider({label: "z̄ (tipicidad media)", min: 0, max: zMeanMax, value: [0, zMeanMax], step: 0.1});
+const zPosSlider  = rangeSlider({label: "z_pos (posición)",    min: 0, max: zPosMax,  value: [0, zPosMax],  step: 0.1});
+const zAngSlider  = rangeSlider({label: "z_ang (ángulo)",      min: 0, max: zAngMax,  value: [0, zAngMax],  step: 0.1});
+const zMeanRange = Generators.input(zMeanSlider);
+const zPosRange  = Generators.input(zPosSlider);
+const zAngRange  = Generators.input(zAngSlider);
 ```
 
 ```js
@@ -120,7 +131,23 @@ display(collapsible({
 ```
 
 ```js
-const visibleCount = individualsEnriched.filter(d => d.n_teeth >= teethRange[0] && d.n_teeth <= teethRange[1] && d.z_pos != null && d.z_ang != null).length;
+if (colorBy === "atipicidad") {
+  display(collapsible({
+    title: "Filtro por z-scores",
+    content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${zMeanSlider}${zPosSlider}${zAngSlider}</div>`,
+    open: true,
+  }));
+}
+```
+
+```js
+const visibleCount = individualsEnriched.filter(d =>
+  d.n_teeth >= teethRange[0] && d.n_teeth <= teethRange[1] &&
+  d.z_pos != null && d.z_ang != null &&
+  d.z_mean >= zMeanRange[0] && d.z_mean <= zMeanRange[1] &&
+  d.z_pos  >= zPosRange[0]  && d.z_pos  <= zPosRange[1] &&
+  d.z_ang  >= zAngRange[0]  && d.z_ang  <= zAngRange[1]
+).length;
 display(html`<p style="font-size:0.82rem;color:#888;margin:0.3rem 0 0.5rem;">Mostrando <strong>${visibleCount.toLocaleString("es-AR")}</strong> de ${individuals.length.toLocaleString("es-AR")} pantomografías</p>`);
 ```
 
@@ -137,6 +164,9 @@ display(atipicalityScatter(individualsEnriched, {
   colorBy,
   minTeeth: teethRange[0],
   maxTeeth: teethRange[1],
+  zMeanRange,
+  zPosRange,
+  zAngRange,
   selectedPanto: null,
   onClickPanto: setClickedIndividual,
   threshold: iqrThreshold,

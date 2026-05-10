@@ -15,8 +15,17 @@ export function atipicalityScatter(scores, {
   onClickPanto = null,
   threshold = null,        // z_mean umbral de outliers formales (para marcar en leyenda)
   highlightOutliers = false,
+  zMeanRange = null,
+  zPosRange = null,
+  zAngRange = null,
 } = {}) {
-  const data = scores.filter(d => d.n_teeth >= minTeeth && d.n_teeth <= maxTeeth && d.z_pos != null && d.z_ang != null);
+  const data = scores.filter(d =>
+    d.n_teeth >= minTeeth && d.n_teeth <= maxTeeth &&
+    d.z_pos != null && d.z_ang != null &&
+    (zMeanRange == null || (d.z_mean >= zMeanRange[0] && d.z_mean <= zMeanRange[1])) &&
+    (zPosRange  == null || (d.z_pos  >= zPosRange[0]  && d.z_pos  <= zPosRange[1])) &&
+    (zAngRange  == null || (d.z_ang  >= zAngRange[0]  && d.z_ang  <= zAngRange[1]))
+  );
 
   const M = {top: 20, right: 170, bottom: 50, left: 55};
   const innerW = width - M.left - M.right;
