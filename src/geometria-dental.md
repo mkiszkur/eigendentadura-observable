@@ -167,9 +167,9 @@ display(collapsible({
 
 <small>Unidades intercondíleas (distancia cóndilo–cóndilo = 1.0). Colores por cuadrante FDI: <span style="color:#4e79a7">■</span> Q1 · <span style="color:#59a14f">■</span> Q2 · <span style="color:#edc949">■</span> Q3 · <span style="color:#e15759">■</span> Q4. Barras tenues = dispersión ±1σ en X e Y.</small>
 
----
+## Selección de piezas
 
-**Selección de piezas** — el odontograma controla todos los gráficos de esta página. Por defecto se muestran las 32 piezas permanentes; hacé clic para incluir o excluir dientes.
+El odontograma controla todos los gráficos de esta página. Por defecto se muestran las 32 piezas permanentes; hacé clic para incluir o excluir dientes.
 
 ```js
 display(teethSelector({
