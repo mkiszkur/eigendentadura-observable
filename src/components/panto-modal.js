@@ -50,6 +50,7 @@ export async function openPantoModal({
   iqrExtreme = null,
   extraBadges = [],
   invalidation = null,
+  onClose = null,
 } = {}) {
   if (!id) return;
 
@@ -72,7 +73,7 @@ export async function openPantoModal({
     "max-width:min(980px,95vw);max-height:92vh;overflow-y:auto;" +
     "position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.35);";
 
-  const close = () => { overlay.remove(); };
+  const close = () => { overlay.remove(); onClose?.(); };
 
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "×";

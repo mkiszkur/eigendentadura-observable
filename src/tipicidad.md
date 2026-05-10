@@ -10,7 +10,7 @@ title: Análisis de casos atípicos
 
 ```js
 import {atipicalityScatter} from "./components/atipicality-scatter.js";
-import {pantoSchematic} from "./components/panto-schematic.js";
+import {openPantoModal} from "./components/panto-modal.js";
 import {collapsible} from "./components/collapsible.js";
 import {rangeSlider} from "./components/range-slider.js";
 import * as d3 from "d3";
@@ -177,133 +177,20 @@ display(atipicalityScatter(individualsEnriched, {
 ```js
 {
   const clicked = clickedIndividual;
-  const id      = extractGeoId(clicked?.json_filename);
-
-  if (clicked && id) {
-    let geomData = null;
-    try {
-      const resp = await fetch(`_file/data/pantos_geometry/${id}.json`);
-      if (resp.ok) geomData = await resp.json();
-    } catch(e) {}
-
-    if (geomData) {
-      const overlay = document.createElement("div");
-      overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;";
-
-      const modal = document.createElement("div");
-      modal.style.cssText = "background:white;border-radius:10px;padding:1.5rem;max-width:min(980px,95vw);max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.35);";
-
-      const close = () => { overlay.remove(); clearClickedIndividual(); };
-
-      const closeBtn = document.createElement("button");
-      closeBtn.textContent = "×";
-      closeBtn.style.cssText = "position:absolute;top:10px;right:14px;font-size:22px;border:none;background:none;cursor:pointer;color:#888;line-height:1;";
-      closeBtn.addEventListener("click", close);
-
-      // — Z-score badge helper ——————————————————————————
-      function zBadge(label, val, color = "#4c78a8") {
-        const lvl = val >= iqrExtreme ? "#c0392b" : val >= iqrThreshold ? "#e15759" : color;
-        return `<span style="display:inline-flex;align-items:center;gap:4px;background:${lvl}18;border:1px solid ${lvl}44;border-radius:4px;padding:2px 7px;margin-right:6px;margin-bottom:4px;font-size:0.78rem;">` +
-          `<span style="color:${lvl};font-weight:600;">${label}</span>` +
-          `<span style="color:#333;">${val.toFixed(4)}</span></span>`;
-      }
-
-      // — Ranking ———————————————————————————————————————
-      const rankInfo = rankAtypMap.get(clicked.json_filename);
-      const rankBadge = rankInfo
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;background:#f0f0f0;border:1px solid #ddd;border-radius:4px;padding:2px 7px;margin-right:6px;margin-bottom:4px;font-size:0.78rem;"><span style="color:#666;font-weight:600;">Ranking atipicidad</span><span style="color:#333;">#${rankInfo.rank_atypical} / ${rankInfo.total}</span></span>`
-        : "";
-
-      // — Patologías ————————————————————————————————————
-      const flags = clicked.pb_flags;
-      let flagsHtml = "";
-      if (flags && Object.keys(flags).length > 0) {
-        const items = Object.entries(flags).map(([k, v]) =>
-          `<span style="display:inline-flex;align-items:center;gap:3px;background:#fff5f0;border:1px solid #f4a46033;border-radius:3px;padding:1px 6px;font-size:0.77rem;margin:2px;">` +
-          `<span style="color:#e07020;">${k}</span><span style="color:#888;">(${v})</span></span>`
-        ).join("");
-        flagsHtml = `<div style="margin-bottom:0.6rem;"><span style="font-size:11px;color:#888;font-weight:600;margin-right:6px;">Patologías:</span>${items}</div>`;
-      } else {
-        flagsHtml = `<div style="margin-bottom:0.6rem;font-size:11px;color:#aaa;">Sin patologías registradas</div>`;
-      }
-
-      // — Dientes faltantes ——————————————————————————————
-      const ALL_FDI = [...Array.from({length:8},(_,i)=>11+i), ...Array.from({length:8},(_,i)=>21+i),
-                       ...Array.from({length:8},(_,i)=>31+i), ...Array.from({length:8},(_,i)=>41+i)];
-      const presentSet = new Set(clicked.pb_tooth_numbers ?? []);
-      const missing = ALL_FDI.filter(f => !presentSet.has(f));
-      let missingHtml = "";
-      if (missing.length > 0) {
-        const items = missing.map(f =>
-          `<span style="display:inline-flex;background:#f5f5f5;border:1px solid #e5e5e5;border-radius:3px;padding:1px 5px;font-size:0.77rem;color:#888;margin:2px;">${f}</span>`
-        ).join("");
-        missingHtml = `<div style="margin-bottom:0.8rem;"><span style="font-size:11px;color:#888;font-weight:600;margin-right:6px;">Dientes faltantes (${missing.length}):</span>${items}</div>`;
-      }
-
-      const header = document.createElement("div");
-      header.innerHTML =
-        `<div style="margin-bottom:6px;padding-right:2rem;">` +
-          `<strong style="font-family:monospace;font-size:0.82rem;">${id}</strong>` +
-          `<span style="color:#777;font-size:0.82rem;margin-left:0.8rem;">${clicked.data_origin ?? "–"} · ${clicked.sex ?? "–"} · ${clicked.n_teeth} dientes</span>` +
-        `</div>` +
-        `<div style="margin-bottom:0.5rem;flex-wrap:wrap;display:flex;">` +
-          zBadge("z̄", clicked.z_mean, "#54a24b") +
-          zBadge("z_pos", clicked.z_pos, "#4c78a8") +
-          zBadge("z_ang", clicked.z_ang, "#7b52ab") +
-          rankBadge +
-        `</div>` +
-        flagsHtml +
-        missingHtml;
-
-      // — Tabla por diente ——————————————————————————————
-      const teethSorted = [...(clicked.teeth ?? [])].sort((a, b) => b.z_total - a.z_total);
-      const tableHtml = `<details style="margin-bottom:0.8rem;">
-        <summary style="cursor:pointer;font-size:12px;color:#555;font-weight:600;">Z-scores por diente (${teethSorted.length} dientes)</summary>
-        <div style="overflow-x:auto;margin-top:6px;">
-        <table style="border-collapse:collapse;font-size:11px;width:100%;">
-          <thead><tr style="border-bottom:1px solid #eee;">
-            <th style="text-align:left;padding:3px 8px;color:#888;">FDI</th>
-            <th style="text-align:right;padding:3px 8px;color:#888;">z_total</th>
-            <th style="text-align:right;padding:3px 8px;color:#888;">z_cx</th>
-            <th style="text-align:right;padding:3px 8px;color:#888;">z_cy</th>
-            <th style="text-align:right;padding:3px 8px;color:#888;">z_angle</th>
-          </tr></thead>
-          <tbody>${teethSorted.map(t => {
-            const bg = t.z_total > 3 ? "#fff5f5" : t.z_total > 2 ? "#fffbf0" : "transparent";
-            return `<tr style="border-bottom:1px solid #f5f5f5;background:${bg};">
-              <td style="padding:3px 8px;font-weight:600;color:#4c78a8;">${t.fdi}</td>
-              <td style="text-align:right;padding:3px 8px;font-weight:600;color:${t.z_total > 2 ? "#e15759" : "#333"};">${t.z_total.toFixed(3)}</td>
-              <td style="text-align:right;padding:3px 8px;color:#555;">${t.z_cx.toFixed(3)}</td>
-              <td style="text-align:right;padding:3px 8px;color:#555;">${t.z_cy.toFixed(3)}</td>
-              <td style="text-align:right;padding:3px 8px;color:#555;">${t.z_angle.toFixed(3)}</td>
-            </tr>`;
-          }).join("")}</tbody>
-        </table></div></details>`;
-      const tableDiv = document.createElement("div");
-      tableDiv.innerHTML = tableHtml;
-
-      const hint = document.createElement("div");
-      hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear · Círculos grises = eigendentadura (media poblacional)";
-      hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:0.5rem;";
-
-      const schContainer = document.createElement("div");
-      pantoSchematic(schContainer, geomData, {
-        showBbox: false,
-        showPolygon: true,
-        showCentroids: true,
-        showLabels: true,
-        showLandmarks: true,
-        showDividers: true,
-        showEigendentadura: true,
-        eigendentaduraStats: toothStats,
+  if (clicked) {
+    const id = extractGeoId(clicked.json_filename);
+    if (id) {
+      await openPantoModal({
+        id,
+        pantoMeta: pantosMap.get(id),
+        toothStats,
+        zScores: clicked,
+        rankInfo: rankAtypMap.get(clicked.json_filename),
+        iqrThreshold,
+        iqrExtreme,
+        invalidation,
+        onClose: clearClickedIndividual,
       });
-
-      modal.append(closeBtn, header, tableDiv, hint, schContainer);
-      overlay.appendChild(modal);
-      overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-
-      document.body.appendChild(overlay);
-      invalidation.then(() => overlay.remove());
     }
   }
 }
