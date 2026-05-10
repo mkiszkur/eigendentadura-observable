@@ -158,13 +158,14 @@ export async function openPantoModal({
 
   // ── Toggles de visualización ────────────────────────────────────────────
   const vizState = {
-    showPolygon:        true,
-    showCentroids:      false,
-    showEigenLabels:    true,
-    showSupernumeraries: true,
-    showEigendentadura: true,
-    showPopEllipses:    false,
-    showLabels:         false,
+    showPolygon:         true,
+    showCentroids:       false,
+    showEigenLabels:     true,
+    showSupernumeraries: false,
+    showTemporary:       false,
+    showEigendentadura:  true,
+    showPopEllipses:     false,
+    showLabels:          false,
   };
 
   const togglesDiv = document.createElement("div");
@@ -184,6 +185,7 @@ export async function openPantoModal({
       showLabels:          vizState.showLabels,
       showEigenLabels:     vizState.showEigenLabels,
       showSupernumeraries: vizState.showSupernumeraries,
+      showTemporary:       vizState.showTemporary,
       showPopEllipses:     vizState.showPopEllipses,
       showDividers:        true,
       showCurve:           false,
@@ -223,6 +225,7 @@ export async function openPantoModal({
     togglesDiv.appendChild(makeToggle("Contornos",             "showPolygon"));
     togglesDiv.appendChild(makeToggle("Centroides",            "showCentroids"));
     togglesDiv.appendChild(makeToggle("Etiquetas FDI",         "showLabels"));
+    togglesDiv.appendChild(makeToggle("Temporales",            "showTemporary"));
     togglesDiv.appendChild(makeToggle("Supernumerarios",       "showSupernumeraries"));
     togglesDiv.appendChild(makeToggle("Centroides eigendent.", "showEigendentadura"));
     togglesDiv.appendChild(makeToggle("Elipses población",     "showPopEllipses"));

@@ -71,6 +71,7 @@ export function pantoSchematic(container, pantoData, options = {}) {
     showPopEllipses = false,
     thinStrokes = false,
     showSupernumeraries = true,
+    showTemporary = true,
     initialTransform = null,
   } = options;
 
@@ -144,13 +145,15 @@ export function pantoSchematic(container, pantoData, options = {}) {
 
   // Filter shapes by entity type (exclude minbbox/centroid/fiducial sub-types)
   // and optionally by selected tooth numbers
-  const isSupernumerary = (tn) => tn != null && (tn < 11 || tn > 48);
+  const isTemporary     = (tn) => tn != null && tn >= 51 && tn <= 85;
+  const isSupernumerary = (tn) => tn != null && (tn < 11 || tn > 48) && !isTemporary(tn);
 
   const visibleShapes = shapes.filter(s => {
     if (s.et === "tooth") {
       if (s.es === "supernumerary") return showSupernumeraries;
       if (s.es !== "tooth") return false;
-      if (!showSupernumeraries && isSupernumerary(s.tn)) return false;
+      if (isTemporary(s.tn))     return showTemporary;
+      if (isSupernumerary(s.tn)) return showSupernumeraries;
       if (toothFilter && s.tn != null && !toothFilter.has(s.tn)) return false;
       return true;
     }
