@@ -79,7 +79,7 @@ export function angleRose({record, size = 220, angleMin = 45, angleMax = 135, in
   // Sectores del histograma
   const arc = d3.arc();
   for (const b of record.histogram) {
-    if (b.angle < angleMin - bw || b.angle > angleMax + bw) continue; // clip a rango visible
+    if (b.angle < 0 - bw || b.angle > 180 + bw) continue;
     const s = toArcRad(b.angle + bw / 2);
     const e = toArcRad(b.angle - bw / 2);
     g.append("path")
