@@ -3,8 +3,8 @@
  *
  * Proporciona:
  * - cleanArchivo(): normaliza nombres de archivo
- * - pantoFilters(): renderiza filtros
- * - pantoTable(): renderiza tabla paginada con selección simple o dual
+ * - pantoTable(): renderiza tabla paginada con selección simple o dual,
+ *                 paginación abajo-derecha y sort por click en columna
  */
 import * as d3 from "d3";
 
@@ -31,7 +31,10 @@ export function cleanArchivo(name) {
  * @param {Function} opts.onSelectA - callback(archivo)
  * @param {Function|null} opts.onSelectB - callback(archivo), null = single selection mode
  * @param {Function} opts.onPage - callback(pageNumber)
- * @param {Array<Object>} opts.extraColumns - [{key, header, format}] additional columns
+ * @param {Array<Object>} opts.extraColumns - [{key, header, format, sortKey?}] additional columns
+ * @param {string|null} opts.sortKey - active sort key
+ * @param {"asc"|"desc"} opts.sortDir - sort direction
+ * @param {Function|null} opts.onSortChange - callback({key, dir}) on column header click
  * @returns {HTMLElement}
  */
 export function pantoTable({
@@ -44,6 +47,9 @@ export function pantoTable({
   onSelectB = null,
   onPage,
   extraColumns = [],
+  sortKey = null,
+  sortDir = "asc",
+  onSortChange = null,
 } = {}) {
   const html = (strings, ...values) => {
     const template = document.createElement("template");
@@ -60,57 +66,56 @@ export function pantoTable({
 
   const container = document.createElement("div");
 
-  // ── Pagination controls ──
-  const pagDiv = document.createElement("div");
-  pagDiv.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 4px 0;";
-
-  const btnFirst = document.createElement("button");
-  btnFirst.textContent = "⏮";
-  btnFirst.style.cssText = "padding: 2px 8px; cursor: pointer;";
-  btnFirst.disabled = safePage === 0;
-  btnFirst.onclick = () => onPage(0);
-
-  const btnPrev = document.createElement("button");
-  btnPrev.textContent = "◀";
-  btnPrev.style.cssText = "padding: 2px 8px; cursor: pointer;";
-  btnPrev.disabled = safePage === 0;
-  btnPrev.onclick = () => onPage(Math.max(0, safePage - 1));
-
-  const span = document.createElement("span");
-  span.textContent = `${start + 1}–${end} de ${pantos.length}`;
-
-  const btnNext = document.createElement("button");
-  btnNext.textContent = "▶";
-  btnNext.style.cssText = "padding: 2px 8px; cursor: pointer;";
-  btnNext.disabled = safePage >= totalPages - 1;
-  btnNext.onclick = () => onPage(safePage + 1);
-
-  pagDiv.append(btnFirst, btnPrev, span, btnNext);
-  container.append(pagDiv);
-
   // ── Table ──
   const table = document.createElement("table");
   table.style.cssText = "width: 100%; border-collapse: collapse; font-size: 12px;";
 
-  // Header
+  // Header — sortable columns
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   headerRow.style.cssText = "border-bottom: 2px solid #ddd; text-align: left;";
 
-  const baseHeaders = dualMode
-    ? [["", "30px", "center"], ["", "30px", "center"], ["Archivo", "", "left"], ["Dientes", "60px", "center"], ["FDI", "40px", "center"], ["Cat", "40px", "center"], ["Dentición", "", "left"]]
-    : [["Archivo", "", "left"], ["Dientes", "60px", "center"], ["FDI", "40px", "center"], ["Cat", "40px", "center"], ["Dentición", "", "left"]];
+  // Base column definitions: [label, dataKey, width, align]
+  const baseCols = dualMode
+    ? [
+        ["", null, "30px", "center"],
+        ["", null, "30px", "center"],
+        ["Archivo", "archivo", "", "left"],
+        ["Dientes", "dientes", "60px", "center"],
+        ["FDI", "fdi_completo", "40px", "center"],
+        ["Cat", "categoria", "40px", "center"],
+        ["Dentición", "denticion", "", "left"],
+      ]
+    : [
+        ["Archivo", "archivo", "", "left"],
+        ["Dientes", "dientes", "60px", "center"],
+        ["FDI", "fdi_completo", "40px", "center"],
+        ["Cat", "categoria", "40px", "center"],
+        ["Dentición", "denticion", "", "left"],
+      ];
 
-  for (const ec of extraColumns) {
-    baseHeaders.push([ec.header, ec.width || "60px", ec.align || "center"]);
-  }
-
-  for (const [text, w, align] of baseHeaders) {
+  function makeSortTh(label, key, width, align) {
     const th = document.createElement("th");
-    th.textContent = text;
-    th.style.cssText = `padding: 6px 4px; text-align: ${align};${w ? ` width: ${w};` : ""}`;
-    headerRow.append(th);
+    const isSorted = key && sortKey === key;
+    const arrow = isSorted ? (sortDir === "asc" ? " ↑" : " ↓") : (key ? " ⇅" : "");
+    th.textContent = label + arrow;
+    th.style.cssText = `padding:6px 4px;text-align:${align};${width ? `width:${width};` : ""}${key && onSortChange ? "cursor:pointer;user-select:none;" : ""}${isSorted ? "color:#4e79a7;" : ""}`;
+    if (key && onSortChange) {
+      th.addEventListener("click", () => {
+        const newDir = (sortKey === key && sortDir === "asc") ? "desc" : "asc";
+        onSortChange({key, dir: newDir});
+      });
+    }
+    return th;
   }
+
+  for (const [label, key, width, align] of baseCols) {
+    headerRow.append(makeSortTh(label, key, width, align));
+  }
+  for (const ec of extraColumns) {
+    headerRow.append(makeSortTh(ec.header, ec.sortKey ?? ec.key, ec.width || "60px", ec.align || "center"));
+  }
+
   thead.append(headerRow);
   table.append(thead);
 
@@ -193,6 +198,40 @@ export function pantoTable({
   }
   table.append(tbody);
   container.append(table);
+
+  // ── Pagination — below table, right-aligned ──
+  const pagDiv = document.createElement("div");
+  pagDiv.style.cssText = "display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;padding:4px 0 2px;color:#666;";
+
+  const btnFirst = document.createElement("button");
+  btnFirst.textContent = "⏮";
+  btnFirst.style.cssText = "padding:2px 8px;cursor:pointer;border:1px solid #ddd;border-radius:3px;";
+  btnFirst.disabled = safePage === 0;
+  btnFirst.onclick = () => onPage(0);
+
+  const btnPrev = document.createElement("button");
+  btnPrev.textContent = "◀";
+  btnPrev.style.cssText = "padding:2px 8px;cursor:pointer;border:1px solid #ddd;border-radius:3px;";
+  btnPrev.disabled = safePage === 0;
+  btnPrev.onclick = () => onPage(Math.max(0, safePage - 1));
+
+  const span = document.createElement("span");
+  span.textContent = `${start + 1}–${end} de ${pantos.length}`;
+
+  const btnNext = document.createElement("button");
+  btnNext.textContent = "▶";
+  btnNext.style.cssText = "padding:2px 8px;cursor:pointer;border:1px solid #ddd;border-radius:3px;";
+  btnNext.disabled = safePage >= totalPages - 1;
+  btnNext.onclick = () => onPage(safePage + 1);
+
+  const btnLast = document.createElement("button");
+  btnLast.textContent = "⏭";
+  btnLast.style.cssText = "padding:2px 8px;cursor:pointer;border:1px solid #ddd;border-radius:3px;";
+  btnLast.disabled = safePage >= totalPages - 1;
+  btnLast.onclick = () => onPage(totalPages - 1);
+
+  pagDiv.append(btnFirst, btnPrev, span, btnNext, btnLast);
+  container.append(pagDiv);
 
   return container;
 }

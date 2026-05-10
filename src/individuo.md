@@ -12,6 +12,7 @@ import {pantoSchematic} from "./components/panto-schematic.js";
 import {archForm, computeArchMetrics, ARCH_UPPER, ARCH_LOWER} from "./components/arch-form.js";
 import {angleRose} from "./components/angle-rose.js";
 import {individualRosePlot} from "./components/individual-rose-plot.js";
+import {rangeSlider} from "./components/range-slider.js";
 import * as d3 from "d3";
 ```
 
@@ -87,7 +88,7 @@ const searchTerm  = Generators.input(searchInput);
 const catInput  = Inputs.select(["Todas", ...meta.categorias], {value: "Todas", label: "Cat."});
 const catFilter = Generators.input(catInput);
 
-const dentInput  = Inputs.select(["Todas", ...meta.denticiones], {value: "Todas", label: "Dent."});
+const dentInput  = Inputs.select(["Todas", "Permanente", "Temporal", "Sin clasificar", "Mixta"], {value: "Todas", label: "Dent."});
 const dentFilter = Generators.input(dentInput);
 
 const flagInput  = Inputs.select(["Ninguna", ...meta.flag_names], {value: "Ninguna", label: "Patología"});
@@ -98,82 +99,85 @@ const fdiFilter = Generators.input(fdiInput);
 const lmInput   = Inputs.toggle({label: "LM completos", value: false});
 const lmFilter  = Generators.input(lmInput);
 
-// Tipicality threshold filters (single-value max, same pattern as explorador-metricas)
+// Tipicality range sliders (min–max)
 const zpVals = allPantosEnriched.map(p => p.z_pos).filter(v => v != null);
-const zpMaxInput = Inputs.range([d3.min(zpVals), d3.max(zpVals)], {step: 0.05, value: d3.max(zpVals), label: "z_pos ≤"});
-const zpMaxFilter = Generators.input(zpMaxInput);
+const zpSlider = rangeSlider({label: "z_pos", min: 0, max: Math.ceil(d3.max(zpVals)*10)/10, value: [0, Math.ceil(d3.max(zpVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
+const [zpLo, zpHi] = Generators.input(zpSlider);
 
 const zaVals = allPantosEnriched.map(p => p.z_ang).filter(v => v != null);
-const zaMaxInput = Inputs.range([d3.min(zaVals), d3.max(zaVals)], {step: 0.05, value: d3.max(zaVals), label: "z_ang ≤"});
-const zaMaxFilter = Generators.input(zaMaxInput);
+const zaSlider = rangeSlider({label: "z_ang", min: 0, max: Math.ceil(d3.max(zaVals)*10)/10, value: [0, Math.ceil(d3.max(zaVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
+const [zaLo, zaHi] = Generators.input(zaSlider);
 
 const azVals = allPantosEnriched.map(p => p.arch_z).filter(v => v != null);
-const azMaxInput = Inputs.range([0, d3.max(azVals)], {step: 0.05, value: d3.max(azVals), label: "Δ arcada ≤"});
-const azMaxFilter = Generators.input(azMaxInput);
+const azSlider = rangeSlider({label: "Δ arcada", min: 0, max: Math.ceil(d3.max(azVals)*10)/10, value: [0, Math.ceil(d3.max(azVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
+const [azLo, azHi] = Generators.input(azSlider);
 
-// Sort control
-const SORT_OPTS = [
-  ["none",     "Sin orden específico"],
-  ["zp_asc",   "z_pos ↑  (más típico posicional primero)"],
-  ["zp_desc",  "z_pos ↓  (más atípico posicional primero)"],
-  ["za_asc",   "z_ang ↑  (más típico angular primero)"],
-  ["za_desc",  "z_ang ↓  (más atípico angular primero)"],
-  ["arc_asc",  "Δ arcada ↑  (forma más similar a eigendentadura)"],
-  ["arc_desc", "Δ arcada ↓  (forma más diferente a eigendentadura)"],
-];
-const sortInput = Inputs.select(SORT_OPTS.map(([k]) => k), {
-  value: "none", label: "Ordenar por",
-  format: k => SORT_OPTS.find(([v]) => v === k)[1],
-});
-const sortSel = Generators.input(sortInput);
+// Sort state — controlled by column header clicks in the table
+const sortState = Mutable({key: null, dir: "asc"});
 ```
 
 ```js
-display(html`<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:end;">
-  ${searchInput}${catInput}${dentInput}${flagInput}
-</div>`);
-display(html`<div style="display:flex;gap:10px;align-items:center;padding:4px 0 2px;">${fdiInput}${lmInput}</div>`);
-display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;background:#f9f9fb;margin:4px 0;">
-  <summary style="padding:6px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;">Filtrar por tipicidad y forma de arcada</summary>
-  <div style="padding:8px 12px 10px;border-top:1px solid #e5e5ec;">
-    <div style="font-size:0.78rem;color:#777;margin-bottom:6px;">
-      Cada slider muestra solo los individuos con ese valor <strong>menor o igual al umbral</strong>. Bajarlo muestra los más típicos; para ver los más atípicos, usá el orden ↓.
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px;">
-      <div>${zpMaxInput}</div>
-      <div>${zaMaxInput}</div>
-      <div>${azMaxInput}</div>
-      <div style="grid-column:1/-1;">${sortInput}</div>
-    </div>
-  </div>
-</details>`);
+{
+  const filtersDiv = document.createElement("details");
+  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  const sum = document.createElement("summary");
+  sum.style.cssText = "padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
+  sum.textContent = "Filtros";
+  filtersDiv.appendChild(sum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.8rem 1rem;border-top:1px solid #e5e5ec;display:flex;flex-direction:column;gap:10px;";
+
+  const row1 = document.createElement("div");
+  row1.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;";
+  row1.append(searchInput, catInput, dentInput, flagInput);
+  inner.appendChild(row1);
+
+  const row2 = document.createElement("div");
+  row2.style.cssText = "display:flex;gap:10px;align-items:center;";
+  row2.append(fdiInput, lmInput);
+  inner.appendChild(row2);
+
+  const row3 = document.createElement("div");
+  row3.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px;";
+  const note = document.createElement("div");
+  note.style.cssText = "grid-column:1/-1;font-size:0.78rem;color:#777;";
+  note.innerHTML = "Rangos de tipicidad y forma de arcada:";
+  row3.appendChild(note);
+  row3.appendChild(zpSlider);
+  row3.appendChild(zaSlider);
+  row3.appendChild(azSlider);
+  inner.appendChild(row3);
+
+  filtersDiv.appendChild(inner);
+  display(filtersDiv);
+}
 ```
 
 ```js
-const SORT_FNS = {
-  zp_asc:  (a,b) => (a.z_pos  ?? Infinity)  - (b.z_pos  ?? Infinity),
-  zp_desc: (a,b) => (b.z_pos  ?? -Infinity) - (a.z_pos  ?? -Infinity),
-  za_asc:  (a,b) => (a.z_ang  ?? Infinity)  - (b.z_ang  ?? Infinity),
-  za_desc: (a,b) => (b.z_ang  ?? -Infinity) - (a.z_ang  ?? -Infinity),
-  arc_asc: (a,b) => (a.arch_z ?? Infinity)  - (b.arch_z ?? Infinity),
-  arc_desc:(a,b) => (b.arch_z ?? -Infinity) - (a.arch_z ?? -Infinity),
-};
-
 goToPage(0);
 const _filtered = allPantosEnriched.filter(p => {
   if (searchTerm && !cleanArchivo(p.archivo).toLowerCase().includes(searchTerm.toLowerCase())) return false;
   if (catFilter !== "Todas" && p.categoria !== catFilter) return false;
-  if (dentFilter !== "Todas" && p.denticion !== dentFilter) return false;
+  if (dentFilter !== "Todas" && !p.denticion?.toLowerCase().includes(dentFilter.toLowerCase())) return false;
   if (flagFilter !== "Ninguna" && !(p.flags && p.flags[flagFilter] > 0)) return false;
   if (fdiFilter && !p.fdi_completo) return false;
   if (lmFilter && !p.lm_completo) return false;
-  if (p.z_pos  != null && p.z_pos  > zpMaxFilter) return false;
-  if (p.z_ang  != null && p.z_ang  > zaMaxFilter) return false;
-  if (p.arch_z != null && p.arch_z > azMaxFilter) return false;
+  if (p.z_pos  != null && (p.z_pos  < zpLo || p.z_pos  > zpHi)) return false;
+  if (p.z_ang  != null && (p.z_ang  < zaLo || p.z_ang  > zaHi)) return false;
+  if (p.arch_z != null && (p.arch_z < azLo || p.arch_z > azHi)) return false;
   return true;
 });
-const fn = SORT_FNS[sortSel];
-const pantos = fn ? [..._filtered].sort(fn) : _filtered;
+
+// Sort by column click
+const sk = sortState.key;
+const sd = sortState.dir;
+const pantos = sk
+  ? [..._filtered].sort((a, b) => {
+      const av = a[sk] ?? (sd === "asc" ? Infinity : -Infinity);
+      const bv = b[sk] ?? (sd === "asc" ? Infinity : -Infinity);
+      return sd === "asc" ? (av > bv ? 1 : av < bv ? -1 : 0) : (bv > av ? 1 : bv < av ? -1 : 0);
+    })
+  : _filtered;
 ```
 
 ## Selección de individuo
@@ -197,6 +201,9 @@ display(pantoTable({
   selectedA: selectedArchivo,
   onSelectA: selectRow,
   onPage: goToPage,
+  sortKey: sortState.key,
+  sortDir: sortState.dir,
+  onSortChange: ({key, dir}) => { sortState.value = {key, dir}; },
   extraColumns: [
     {key: "z_mean",     header: "z̄",      width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
     {key: "z_pos",      header: "z_pos",   width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
@@ -353,7 +360,7 @@ display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;backgrou
     const xS = d3.scaleBand().domain(teeth.map(d => d.fdi)).range([0,innerW]).padding(0.15);
     const maxZ = d3.max(teeth, getZ);
     const yS = d3.scaleLinear().domain([0, Math.max(maxZ*1.1, 3)]).range([innerH, 0]);
-    const cS = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, Math.max(maxZ, 3)]);
+    const cS = d3.scaleSequential(d3.interpolateOrRd).domain([0, Math.max(maxZ, 3)]);
 
     const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).style("font-family","var(--sans-serif, system-ui)");
     const g = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
@@ -389,7 +396,7 @@ display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;backgrou
 
 <details><summary>Cómo leer este gráfico</summary>
 
-**Eje X — z̄ (atipicidad media)**: promedio de los z-scores de todos los dientes del individuo. Un valor alto indica que la dentadura, en su conjunto, se aleja del patrón típico de la población. **Eje Y — z_max**: z-score del diente más atípico de ese individuo. Cada punto azul representa una pantomografía de la población; el **punto rojo** con círculo es el individuo seleccionado. Individuos cerca del origen (0, 0) son los más "típicos"; hacia la esquina superior derecha, los más atípicos. El gráfico está recortado en el percentil 99 para evitar que outliers extremos distorsionen la escala.
+**Eje X — z_pos**: atipicidad posicional media (desvío de los centroides dentales respecto al promedio poblacional). **Eje Y — z_ang**: atipicidad angular media. Cada punto es una pantomografía, coloreada por z̄ (atipicidad global: amarillo → rojo). El **punto rojo** con círculo es el individuo seleccionado. Individuos cerca del origen son los más típicos. Recortado en el percentil 99.
 
 </details>
 
@@ -397,32 +404,39 @@ display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;backgrou
 {
   const {indiv} = selectedData;
   if (indiv) {
-    const W = Math.min(width, 600), H = 300;
+    const pop = individuals.filter(d => d.z_pos != null && d.z_ang != null);
+    const p99x = d3.quantile(pop.map(d => d.z_pos).sort(d3.ascending), 0.99);
+    const p99y = d3.quantile(pop.map(d => d.z_ang).sort(d3.ascending), 0.99);
+    const zmMax = d3.max(pop, d => d.z_mean ?? 0);
+    const colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, zmMax * 0.7]);
+
+    const W = Math.min(width, 600), H = 320;
     const margin = {top:16,right:24,bottom:46,left:52};
     const iW = W - margin.left - margin.right;
     const iH = H - margin.top - margin.bottom;
-    const pop = individuals;
-    const p99x = d3.quantile(pop.map(d => d.z_mean).sort(d3.ascending), 0.99);
-    const p99y = d3.quantile(pop.map(d => d.z_max).sort(d3.ascending), 0.99);
     const xS = d3.scaleLinear().domain([0,p99x]).range([0,iW]);
     const yS = d3.scaleLinear().domain([0,p99y]).range([iH,0]);
+
     const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).style("font-family","var(--sans-serif, system-ui)");
     svg.append("defs").append("clipPath").attr("id","indiv-clip2").append("rect").attr("width",iW).attr("height",iH);
     const gO = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
     gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(5))
-      .append("text").attr("x",iW/2).attr("y",36).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z̄ (atipicidad media)");
+      .append("text").attr("x",iW/2).attr("y",36).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_pos (atipicidad posicional)");
     gO.append("g").call(d3.axisLeft(yS).ticks(4))
-      .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-40).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_max (diente más atípico)");
+      .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-40).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_ang (atipicidad angular)");
+
     const g = gO.append("g").attr("clip-path","url(#indiv-clip2)");
-    g.selectAll("circle.pop").data(pop.filter(d => d.z_mean <= p99x && d.z_max <= p99y)).join("circle")
-      .attr("cx",d=>xS(d.z_mean)).attr("cy",d=>yS(d.z_max)).attr("r",2).attr("fill","#4e79a7").attr("opacity",0.16);
-    const zm = indiv.z_mean ?? 0, zx = indiv.z_max ?? 0;
-    if (zm <= p99x && zx <= p99y) {
-      g.append("circle").attr("cx",xS(zm)).attr("cy",yS(zx)).attr("r",9).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2.5);
-      g.append("circle").attr("cx",xS(zm)).attr("cy",yS(zx)).attr("r",4).attr("fill","#e15759").attr("opacity",0.95);
+    g.selectAll("circle.pop").data(pop.filter(d => d.z_pos <= p99x && d.z_ang <= p99y)).join("circle")
+      .attr("cx",d=>xS(d.z_pos)).attr("cy",d=>yS(d.z_ang))
+      .attr("r",2).attr("fill",d=>colorScale(d.z_mean??0)).attr("opacity",0.45);
+
+    const zp = indiv.z_pos ?? 0, za = indiv.z_ang ?? 0;
+    if (zp <= p99x && za <= p99y) {
+      g.append("circle").attr("cx",xS(zp)).attr("cy",yS(za)).attr("r",9).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2.5);
+      g.append("circle").attr("cx",xS(zp)).attr("cy",yS(za)).attr("r",4).attr("fill","#e15759").attr("opacity",0.95);
     }
     display(svg.node());
-    display(html`<small style="color:#888">● rojo = individuo seleccionado · azul = distribución poblacional (recortado en p99).</small>`);
+    display(html`<small style="color:#888">● rojo = individuo seleccionado · color = z̄ (amarillo→rojo: más atípico) · recortado en p99.</small>`);
   } else {
     display(html`<p style="color:#999">Seleccioná un individuo.</p>`);
   }
@@ -536,6 +550,24 @@ Posición del individuo (punto rojo) dentro de la nube poblacional. Cada punto g
   const p01ob = d3.quantile(obVals.slice().sort(d3.ascending), 0.01);
   const p99ob = d3.quantile(obVals.slice().sort(d3.ascending), 0.99);
 
+  // Clinical thresholds (IQR-based, same as morfometria)
+  const q1J = d3.quantile(ojVals.slice().sort(d3.ascending), 0.25);
+  const q3J = d3.quantile(ojVals.slice().sort(d3.ascending), 0.75);
+  const q1B = d3.quantile(obVals.slice().sort(d3.ascending), 0.25);
+  const q3B = d3.quantile(obVals.slice().sort(d3.ascending), 0.75);
+  const iqrJ = q3J - q1J, iqrB = q3B - q1B;
+  const thOJHigh = q3J + 1.5 * iqrJ;
+  const thOBHigh = q3B + 1.5 * iqrB;
+  const thOBLow  = q1B - 1.5 * iqrB;
+
+  function clinColor(d) {
+    if (d.overjet < 0)            return "#b279a2"; // mordida cruzada
+    if (d.overbite < thOBLow)     return "#72b7b2"; // mordida abierta
+    if (d.overbite > thOBHigh)    return "#e15759"; // overbite elevado
+    if (d.overjet  > thOJHigh)    return "#f28e2b"; // overjet elevado
+    return "#4e79a7";                                // normal
+  }
+
   const xS = d3.scaleLinear().domain([p01oj, p99oj]).range([0,iW]).nice();
   const yS = d3.scaleLinear().domain([p01ob, p99ob]).range([iH,0]).nice();
 
@@ -552,18 +584,23 @@ Posición del individuo (punto rojo) dentro de la nube poblacional. Cada punto g
 
   const gc = gO.append("g").attr("clip-path","url(#occ-clip)");
 
-  // Zero reference lines
-  if (xS.domain()[0] < 0) gc.append("line").attr("x1",xS(0)).attr("x2",xS(0)).attr("y1",0).attr("y2",iH).attr("stroke","#ddd").attr("stroke-width",1);
-  if (yS.domain()[0] < 0) gc.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(0)).attr("y2",yS(0)).attr("stroke","#ddd").attr("stroke-width",1);
+  // Zero + median reference lines
+  const medJ = d3.median(pop, d => d.overjet);
+  const medB = d3.median(pop, d => d.overbite);
+  if (xS.domain()[0] < 0) gc.append("line").attr("x1",xS(0)).attr("x2",xS(0)).attr("y1",0).attr("y2",iH).attr("stroke","#bbb").attr("stroke-width",1);
+  if (yS.domain()[0] < 0) gc.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(0)).attr("y2",yS(0)).attr("stroke","#bbb").attr("stroke-width",1);
+  gc.append("line").attr("x1",xS(medJ)).attr("x2",xS(medJ)).attr("y1",0).attr("y2",iH).attr("stroke","#ccc").attr("stroke-dasharray","4,3").attr("stroke-width",1);
+  gc.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(medB)).attr("y2",yS(medB)).attr("stroke","#ccc").attr("stroke-dasharray","4,3").attr("stroke-width",1);
 
-  // Population cloud
+  // Population cloud — colored by clinical category
   gc.selectAll("circle.p").data(pop.filter(d => d.overjet>=xS.domain()[0]&&d.overjet<=xS.domain()[1]&&d.overbite>=yS.domain()[0]&&d.overbite<=yS.domain()[1])).join("circle")
-    .attr("cx",d=>xS(d.overjet)).attr("cy",d=>yS(d.overbite)).attr("r",2).attr("fill","#4e79a7").attr("opacity",0.12);
+    .attr("cx",d=>xS(d.overjet)).attr("cy",d=>yS(d.overbite))
+    .attr("r",2).attr("fill",d=>clinColor(d)).attr("opacity",0.25);
 
   // Selected individual
   const oj = indivOcc?.overjet, ob = indivOcc?.overbite;
   if (oj != null && isFinite(oj) && ob != null && isFinite(ob)) {
-    gc.append("circle").attr("cx",xS(oj)).attr("cy",yS(ob)).attr("r",10).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2);
+    gc.append("circle").attr("cx",xS(oj)).attr("cy",yS(ob)).attr("r",10).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2.5);
     gc.append("circle").attr("cx",xS(oj)).attr("cy",yS(ob)).attr("r",4.5).attr("fill","#e15759");
     gc.append("text").attr("x",xS(oj)+13).attr("y",yS(ob)+4).attr("font-size",10).attr("fill","#e15759").attr("font-weight",600)
       .text(`(${oj.toFixed(3)}, ${ob.toFixed(3)})`);
@@ -571,8 +608,17 @@ Posición del individuo (punto rojo) dentro de la nube poblacional. Cada punto g
     gO.append("text").attr("x",iW/2).attr("y",iH/2).attr("text-anchor","middle").attr("font-size",12).attr("fill","#aaa").text("Sin dato de oclusión para este individuo");
   }
 
+  // Color legend
+  const legData = [["#4e79a7","Normal"],["#f28e2b","Overjet elevado"],["#e15759","Overbite elevado"],["#72b7b2","Mordida abierta"],["#b279a2","Mordida cruzada"]];
+  const lgG = svg.append("g").attr("transform",`translate(${margin.left + iW - 140},${margin.top + 6})`);
+  lgG.append("rect").attr("width",142).attr("height",legData.length*14+6).attr("fill","white").attr("stroke","#eee").attr("rx",3).attr("opacity",0.9);
+  legData.forEach(([c,l],i) => {
+    lgG.append("circle").attr("cx",8).attr("cy",i*14+12).attr("r",4).attr("fill",c);
+    lgG.append("text").attr("x",16).attr("y",i*14+16).attr("font-size",9).attr("fill","#444").text(l);
+  });
+
   display(svg.node());
-  display(html`<small style="color:#888">● gris = población · ● rojo = individuo seleccionado · recortado en p1–p99.</small>`);
+  display(html`<small style="color:#888">● rojo con círculo = individuo · color = categoría clínica · recortado en p1–p99.</small>`);
 }
 ```
 

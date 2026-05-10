@@ -8,6 +8,7 @@ Tabla completa de todas las pantomografías con sus métricas geométricas, morf
 
 ```js
 import {cleanArchivo} from "./components/panto-table.js";
+import {rangeSlider} from "./components/range-slider.js";
 import * as d3 from "d3";
 ```
 
@@ -76,20 +77,18 @@ const joined = individualsRaw.map(d => {
 ```js
 const fmt3 = d3.format(".3f"), fmt1 = d3.format(".1f");
 
-// z_mean: max threshold (show items with z̄ ≤ value)
+// Numeric range sliders
 const zmAll = joined.map(d => d.z_mean).filter(v => v != null);
-const zmMaxInput = Inputs.range([d3.min(zmAll), d3.max(zmAll)], {step: 0.05, value: d3.max(zmAll), label: "z̄ máx"});
-const zmMaxFilter = Generators.input(zmMaxInput);
+const zmSlider = rangeSlider({label: "z̄", min: d3.min(zmAll), max: d3.max(zmAll), value: [d3.min(zmAll), d3.max(zmAll)], step: 0.05, format: v => v.toFixed(2)});
+const [zmLo, zmHi] = Generators.input(zmSlider);
 
-// z_max: max threshold
 const zxAll = joined.map(d => d.z_max).filter(v => v != null);
-const zxMaxInput = Inputs.range([d3.min(zxAll), d3.max(zxAll)], {step: 0.05, value: d3.max(zxAll), label: "z_max máx"});
-const zxMaxFilter = Generators.input(zxMaxInput);
+const zxSlider = rangeSlider({label: "z_max", min: d3.min(zxAll), max: d3.max(zxAll), value: [d3.min(zxAll), d3.max(zxAll)], step: 0.05, format: v => v.toFixed(2)});
+const [zxLo, zxHi] = Generators.input(zxSlider);
 
-// n_teeth: min threshold
 const ntAll = joined.map(d => d.n_teeth).filter(v => v != null);
-const ntMinInput = Inputs.range([d3.min(ntAll), d3.max(ntAll)], {step: 1, value: d3.min(ntAll), label: "Dientes mín"});
-const ntMinFilter = Generators.input(ntMinInput);
+const ntSlider = rangeSlider({label: "Dientes", min: d3.min(ntAll), max: d3.max(ntAll), value: [d3.min(ntAll), d3.max(ntAll)], step: 1});
+const [ntLo, ntHi] = Generators.input(ntSlider);
 
 // Categorical filters
 const sexOptions = ["Todos", ...new Set(joined.map(d => d.sex).filter(Boolean))];
@@ -119,22 +118,44 @@ const endoOnly = Generators.input(endoOnlyInput);
 ```
 
 ```js
-display(html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.6rem 1.2rem;background:#f9f9fb;border:1px solid #e5e5ec;border-radius:8px;padding:0.9rem 1rem;margin-bottom:1rem;">
-  <div>${zmMaxInput}</div>
-  <div>${zxMaxInput}</div>
-  <div>${ntMinInput}</div>
-  <div>${sexInput}</div>
-  <div>${origInput}</div>
-  <div>${dentInput}</div>
-  <div style="display:flex;flex-direction:column;gap:4px;padding-top:4px;">${fdiOnlyInput}${lmOnlyInput}${cariesOnlyInput}${endoOnlyInput}</div>
-</div>`);
+{
+  const filtersDiv = document.createElement("details");
+  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  const sum = document.createElement("summary");
+  sum.style.cssText = "padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
+  sum.textContent = "Filtros";
+  filtersDiv.appendChild(sum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.6rem 1.2rem;padding:0.9rem 1rem;border-top:1px solid #e5e5ec;";
+  inner.appendChild(zmSlider);
+  inner.appendChild(zxSlider);
+  inner.appendChild(ntSlider);
+  const catDiv = document.createElement("div");
+  catDiv.appendChild(sexInput);
+  inner.appendChild(catDiv);
+  const origDiv = document.createElement("div");
+  origDiv.appendChild(origInput);
+  inner.appendChild(origDiv);
+  const dentDiv = document.createElement("div");
+  dentDiv.appendChild(dentInput);
+  inner.appendChild(dentDiv);
+  const togDiv = document.createElement("div");
+  togDiv.style.cssText = "display:flex;flex-direction:column;gap:4px;padding-top:4px;";
+  togDiv.appendChild(fdiOnlyInput);
+  togDiv.appendChild(lmOnlyInput);
+  togDiv.appendChild(cariesOnlyInput);
+  togDiv.appendChild(endoOnlyInput);
+  inner.appendChild(togDiv);
+  filtersDiv.appendChild(inner);
+  display(filtersDiv);
+}
 ```
 
 ```js
 const filtered = joined.filter(d => {
-  if (d.z_mean  == null || d.z_mean  > zmMaxFilter) return false;
-  if (d.z_max   == null || d.z_max   > zxMaxFilter) return false;
-  if (d.n_teeth == null || d.n_teeth < ntMinFilter)  return false;
+  if (d.z_mean  == null || d.z_mean  < zmLo || d.z_mean  > zmHi) return false;
+  if (d.z_max   == null || d.z_max   < zxLo || d.z_max   > zxHi) return false;
+  if (d.n_teeth == null || d.n_teeth < ntLo  || d.n_teeth > ntHi) return false;
   if (sexFilter  !== "Todos" && d.sex       !== sexFilter)  return false;
   if (origFilter !== "Todos" && d.origin    !== origFilter) return false;
   if (dentFilter !== "Todos" && d.denticion !== dentFilter) return false;
@@ -146,16 +167,45 @@ const filtered = joined.filter(d => {
 });
 ```
 
+<!-- ═══════ PAGINACIÓN ═══════ -->
+
 ```js
-display(html`<div style="font-size:12px;color:#888;margin:0.2rem 0 0.5rem;">
-  Mostrando <strong>${filtered.length.toLocaleString("es-AR")}</strong> de ${joined.length.toLocaleString("es-AR")} muestras.
-</div>`);
+const pageSizeInput = Inputs.select([10, 25, 50, 100], {value: 10, label: "Filas por página"});
+const pageSize = Generators.input(pageSizeInput);
+const currentPage = Mutable(0);
+function goToPage(p) { currentPage.value = p; }
+```
+
+```js
+// Reset to page 0 whenever filter or page size changes
+{
+  filtered; pageSize;
+  goToPage(0);
+}
+```
+
+```js
+const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+const safePage   = Math.min(currentPage, totalPages - 1);
+const pageSlice  = filtered.slice(safePage * pageSize, (safePage + 1) * pageSize);
+```
+
+```js
+{
+  display(html`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:0.4rem;">
+    <div style="font-size:12px;color:#888;">
+      Mostrando <strong>${pageSlice.length}</strong> de <strong>${filtered.length.toLocaleString("es-AR")}</strong> muestras
+      (${joined.length.toLocaleString("es-AR")} total)
+    </div>
+    <div>${pageSizeInput}</div>
+  </div>`);
+}
 ```
 
 <!-- ═══════ TABLA PRINCIPAL ═══════ -->
 
 ```js
-const tableEl = Inputs.table(filtered, {
+const tableEl = Inputs.table(pageSlice, {
   columns: ["id","n_teeth","z_mean","z_max","z_pos","z_ang","symmetry","overjet","overbite","bolton_ant","bolton_ov","sex","origin","denticion","fdi_completo","n_caries","n_endo","n_resto"],
   header: {
     id:"Archivo", n_teeth:"N°", z_mean:"z̄", z_max:"z_max",
@@ -181,12 +231,22 @@ const tableEl = Inputs.table(filtered, {
     denticion: v => v ?? "—",
   },
   width: {id: 160, n_teeth: 45, z_mean:55, z_max:55, z_pos:55, z_ang:55, symmetry:75, overjet:70, overbite:70, bolton_ant:85, bolton_ov:85},
-  rows: 20,
+  rows: pageSize,
   sort: "z_mean",
   reverse: true,
   multiple: false,
 });
 display(tableEl);
+```
+
+```js
+{
+  display(html`<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:6px;font-size:12px;color:#666;">
+    <button onclick=${() => goToPage(Math.max(0, safePage - 1))} style="padding:3px 10px;border:1px solid #ccc;border-radius:4px;cursor:pointer;font-size:12px;" ${safePage === 0 ? "disabled" : ""}>← Anterior</button>
+    <span>Pág. ${safePage + 1} / ${totalPages}</span>
+    <button onclick=${() => goToPage(Math.min(totalPages - 1, safePage + 1))} style="padding:3px 10px;border:1px solid #ccc;border-radius:4px;cursor:pointer;font-size:12px;" ${safePage >= totalPages - 1 ? "disabled" : ""}>Siguiente →</button>
+  </div>`);
+}
 ```
 
 <!-- ═══════ PANEL DE DETALLE ═══════ -->
@@ -236,29 +296,29 @@ const selectedRow = Generators.input(tableEl);
       display(c);
     }
 
-    // Mini scatter showing position vs population
-    const {default: d3_} = await import("npm:d3");
-    const indivFull = individualsRaw.find(dd => cleanArchivo(dd.json_filename) === d.id);
-    if (indivFull) {
+    // Scatter: z_pos vs z_ang (same format as tipicidad page)
+    const pop = joined.filter(dd => dd.z_pos != null && dd.z_ang != null);
+    if (pop.length > 0) {
+      const p99x = d3.quantile(pop.map(dd => dd.z_pos).sort(d3.ascending), 0.99);
+      const p99y = d3.quantile(pop.map(dd => dd.z_ang).sort(d3.ascending), 0.99);
       const W = Math.min(width, 520), H = 260;
       const margin = {top:14,right:20,bottom:38,left:46};
       const iW = W-margin.left-margin.right, iH = H-margin.top-margin.bottom;
-      const pop = joined.filter(dd => dd.z_mean != null && dd.z_max != null);
-      const p99x = d3_.quantile(pop.map(dd => dd.z_mean).sort(d3_.ascending), 0.99);
-      const p99y = d3_.quantile(pop.map(dd => dd.z_max).sort(d3_.ascending), 0.99);
-      const xS = d3_.scaleLinear().domain([0,p99x]).range([0,iW]);
-      const yS = d3_.scaleLinear().domain([0,p99y]).range([iH,0]);
-      const svg = d3_.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).style("font-family","var(--sans-serif, system-ui)");
+      const xS = d3.scaleLinear().domain([0,p99x]).range([0,iW]);
+      const yS = d3.scaleLinear().domain([0,p99y]).range([iH,0]);
+      const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).style("font-family","var(--sans-serif, system-ui)");
       svg.append("defs").append("clipPath").attr("id","expl-clip").append("rect").attr("width",iW).attr("height",iH);
       const gO = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
-      gO.append("g").attr("transform",`translate(0,${iH})`).call(d3_.axisBottom(xS).ticks(5)).append("text").attr("x",iW/2).attr("y",32).attr("fill","#555").attr("text-anchor","middle").attr("font-size",10).text("z̄");
-      gO.append("g").call(d3_.axisLeft(yS).ticks(4)).append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-36).attr("fill","#555").attr("text-anchor","middle").attr("font-size",10).text("z_max");
+      gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(5))
+        .append("text").attr("x",iW/2).attr("y",32).attr("fill","#555").attr("text-anchor","middle").attr("font-size",10).text("z_pos (atipicidad posicional)");
+      gO.append("g").call(d3.axisLeft(yS).ticks(4))
+        .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-36).attr("fill","#555").attr("text-anchor","middle").attr("font-size",10).text("z_ang (atipicidad angular)");
       const gc = gO.append("g").attr("clip-path","url(#expl-clip)");
-      gc.selectAll("circle.p").data(pop.filter(dd => dd.z_mean<=p99x&&dd.z_max<=p99y)).join("circle")
-        .attr("cx",dd=>xS(dd.z_mean)).attr("cy",dd=>yS(dd.z_max)).attr("r",1.8).attr("fill","#4e79a7").attr("opacity",0.15);
-      if (d.z_mean<=p99x && d.z_max<=p99y) {
-        gc.append("circle").attr("cx",xS(d.z_mean)).attr("cy",yS(d.z_max)).attr("r",8).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2);
-        gc.append("circle").attr("cx",xS(d.z_mean)).attr("cy",yS(d.z_max)).attr("r",3.5).attr("fill","#e15759");
+      gc.selectAll("circle.p").data(pop.filter(dd => dd.z_pos<=p99x&&dd.z_ang<=p99y)).join("circle")
+        .attr("cx",dd=>xS(dd.z_pos)).attr("cy",dd=>yS(dd.z_ang)).attr("r",1.8).attr("fill","#4e79a7").attr("opacity",0.15);
+      if (d.z_pos != null && d.z_ang != null && d.z_pos<=p99x && d.z_ang<=p99y) {
+        gc.append("circle").attr("cx",xS(d.z_pos)).attr("cy",yS(d.z_ang)).attr("r",8).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2);
+        gc.append("circle").attr("cx",xS(d.z_pos)).attr("cy",yS(d.z_ang)).attr("r",3.5).attr("fill","#e15759");
       }
       display(svg.node());
     }
