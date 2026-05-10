@@ -14,6 +14,7 @@ import {boltonHistograms} from "./components/bolton.js";
 import {symmetryOverlay, symmetryBoxplot, mirrorFdi} from "./components/symmetry-plot.js";
 import {quadrantOverlay} from "./components/quadrant-overlay.js";
 import {pantoSchematic} from "./components/panto-schematic.js";
+import {openPantoModal} from "./components/panto-modal.js";
 import * as d3 from "d3";
 ```
 
@@ -66,63 +67,25 @@ function clearClickedMorfo() { clickedMorfo.value = null; }
 ```
 
 ```js
-// Modal reactivo — mismo patrón que Tipicidad
 {
   const clicked = clickedMorfo;
   const id = extractIdM(clicked?.json_filename);
   if (clicked && id) {
-    let geomData = null;
-    try {
-      const resp = await fetch(`_file/data/pantos_geometry/${id}.json`);
-      if (resp.ok) geomData = await resp.json();
-    } catch(e) {}
-    if (geomData) {
-      const overlay = document.createElement("div");
-      overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;";
-      const modal = document.createElement("div");
-      modal.style.cssText = "background:white;border-radius:10px;padding:1.5rem;max-width:min(980px,95vw);max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.35);";
-      const close = () => { overlay.remove(); clearClickedMorfo(); };
-      const closeBtn = document.createElement("button");
-      closeBtn.textContent = "×";
-      closeBtn.style.cssText = "position:absolute;top:10px;right:14px;font-size:22px;border:none;background:none;cursor:pointer;color:#888;line-height:1;";
-      closeBtn.addEventListener("click", close);
-
-      function zBadgeM(label, val, color = "#4c78a8") {
-        const c = val != null ? color : "#aaa";
-        return `<span style="display:inline-flex;align-items:center;gap:4px;background:${c}18;border:1px solid ${c}44;border-radius:4px;padding:2px 7px;margin-right:6px;margin-bottom:4px;font-size:0.78rem;"><span style="color:${c};font-weight:600;">${label}</span><span style="color:#333;">${val != null ? val.toFixed(4) : "–"}</span></span>`;
-      }
-
-      const flags = clicked.pb_flags;
-      const flagsHtml = flags && Object.keys(flags).length
-        ? `<div style="margin-bottom:0.6rem;">${Object.entries(flags).map(([k,v]) => `<span style="display:inline-flex;background:#fff5f0;border:1px solid #f4a46033;border-radius:3px;padding:1px 6px;font-size:0.77rem;margin:2px;"><span style="color:#e07020;">${k}</span><span style="color:#888;">&nbsp;(${v})</span></span>`).join("")}</div>`
-        : `<div style="margin-bottom:0.6rem;font-size:11px;color:#aaa;">Sin patologías registradas</div>`;
-
-      const morfoExtra = [
-        clicked.overjet  != null ? `overjet=${clicked.overjet.toFixed(4)}`  : null,
-        clicked.overbite != null ? `overbite=${clicked.overbite.toFixed(4)}` : null,
-        clicked.anterior_ratio != null ? `Bolton ant.=${clicked.anterior_ratio.toFixed(2)}` : null,
-        clicked.overall_ratio  != null ? `Bolton overall=${clicked.overall_ratio.toFixed(2)}` : null,
-      ].filter(Boolean).join(" · ");
-
-      const header = document.createElement("div");
-      header.innerHTML =
-        `<div style="margin-bottom:6px;padding-right:2rem;"><strong style="font-family:monospace;font-size:0.82rem;">${id}</strong><span style="color:#777;font-size:0.82rem;margin-left:0.8rem;">${clicked.data_origin ?? "–"} · ${clicked.sex ?? "–"} · ${clicked.n_teeth ?? "?"} dientes</span></div>` +
-        `<div style="margin-bottom:0.4rem;flex-wrap:wrap;display:flex;">${zBadgeM("z̄", clicked.z_mean, "#54a24b")}${zBadgeM("overjet", clicked.overjet, "#4c78a8")}${zBadgeM("overbite", clicked.overbite, "#72b7b2")}${clicked.anterior_ratio != null ? zBadgeM("Bolton ant.", clicked.anterior_ratio, "#f58518") : ""}${clicked.overall_ratio != null ? zBadgeM("Bolton overall", clicked.overall_ratio, "#7b52ab") : ""}</div>` +
-        flagsHtml;
-
-      const hint = document.createElement("div");
-      hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear · Círculos grises = eigendentadura";
-      hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:0.5rem;";
-
-      const schContainer = document.createElement("div");
-      pantoSchematic(schContainer, geomData, {showBbox:false, showPolygon:true, showCentroids:true, showLabels:true, showLandmarks:true, showDividers:true, showEigendentadura:true, eigendentaduraStats:toothStats});
-
-      modal.append(closeBtn, header, hint, schContainer);
-      overlay.appendChild(modal);
-      overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-      document.body.appendChild(overlay);
-      invalidation.then(() => overlay.remove());
-    }
+    const pb = pantosMapM.get(id) ?? null;
+    openPantoModal({
+      id,
+      pantoMeta: pb,
+      toothStats,
+      extraBadges: [
+        ...(clicked.overjet  != null ? [{label: "overjet",       value: clicked.overjet.toFixed(4),  color: "#4c78a8"}] : []),
+        ...(clicked.overbite != null ? [{label: "overbite",      value: clicked.overbite.toFixed(4), color: "#72b7b2"}] : []),
+        ...(clicked.anterior_ratio != null ? [{label: "Bolton ant.", value: clicked.anterior_ratio.toFixed(2), color: "#f58518"}] : []),
+        ...(clicked.overall_ratio  != null ? [{label: "Bolton overall", value: clicked.overall_ratio.toFixed(2), color: "#7b52ab"}] : []),
+      ],
+      zScores: clicked.z_mean != null ? {z_mean: clicked.z_mean} : null,
+      onClose: clearClickedMorfo,
+      invalidation,
+    });
   }
 }
 ```
@@ -238,7 +201,6 @@ Ambas métricas se calculan a partir de los **centroides 2D** de los incisivos c
 - **Overjet** — distancia horizontal |Δx| entre el centroide medio de los incisivos superiores e inferiores. Mide el resalte horizontal.
 - **Overbite** — diferencia vertical Δy entre superiores e inferiores. Mide el resalte vertical.
 - **Histogramas** — distribución poblacional de cada métrica con líneas de referencia para la mediana.
-- **Diagrama de dispersión** — cada punto es una dentadura. La cruz negra marca la mediana poblacional; puntos alejados tienen oclusiones atípicas.
 
 Por basarse en centroides 2D, estos valores son útiles para comparar dentaduras *dentro del dataset*, pero no equivalen a las medidas clínicas estándar.
 
@@ -380,6 +342,86 @@ display(Inputs.table(occRows, {
     min:    d3.format(".4f"), max:    d3.format(".4f"),
   },
 }));
+```
+
+### Casos extremos — Overjet y Overbite
+
+Las 10 dentaduras con valores más extremos de overjet y overbite. Clic en una fila para ver la pantomografía.
+
+```js
+{
+  const fmt4 = d3.format(".4f");
+  const dataAll = occEnriched.filter(d => d.overjet != null && d.overbite != null);
+
+  function makeTop10Table(sorted, valueKey, valueLabel, colorHex) {
+    const top = sorted.slice(0, 10);
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "overflow-x:auto;margin-bottom:1rem;";
+    const table = document.createElement("table");
+    table.style.cssText = "border-collapse:collapse;font-size:12px;width:100%;";
+    table.innerHTML =
+      `<thead><tr style="border-bottom:2px solid #eee;">` +
+      `<th style="text-align:left;padding:4px 8px;color:#888;">#</th>` +
+      `<th style="text-align:left;padding:4px 8px;color:#888;">ID</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:${colorHex};">${valueLabel}</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:#888;">overjet</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:#888;">overbite</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:#888;">z̄</th>` +
+      `<th style="text-align:left;padding:4px 8px;color:#888;">Centro · Sexo</th>` +
+      `</tr></thead>`;
+    const tbody = document.createElement("tbody");
+    top.forEach((d, i) => {
+      const id = extractIdM(d.json_filename);
+      const tr = document.createElement("tr");
+      tr.style.cssText = "border-bottom:1px solid #f5f5f5;cursor:pointer;";
+      tr.innerHTML =
+        `<td style="padding:4px 8px;color:#aaa;">${i+1}</td>` +
+        `<td style="padding:4px 8px;font-family:monospace;font-size:11px;color:#4c78a8;">${simplifyM(d.json_filename)}</td>` +
+        `<td style="text-align:right;padding:4px 8px;font-weight:700;color:${colorHex};">${fmt4(d[valueKey])}</td>` +
+        `<td style="text-align:right;padding:4px 8px;color:#555;">${fmt4(d.overjet)}</td>` +
+        `<td style="text-align:right;padding:4px 8px;color:#555;">${fmt4(d.overbite)}</td>` +
+        `<td style="text-align:right;padding:4px 8px;color:#555;">${d.z_mean != null ? fmt4(d.z_mean) : "–"}</td>` +
+        `<td style="padding:4px 8px;color:#555;">${d.data_origin ?? "–"} · ${d.sex ?? "–"}</td>`;
+      tr.addEventListener("mouseenter", () => { tr.style.background = "#f5f8ff"; });
+      tr.addEventListener("mouseleave", () => { tr.style.background = ""; });
+      tr.addEventListener("click", () => {
+        const pb = pantosMapM.get(id) ?? null;
+        openPantoModal({
+          id,
+          pantoMeta: pb,
+          toothStats,
+          extraBadges: [
+            {label: "overjet",  value: fmt4(d.overjet),  color: "#4c78a8"},
+            {label: "overbite", value: fmt4(d.overbite), color: "#72b7b2"},
+          ],
+          zScores: d.z_mean != null ? {z_mean: d.z_mean} : null,
+          invalidation,
+        });
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  const byOverjet  = [...dataAll].sort((a, b) => b.overjet  - a.overjet);
+  const byOverbite = [...dataAll].sort((a, b) => b.overbite - a.overbite);
+
+  const container = document.createElement("div");
+  container.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;";
+
+  const colA = document.createElement("div");
+  colA.innerHTML = `<div style="font-size:12px;font-weight:700;color:#4c78a8;margin-bottom:6px;">Top 10 — mayor overjet</div>`;
+  colA.appendChild(makeTop10Table(byOverjet, "overjet", "overjet", "#4c78a8"));
+
+  const colB = document.createElement("div");
+  colB.innerHTML = `<div style="font-size:12px;font-weight:700;color:#72b7b2;margin-bottom:6px;">Top 10 — mayor overbite</div>`;
+  colB.appendChild(makeTop10Table(byOverbite, "overbite", "overbite", "#72b7b2"));
+
+  container.append(colA, colB);
+  display(container);
+}
 ```
 
 ## Índice de Bolton
