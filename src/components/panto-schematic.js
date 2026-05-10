@@ -145,6 +145,7 @@ export function pantoSchematic(container, pantoData, options = {}) {
 
   const visibleShapes = shapes.filter(s => {
     if (s.et === "tooth") {
+      if (s.es === "supernumerary") return showSupernumeraries;
       if (s.es !== "tooth") return false;
       if (!showSupernumeraries && isSupernumerary(s.tn)) return false;
       if (toothFilter && s.tn != null && !toothFilter.has(s.tn)) return false;
