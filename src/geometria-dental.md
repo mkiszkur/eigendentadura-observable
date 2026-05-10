@@ -17,6 +17,7 @@ import {boxplot2dPlot} from "./components/boxplot-2d.js";
 import {rosePlot} from "./components/rose-plot.js";
 import {radarAngularPlot} from "./components/radar-angular.js";
 import {angleRose, angleRoseGrid} from "./components/angle-rose.js";
+import {collapsible} from "./components/collapsible.js";
 import * as d3 from "d3";
 ```
 
@@ -48,6 +49,35 @@ function setSelection(fdis) { selectedFdi.value = fdis; }
 ## La eigendentadura
 
 La **eigendentadura** es la dentadura "promedio" de la población: la posición media de cada pieza dental en coordenadas landmark-normalized. Funciona como el mapa de referencia sobre el que se interpretan todas las variaciones individuales y de subpoblaciones estudiadas en este dashboard. Cada punto es el centroide de los casos disponibles para esa pieza (entre ${d3.min(toothStats, d => d.n).toLocaleString("es-AR")} y ${d3.max(toothStats, d => d.n).toLocaleString("es-AR")} pantomografías según la pieza).
+
+```js
+display(collapsible({
+  title: "Cómo leer este gráfico",
+  open: false,
+  content: html`<div style="font-size:0.875rem;line-height:1.7;color:#444;">
+    <ul style="margin:0.3rem 0 0.5rem;padding-left:1.4rem;">
+      <li><strong>Puntos</strong> — eigendentadura: posición media de cada pieza, coloreada por cuadrante FDI.</li>
+      <li><strong>Líneas de arco</strong> — conectan las piezas en secuencia anatómica (arcada superior e inferior).</li>
+      <li><strong>Barras horizontales (X)</strong> — dispersión ±1σ mesio-distal.</li>
+      <li><strong>Barras verticales (Y)</strong> — dispersión ±1σ ocluso-apical.</li>
+    </ul>
+    <p style="margin:0;color:#666;">Unidades intercondíleas (distancia cóndilo–cóndilo = 1.0). Scroll para zoom · Drag para mover · Doble-clic para resetear.</p>
+  </div>`,
+}));
+```
+
+```js
+const showXBarsInput = Inputs.toggle({ label: "Barras dispersión X", value: true });
+const showYBarsInput = Inputs.toggle({ label: "Barras dispersión Y", value: true });
+const showXBars = Generators.input(showXBarsInput);
+const showYBars = Generators.input(showYBarsInput);
+
+display(collapsible({
+  title: "Opciones de visualización",
+  open: false,
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;padding:0.25rem 0;">${showXBarsInput}${showYBarsInput}</div>`,
+}));
+```
 
 ```js
 {
@@ -95,13 +125,13 @@ La **eigendentadura** es la dentadura "promedio" de la población: la posición 
     g.append("path").attr("d", lineGen(lowerSeq)).attr("fill","none").attr("stroke","#e8e8e8").attr("stroke-width", 2);
 
     // ±1σ X bars
-    g.selectAll("line.sx").data(toothStats).join("line").attr("class","sx")
+    g.selectAll("line.sx").data(showXBars ? toothStats : []).join("line").attr("class","sx")
       .attr("x1", d => xS(d.mean_x - d.std_x)).attr("x2", d => xS(d.mean_x + d.std_x))
       .attr("y1", d => yS(d.mean_y)).attr("y2", d => yS(d.mean_y))
       .attr("stroke", d => QC[d.quadrant]).attr("stroke-width", 5).attr("opacity", 0.18);
 
     // ±1σ Y bars
-    g.selectAll("line.sy").data(toothStats).join("line").attr("class","sy")
+    g.selectAll("line.sy").data(showYBars ? toothStats : []).join("line").attr("class","sy")
       .attr("x1", d => xS(d.mean_x)).attr("x2", d => xS(d.mean_x))
       .attr("y1", d => yS(d.mean_y - d.std_y)).attr("y2", d => yS(d.mean_y + d.std_y))
       .attr("stroke", d => QC[d.quadrant]).attr("stroke-width", 5).attr("opacity", 0.18);
