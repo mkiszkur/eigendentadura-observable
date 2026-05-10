@@ -88,15 +88,30 @@ display(prevalenceByToothType(prevalenceData, selectedPaths, {width: Math.min(wi
 ¿Qué dientes concentran cada patología? Se usan **flags de diente** (nivel FDI, no dentadura). El denominador es la cantidad de dientes de ese tipo presentes en la muestra.
 
 ```js
-const vistaFDI = view(Inputs.radio(
+const vistaFDIInput = Inputs.radio(
   new Map([["Heatmap (multi-patología)", "heatmap"], ["Odontograma (patología individual)", "odontograma"]]),
   {value: "heatmap", label: "Vista"}
-));
+);
+const vistaFDI = Generators.input(vistaFDIInput);
+const pathologyInput = Inputs.select(prevalenceData.pathologies, {label: "Patología", value: "Restauración"});
+const pathology = Generators.input(pathologyInput);
 ```
 
 ```js
-const pathologyInput = Inputs.select(prevalenceData.pathologies, {label: "Patología", value: "Restauración"});
-const pathology = Generators.input(pathologyInput);
+{
+  const vizDiv = document.createElement("details");
+  vizDiv.style.cssText = "margin-bottom:8px;";
+  const vizSum = document.createElement("summary");
+  vizSum.style.cssText = "cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;";
+  vizSum.textContent = "Opciones de visualización";
+  vizDiv.appendChild(vizSum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.5rem 0.3rem 0.2rem;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;";
+  inner.appendChild(vistaFDIInput);
+  inner.appendChild(pathologyInput);
+  vizDiv.appendChild(inner);
+  display(vizDiv);
+}
 ```
 
 ```js
