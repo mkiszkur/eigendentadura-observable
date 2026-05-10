@@ -728,17 +728,20 @@ Para cada par calculamos por dentadura: `Δ reflejo X = cx_izq + cx_der`,
 `ΔY = cy_izq − cy_der` y `distancia = √(Δx² + ΔY²)`. Se reportan **mediana
 y rango intercuartílico** (menos sensibles a outliers que la media).
 
+### Boxplots de asimetría por par
+
 <details>
-<summary>Cómo leer este gráfico</summary>
+<summary style="cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;">¿Cómo leer este gráfico?</summary>
+<div style="padding:0.7rem 0.5rem 0.2rem;font-size:0.85rem;line-height:1.6;color:#444;">
 
-Para cada par homólogo (ej. 16↔26) se analizan solo las dentaduras que tienen ambos dientes presentes, midiendo la asimetría **por dentadura** (análisis pareado).
+Para cada par homólogo (ej. 16↔26) se analizan solo las dentaduras con ambos dientes presentes.
 
-- **Boxplots** — la caja muestra el IQR (Q1–Q3) de la distancia de asimetría por dentadura; los bigotes llegan a P5–P95. El `n` sobre la caja es la cantidad de dentaduras con el par completo.
-- **Overlay** — los puntos azules son el diente del lado izquierdo en su posición mediana pareada; los naranjas son el homólogo derecho **reflejado** contra el plano sagital. Si ambos coinciden, la población es perfectamente simétrica para ese par.
-- **Largo y color de la línea** entre puntos del overlay — magnitud de la asimetría mediana del par.
+- **Caja** — IQR (Q1–Q3) de la distancia de asimetría por dentadura. La línea central es la mediana.
+- **Bigotes** — percentiles P5 y P95.
+- **`n`** sobre cada caja — cantidad de dentaduras con el par completo.
+- Los 3 pares con mayor asimetría mediana se destacan en el **overlay de medianas** (sección siguiente).
 
-Los 3 pares con mayor asimetría se etiquetan en el overlay.
-
+</div>
 </details>
 
 ```js
@@ -750,18 +753,23 @@ display(symmetryBoxplot({
 }));
 ```
 
-```js
-display(html`<p style="color:#555; font-size:13px;">
-  Cada caja muestra el IQR (Q1–Q3) y la mediana de la <strong>distancia de
-  asimetría por dentadura</strong>. Los bigotes se extienden a los percentiles
-  5% y 95%. <code>n</code> arriba de cada caja es la cantidad de dentaduras
-  con ambos dientes del par presentes.
-</p>`);
-```
-
 ### Dispersión 2D de asimetría por par
 
-Para el par seleccionado, cada punto es una dentadura individual. El eje X muestra la diferencia entre el diente derecho reflejado y el izquierdo (Δx-reflejo); el eje Y la diferencia vertical (ΔY). El origen representa simetría perfecta.
+Para el par seleccionado, cada punto es una dentadura individual. El eje X muestra la diferencia entre el diente derecho reflejado y el izquierdo (Δx-reflejo); el eje Y la diferencia vertical (ΔY). El origen representa simetría perfecta. Scroll para zoom, drag para mover, doble-clic para resetear.
+
+<details>
+<summary style="cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;">¿Cómo leer este gráfico?</summary>
+<div style="padding:0.7rem 0.5rem 0.2rem;font-size:0.85rem;line-height:1.6;color:#444;">
+
+- **Eje X (Δx-reflejo)** — cuánto difiere el diente derecho reflejado del izquierdo horizontalmente. Cero = simetría horizontal perfecta.
+- **Eje Y (ΔY)** — cuánto difiere verticalmente. Cero = misma altura.
+- **Color** — magnitud de la distancia de asimetría: amarillo (baja) → rojo (alta). La escala se ajusta al P95 para no saturar.
+- **Círculo ◯** — mediana poblacional para este par.
+- **Líneas punteadas** — ejes de simetría perfecta (0,0).
+- Clic en un punto para ver la pantomografía.
+
+</div>
+</details>
 
 ```js
 const symPairInput = Inputs.select(
@@ -776,7 +784,22 @@ const symPairInput = Inputs.select(
   }
 );
 const symPairSelected = Generators.input(symPairInput);
-display(symPairInput);
+```
+
+```js
+{
+  const vizDiv = document.createElement("details");
+  vizDiv.style.cssText = "margin-bottom:8px;";
+  const vizSum = document.createElement("summary");
+  vizSum.style.cssText = "cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;";
+  vizSum.textContent = "Opciones de visualización";
+  vizDiv.appendChild(vizSum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.5rem 0.3rem 0.2rem;";
+  inner.appendChild(symPairInput);
+  vizDiv.appendChild(inner);
+  display(vizDiv);
+}
 ```
 
 ```js
@@ -785,52 +808,150 @@ display(symPairInput);
   if (!pair) { display(html`<p style="color:#999">Par no encontrado.</p>`); }
   else {
     const pts = pair.points.map(p => ({
+      json_filename: p.json_filename,
       dx: p.cx_r_flipped - p.cx_l,
       dy: p.cy_r - p.cy_l,
       dist: Math.sqrt((p.cx_r_flipped - p.cx_l) ** 2 + (p.cy_r - p.cy_l) ** 2),
     }));
 
-    const W = Math.min(width, 520), H = 400;
-    const margin = {top: 16, right: 20, bottom: 46, left: 52};
-    const iW = W - margin.left - margin.right;
-    const iH = H - margin.top - margin.bottom;
+    const W = Math.min(width, 560), H = 400;
+    const M = {top:16, right:110, bottom:46, left:52};
+    const iW = W - M.left - M.right;
+    const iH = H - M.top - M.bottom;
 
     const xExt = d3.extent(pts, d => d.dx);
     const yExt = d3.extent(pts, d => d.dy);
     const pad = Math.max(Math.abs(xExt[0]), Math.abs(xExt[1]), Math.abs(yExt[0]), Math.abs(yExt[1])) * 1.12;
 
-    const xS = d3.scaleLinear().domain([-pad, pad]).range([0, iW]);
-    const yS = d3.scaleLinear().domain([-pad, pad]).range([iH, 0]);
-    const colorS = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, d3.quantile(pts.map(d => d.dist).sort(d3.ascending), 0.95)]);
+    const xS0 = d3.scaleLinear().domain([-pad, pad]).range([0, iW]);
+    const yS0 = d3.scaleLinear().domain([-pad, pad]).range([iH, 0]);
+    const colorDomain = [0, d3.quantile(pts.map(d => d.dist).sort(d3.ascending), 0.95)];
+    const colorS = d3.scaleSequential(d3.interpolateYlOrRd).domain(colorDomain);
 
-    const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).attr("height",H)
-      .style("font-family","var(--sans-serif, system-ui)");
-    const gO = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
+    const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width","100%")
+      .style("font-family","var(--sans-serif, system-ui)").style("cursor","grab");
+    const defs = svg.append("defs");
+    defs.append("clipPath").attr("id","sym-clip").append("rect").attr("width",iW).attr("height",iH);
+    const gO = svg.append("g").attr("transform",`translate(${M.left},${M.top})`);
+    const g  = gO.append("g").attr("clip-path","url(#sym-clip)");
 
-    gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6).tickFormat(d3.format(".4f")))
-      .append("text").attr("x",iW/2).attr("y",38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("Δx-reflejo (der. reflejado − izq.)");
-    gO.append("g").call(d3.axisLeft(yS).ticks(5).tickFormat(d3.format(".4f")))
-      .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-44).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("ΔY (der. − izq.)");
+    const xAxisG = gO.append("g").attr("transform",`translate(0,${iH})`);
+    const yAxisG = gO.append("g");
+    gO.append("text").attr("x",iW/2).attr("y",iH+38).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("Δx-reflejo (der. reflejado − izq.)");
+    gO.append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-44).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("ΔY (der. − izq.)");
+    gO.append("text").attr("x",iW).attr("y",-2).attr("text-anchor","end").attr("font-size",9).attr("fill","#aaa").text("Scroll=zoom · Drag=mover · Dbl-clic=reset · Clic=panto");
 
-    // Crosshairs at (0,0)
-    gO.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(0)).attr("y2",yS(0)).attr("stroke","#ccc").attr("stroke-dasharray","4,3");
-    gO.append("line").attr("x1",xS(0)).attr("x2",xS(0)).attr("y1",0).attr("y2",iH).attr("stroke","#ccc").attr("stroke-dasharray","4,3");
-
-    gO.selectAll("circle").data(pts).join("circle")
-      .attr("cx", d => xS(d.dx)).attr("cy", d => yS(d.dy))
-      .attr("r", 2).attr("fill", d => colorS(d.dist)).attr("opacity", 0.55).attr("stroke","none")
-      .append("title").text(d => `Δx=${d.dx.toFixed(4)}  ΔY=${d.dy.toFixed(4)}  dist=${d.dist.toFixed(4)}`);
-
-    // Medians
     const mxDx = d3.median(pts, d => d.dx);
     const mxDy = d3.median(pts, d => d.dy);
-    gO.append("circle").attr("cx",xS(mxDx)).attr("cy",yS(mxDy))
-      .attr("r",6).attr("fill","none").attr("stroke","#333").attr("stroke-width",1.8);
-    gO.append("text").attr("x",xS(mxDx)+8).attr("y",yS(mxDy)-6).attr("font-size",10).attr("fill","#333")
-      .text(`mediana (${mxDx.toFixed(4)}, ${mxDy.toFixed(4)})`);
+
+    function drawSym(xS, yS) {
+      g.selectAll("*").remove();
+      xAxisG.call(d3.axisBottom(xS).ticks(5).tickFormat(d3.format(".4f")))
+        .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+        .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("y1",-iH));
+      yAxisG.call(d3.axisLeft(yS).ticks(5).tickFormat(d3.format(".4f")))
+        .call(ax => ax.select(".domain").attr("stroke","#ccc"))
+        .call(ax => ax.selectAll(".tick line").attr("stroke","#eee").attr("x2",iW));
+      g.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(0)).attr("y2",yS(0)).attr("stroke","#ccc").attr("stroke-dasharray","4,3");
+      g.append("line").attr("x1",xS(0)).attr("x2",xS(0)).attr("y1",0).attr("y2",iH).attr("stroke","#ccc").attr("stroke-dasharray","4,3");
+      g.selectAll("circle.pt").data(pts).join("circle").attr("class","pt")
+        .attr("cx", d => xS(d.dx)).attr("cy", d => yS(d.dy))
+        .attr("r", 2).attr("fill", d => colorS(d.dist)).attr("opacity", 0.55).attr("stroke","none")
+        .style("cursor","pointer")
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          const id = extractIdM(d.json_filename);
+          if (id) {
+            const pb = pantosMapM.get(id) ?? null;
+            openPantoModal({id, pantoMeta: pb, toothStats, invalidation});
+          }
+        })
+        .append("title").text(d => `${simplifyM(d.json_filename)}\nΔx=${d.dx.toFixed(4)}  ΔY=${d.dy.toFixed(4)}  dist=${d.dist.toFixed(4)}`);
+      g.append("circle").attr("cx",xS(mxDx)).attr("cy",yS(mxDy))
+        .attr("r",6).attr("fill","none").attr("stroke","#333").attr("stroke-width",1.8);
+      g.append("text").attr("x",xS(mxDx)+8).attr("y",yS(mxDy)-6).attr("font-size",10).attr("fill","#333")
+        .text(`mediana (${mxDx.toFixed(4)}, ${mxDy.toFixed(4)})`);
+    }
+    drawSym(xS0, yS0);
+
+    // Color scale legend
+    const lx = iW + 10, barH = 80, barW = 10;
+    const gradId = `sym-grad-${symPairSelected}`;
+    const grad = defs.append("linearGradient").attr("id",gradId).attr("x1","0").attr("x2","0").attr("y1","1").attr("y2","0");
+    [0,0.25,0.5,0.75,1].forEach(t => grad.append("stop").attr("offset",`${t*100}%`).attr("stop-color",colorS(t*colorDomain[1])));
+    gO.append("text").attr("x",lx).attr("y",10).attr("font-size",9).attr("fill","#888").attr("font-weight","bold").text("dist");
+    gO.append("rect").attr("x",lx).attr("y",14).attr("width",barW).attr("height",barH).attr("fill",`url(#${gradId})`).attr("rx",2);
+    gO.append("text").attr("x",lx+barW+3).attr("y",18).attr("font-size",9).attr("fill","#555").text(d3.format(".4f")(colorDomain[1]));
+    gO.append("text").attr("x",lx+barW+3).attr("y",14+barH).attr("font-size",9).attr("fill","#555").text("0");
+
+    // Zoom
+    const zoom = d3.zoom().scaleExtent([0.5, 30]).on("zoom", (event) => {
+      const t = event.transform;
+      drawSym(t.rescaleX(xS0), t.rescaleY(yS0));
+    });
+    svg.call(zoom);
+    svg.on("dblclick.zoom", () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
 
     display(svg.node());
-    display(html`<small style="color:#888">Cada punto = una dentadura. Color = magnitud de asimetría (dist). ◯ = mediana poblacional. Líneas punteadas = simetría perfecta (0,0).</small>`);
+  }
+}
+```
+
+### Top 10 — mayor distancia de asimetría por par
+
+```js
+{
+  const pair = symmetryData.pairs.find(p => p.fdi_r === symPairSelected);
+  if (!pair || !pair.points[0]?.json_filename) {
+    display(html`<p style="color:#aaa;font-size:12px;">Sin datos de ranking disponibles.</p>`);
+  } else {
+    const fmt4 = d3.format(".4f");
+    const pts = pair.points
+      .map(p => ({
+        json_filename: p.json_filename,
+        dx: p.cx_r_flipped - p.cx_l,
+        dy: p.cy_r - p.cy_l,
+        dist: Math.sqrt((p.cx_r_flipped - p.cx_l) ** 2 + (p.cy_r - p.cy_l) ** 2),
+      }))
+      .sort((a, b) => b.dist - a.dist)
+      .slice(0, 10);
+
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "overflow-x:auto;";
+    const table = document.createElement("table");
+    table.style.cssText = "border-collapse:collapse;font-size:12px;width:100%;";
+    table.innerHTML =
+      `<thead><tr style="border-bottom:2px solid #eee;">` +
+      `<th style="text-align:left;padding:4px 8px;color:#888;">#</th>` +
+      `<th style="text-align:left;padding:4px 8px;color:#888;">ID</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:#e15759;">dist</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:#888;">Δx</th>` +
+      `<th style="text-align:right;padding:4px 8px;color:#888;">ΔY</th>` +
+      `</tr></thead>`;
+    const tbody = document.createElement("tbody");
+    pts.forEach((d, i) => {
+      const id = extractIdM(d.json_filename);
+      const tr = document.createElement("tr");
+      tr.style.cssText = "border-bottom:1px solid #f5f5f5;cursor:pointer;";
+      tr.innerHTML =
+        `<td style="padding:4px 8px;color:#aaa;">${i+1}</td>` +
+        `<td style="padding:4px 8px;font-family:monospace;font-size:11px;color:#4c78a8;">${simplifyM(d.json_filename)}</td>` +
+        `<td style="text-align:right;padding:4px 8px;font-weight:700;color:#e15759;">${fmt4(d.dist)}</td>` +
+        `<td style="text-align:right;padding:4px 8px;color:#555;">${fmt4(d.dx)}</td>` +
+        `<td style="text-align:right;padding:4px 8px;color:#555;">${fmt4(d.dy)}</td>`;
+      tr.addEventListener("mouseenter", () => { tr.style.background = "#f5f8ff"; });
+      tr.addEventListener("mouseleave", () => { tr.style.background = ""; });
+      tr.addEventListener("click", () => {
+        if (id) {
+          const pb = pantosMapM.get(id) ?? null;
+          openPantoModal({id, pantoMeta: pb, toothStats, invalidation});
+        }
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    display(wrap);
   }
 }
 ```
