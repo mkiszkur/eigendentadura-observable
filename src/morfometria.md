@@ -219,41 +219,107 @@ Cada punto es una dentadura. El círculo negro marca la mediana poblacional; den
 
 - **Eje X** — overjet: separación horizontal entre centroides de incisivos superiores e inferiores. Valores más altos = mayor resalte anterior.
 - **Eje Y** — overbite: separación vertical entre centroides de incisivos superiores e inferiores. Valores positivos = superiores por encima de inferiores.
-- **Círculo negro** — mediana de overjet y overbite en la población; el punto de referencia oclusal.
+- **Líneas grises punteadas** — mediana de overjet y overbite en la población.
+- **Líneas grises sólidas** — línea de cero para referencia (overjet=0 o overbite=0).
 - Ambos ejes están en unidades landmark-normalized (escala intercondílea = 1.0), no en milímetros clínicos.
+
+**Colorado por criterios clínicos** (opción por defecto): las categorías se definen respecto al IQR poblacional.
+- <span style="color:#4c78a8">■</span> **Normal** — dentro del rango típico.
+- <span style="color:#f28e2b">■</span> **Overjet elevado** — overjet > Q3 + 1.5×IQR.
+- <span style="color:#e15759">■</span> **Overbite elevado** — overbite > Q3 + 1.5×IQR (mordida profunda).
+- <span style="color:#72b7b2">■</span> **Mordida abierta** — overbite < Q1 − 1.5×IQR.
+- <span style="color:#b279a2">■</span> **Mordida cruzada** — overjet negativo.
 
 </details>
 
 ```js
 const occColorInput = Inputs.select(
-  new Map([["Atipicidad (z̄)","atipicidad"],["N° dientes","n_teeth"],["Centro clínico","origin"],["Sexo","sex"]]),
-  {label: "Colorear por", value: "atipicidad"}
+  new Map([
+    ["Criterios clínicos","clinica"],
+    ["Atipicidad (z̄)","atipicidad"],
+    ["N° dientes","n_teeth"],
+    ["Centro clínico","origin"],
+    ["Sexo","sex"],
+  ]),
+  {label: "Colorear por", value: "clinica"}
 );
 const occColor = Generators.input(occColorInput);
-display(occColorInput);
+
+const occTeethData = occEnriched.filter(d => d.overjet != null && d.overbite != null);
+const occTeethExt  = d3.extent(occTeethData, d => d.n_teeth ?? 0);
+const occTeethInput = Inputs.range(occTeethExt, {
+  label: "Mín. dientes",
+  step: 1,
+  value: occTeethExt[0],
+});
+const occTeethMin = Generators.input(occTeethInput);
 ```
 
 ```js
 {
-  const data = occEnriched.filter(d => d.overjet != null && d.overbite != null);
+  const vizDiv = document.createElement("details");
+  vizDiv.style.cssText = "margin-bottom:8px;";
+  const vizSum = document.createElement("summary");
+  vizSum.style.cssText = "cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;";
+  vizSum.textContent = "Opciones de visualización";
+  vizDiv.appendChild(vizSum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.5rem 0.3rem 0.2rem;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;";
+  inner.appendChild(occColorInput);
+  inner.appendChild(occTeethInput);
+  vizDiv.appendChild(inner);
+  display(vizDiv);
+}
+```
 
-  const medJ = d3.median(data, d => d.overjet);
-  const medB = d3.median(data, d => d.overbite);
+```js
+{
+  const allData = occEnriched.filter(d => d.overjet != null && d.overbite != null);
+  const data = allData.filter(d => (d.n_teeth ?? 0) >= occTeethMin);
+
+  const medJ = d3.median(allData, d => d.overjet);
+  const medB = d3.median(allData, d => d.overbite);
+
+  // Clinical thresholds (based on population IQR)
+  const q1J = d3.quantile(allData.map(d => d.overjet).sort(d3.ascending), 0.25);
+  const q3J = d3.quantile(allData.map(d => d.overjet).sort(d3.ascending), 0.75);
+  const iqrJ = q3J - q1J;
+  const q1B = d3.quantile(allData.map(d => d.overbite).sort(d3.ascending), 0.25);
+  const q3B = d3.quantile(allData.map(d => d.overbite).sort(d3.ascending), 0.75);
+  const iqrB = q3B - q1B;
+
+  // Clinical category: based on outlier thresholds and sign
+  const clinicCat = (d) => {
+    const j = d.overjet, b = d.overbite;
+    if (j < 0) return "Mordida cruzada";
+    if (b < q1B - 1.5*iqrB) return "Mordida abierta";
+    if (b > q3B + 1.5*iqrB) return "Overbite elevado";
+    if (j > q3J + 1.5*iqrJ) return "Overjet elevado";
+    return "Normal";
+  };
+  const clinicColors = {
+    "Normal":           "#4c78a8",
+    "Overjet elevado":  "#f28e2b",
+    "Overbite elevado": "#e15759",
+    "Mordida abierta":  "#72b7b2",
+    "Mordida cruzada":  "#b279a2",
+  };
 
   // Color scales
-  const origins = [...new Set(data.map(d => d.data_origin).filter(Boolean))].sort();
-  const sexes   = [...new Set(data.map(d => d.sex).filter(Boolean))].sort();
+  const origins = [...new Set(allData.map(d => d.data_origin).filter(Boolean))].sort();
+  const sexes   = [...new Set(allData.map(d => d.sex).filter(Boolean))].sort();
   const colorOrig = d3.scaleOrdinal(["#4e79a7","#e15759","#59a14f","#f28e2b"]).domain(origins);
   const colorSex  = d3.scaleOrdinal(["#4e79a7","#e15759"]).domain(sexes);
-  const maxZ = d3.max(data, d => d.z_mean ?? 0);
+  const maxZ = d3.max(allData, d => d.z_mean ?? 0);
   const colorAtip = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, maxZ]);
-  const teethExt  = d3.extent(data, d => d.n_teeth);
+  const teethExt  = d3.extent(allData, d => d.n_teeth);
   const colorTeeth = d3.scaleSequential(t => d3.interpolateRdYlBu(1 - t)).domain(teethExt);
 
   function getCol(d) {
-    if (occColor === "origin") return colorOrig(d.data_origin) ?? "#aaa";
-    if (occColor === "sex")    return d.sex ? colorSex(d.sex) : "#ccc";
-    if (occColor === "n_teeth") return colorTeeth(d.n_teeth ?? teethExt[0]);
+    if (occColor === "clinica")  return clinicColors[clinicCat(d)] ?? "#aaa";
+    if (occColor === "origin")   return colorOrig(d.data_origin) ?? "#aaa";
+    if (occColor === "sex")      return d.sex ? colorSex(d.sex) : "#ccc";
+    if (occColor === "n_teeth")  return colorTeeth(d.n_teeth ?? teethExt[0]);
     return colorAtip(d.z_mean ?? 0);
   }
 
@@ -261,10 +327,10 @@ display(occColorInput);
   const M = {top:20, right:160, bottom:50, left:60};
   const iW = W - M.left - M.right, iH = H - M.top - M.bottom;
 
-  const xExt = d3.extent(data, d => d.overjet);
-  const yExt = d3.extent(data, d => d.overbite);
-  const xS = d3.scaleLinear().domain([xExt[0]*0.95, xExt[1]*1.05]).range([0, iW]);
-  const yS = d3.scaleLinear().domain([yExt[0] - (yExt[1]-yExt[0])*0.05, yExt[1]*1.05]).range([iH, 0]);
+  const xExt = d3.extent(allData, d => d.overjet);
+  const yExt = d3.extent(allData, d => d.overbite);
+  const xS = d3.scaleLinear().domain([Math.min(0, xExt[0])*1.05, xExt[1]*1.05]).range([0, iW]);
+  const yS = d3.scaleLinear().domain([Math.min(0, yExt[0])*1.05 - (yExt[1]-yExt[0])*0.02, yExt[1]*1.05]).range([iH, 0]);
 
   const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width","100%")
     .style("font-family","var(--sans-serif,system-ui,sans-serif)");
@@ -273,6 +339,14 @@ display(occColorInput);
 
   const gO = svg.append("g").attr("transform",`translate(${M.left},${M.top})`);
   const g  = gO.append("g").attr("clip-path","url(#occ-clip)");
+
+  // Zero reference lines (for clinical context)
+  if (xS(0) > 0 && xS(0) < iW)
+    g.append("line").attr("x1",xS(0)).attr("x2",xS(0)).attr("y1",0).attr("y2",iH)
+      .attr("stroke","#ccc").attr("stroke-width",1);
+  if (yS(0) > 0 && yS(0) < iH)
+    g.append("line").attr("x1",0).attr("x2",iW).attr("y1",yS(0)).attr("y2",yS(0))
+      .attr("stroke","#ccc").attr("stroke-width",1);
 
   // Grid + axes
   gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(6))
@@ -299,11 +373,19 @@ display(occColorInput);
     .append("title").text(d => `${simplifyM(d.json_filename)}\nOverjet=${d.overjet?.toFixed(4)} · Overbite=${d.overbite?.toFixed(4)}\nz̄=${d.z_mean?.toFixed(4) ?? "–"}\nClic para ver detalle`);
 
   // Median label
-  gO.append("text").attr("x",xS(medJ)+6).attr("y",yS(medB)-6).attr("font-size",10).attr("fill","#555").text(`mediana`);
+  gO.append("text").attr("x",xS(medJ)+6).attr("y",yS(medB)-6).attr("font-size",10).attr("fill","#555").text("mediana");
 
-  // Legend (color bar for atipicidad, categories for others)
+  // Legend
   const lx = iW + 16;
-  if (occColor === "atipicidad") {
+  if (occColor === "clinica") {
+    const cats = Object.keys(clinicColors);
+    gO.append("text").attr("x",lx).attr("y",10).attr("font-size",9).attr("fill","#888").attr("font-weight","bold").text("Criterio");
+    cats.forEach((cat, i) => {
+      const c = clinicColors[cat];
+      gO.append("circle").attr("cx",lx+5).attr("cy",24+i*18).attr("r",5).attr("fill",c).attr("opacity",0.8);
+      gO.append("text").attr("x",lx+14).attr("y",28+i*18).attr("font-size",9).attr("fill","#333").text(cat);
+    });
+  } else if (occColor === "atipicidad") {
     const gradId = "occ-grad";
     const barH = 90, barW = 12;
     const grad = defs.append("linearGradient").attr("id",gradId).attr("x1","0").attr("x2","0").attr("y1","1").attr("y2","0");
