@@ -22,7 +22,7 @@ export default {
       pages: [
         {name: "Universo de datos",    path: "/dataset"},
         {name: "Geometría Dental",     path: "/geometria-dental"},
-        {name: "Tipicidad y outliers",  path: "/tipicidad"},
+        {name: "Análisis de casos atípicos",  path: "/tipicidad"},
         {name: "Morfometría clínica",  path: "/morfometria"},
         {name: "Patologías",           path: "/patologias"},
         {name: "Geometría × Patología", path: "/geo-patologia"},

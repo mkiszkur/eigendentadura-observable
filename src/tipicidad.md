@@ -1,8 +1,8 @@
 ---
-title: Tipicidad y outliers
+title: Análisis de casos atípicos
 ---
 
-# Tipicidad y outliers
+# Análisis de casos atípicos
 
 ¿Qué hace a una dentadura "típica" o "atípica"? Esta sección analiza la distribución de la **tipicidad posicional y angular** en la población completa, identifica las dentaduras más y menos representativas, y permite visualizarlas sobre la eigendentadura.
 
