@@ -237,7 +237,7 @@ export function kdePlot({
     // Eigendentadura centroids
     for (const s of toothStats) {
       const isSel = selectedSet.has(s.fdi);
-      if (!showCentroids && !isSel) continue;
+      if (!showCentroids) continue;
       const cx = xScale(s.mean_x), cy = yScale(s.mean_y);
       const q = Math.floor(s.fdi / 10);
       g.append("circle").attr("cx", cx).attr("cy", cy)
