@@ -12,6 +12,7 @@ title: Análisis de casos atípicos
 import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import {pantoSchematic} from "./components/panto-schematic.js";
 import {collapsible} from "./components/collapsible.js";
+import {rangeSlider} from "./components/range-slider.js";
 import * as d3 from "d3";
 ```
 
@@ -104,8 +105,8 @@ const colorByInput = Inputs.select(
   {label: "Colorear por", value: "atipicidad"}
 );
 const colorBy = Generators.input(colorByInput);
-const minTeethInput = Inputs.range([4, 32], {label: "Mínimo de dientes", step: 1, value: 10});
-const minTeeth = Generators.input(minTeethInput);
+const teethRangeInput = rangeSlider({label: "Cantidad de dientes", min: 4, max: 32, value: [10, 32]});
+const teethRange = Generators.input(teethRangeInput);
 const highlightOutliersInput = Inputs.toggle({label: "Resaltar outliers", value: false});
 const highlightOutliers = Generators.input(highlightOutliersInput);
 ```
@@ -113,13 +114,13 @@ const highlightOutliers = Generators.input(highlightOutliersInput);
 ```js
 display(collapsible({
   title: "Opciones de visualización",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${minTeethInput}${highlightOutliersInput}</div>`,
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${teethRangeInput}${highlightOutliersInput}</div>`,
   open: false,
 }));
 ```
 
 ```js
-const visibleCount = individualsEnriched.filter(d => d.n_teeth >= minTeeth && d.z_pos != null && d.z_ang != null).length;
+const visibleCount = individualsEnriched.filter(d => d.n_teeth >= teethRange[0] && d.n_teeth <= teethRange[1] && d.z_pos != null && d.z_ang != null).length;
 display(html`<p style="font-size:0.82rem;color:#888;margin:0.3rem 0 0.5rem;">Mostrando <strong>${visibleCount.toLocaleString("es-AR")}</strong> de ${individuals.length.toLocaleString("es-AR")} pantomografías</p>`);
 ```
 
@@ -134,7 +135,8 @@ display(atipicalityScatter(individualsEnriched, {
   width: Math.min(width, 700),
   height: 460,
   colorBy,
-  minTeeth,
+  minTeeth: teethRange[0],
+  maxTeeth: teethRange[1],
   selectedPanto: null,
   onClickPanto: setClickedIndividual,
   threshold: iqrThreshold,

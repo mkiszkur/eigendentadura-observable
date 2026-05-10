@@ -10,12 +10,13 @@ export function atipicalityScatter(scores, {
   height = 480,
   colorBy = "atipicidad",  // "origin" | "sex" | "atipicidad" | "n_teeth" | "n_pathologies"
   minTeeth = 10,
+  maxTeeth = 32,
   selectedPanto = null,
   onClickPanto = null,
   threshold = null,        // z_mean umbral de outliers formales (para marcar en leyenda)
   highlightOutliers = false,
 } = {}) {
-  const data = scores.filter(d => d.n_teeth >= minTeeth && d.z_pos != null && d.z_ang != null);
+  const data = scores.filter(d => d.n_teeth >= minTeeth && d.n_teeth <= maxTeeth && d.z_pos != null && d.z_ang != null);
 
   const M = {top: 20, right: 170, bottom: 50, left: 55};
   const innerW = width - M.left - M.right;
