@@ -21,13 +21,12 @@ const toArcRad = (deg) => ((90 - deg) * Math.PI) / 180;
  * @param {number} opts.width
  * @param {number} opts.height
  */
-export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onToothClick = null, width = 900, height = 600, rotateToMean = true} = {}) {
+export function rosePlot({angleHistograms, toothStats, selectedFdi: initSelectedFdi = [], onToothClick = null, width = 900, height = 600, rotateToMean: initRotateToMean = true} = {}) {
   const margin = {top: 25, right: 30, bottom: 45, left: 55};
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
-  const selectedSet = new Set(selectedFdi);
-  const hasSelection = selectedSet.size > 0;
+  let p = {selectedFdi: initSelectedFdi, rotateToMean: initRotateToMean};
 
   // Build lookups
   const statsByFdi = {};
@@ -83,6 +82,10 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
   const baseRadius = Math.max(18, Math.sqrt((innerW * innerH) / Math.max(1, toothStats.length)) * 0.40);
 
   function draw(k = 1) {
+    const {selectedFdi, rotateToMean} = p;
+    const selectedSet = new Set(selectedFdi);
+    const hasSelection = selectedSet.size > 0;
+
     g.selectAll("*").remove();
 
     // Grid
@@ -190,7 +193,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
           .attr("fill", "transparent")
           .style("cursor", "pointer")
           .style("pointer-events", "all")
-          .on("click", (event) => { event.stopPropagation(); onToothClick(fdi); });
+          .on("click", (event) => { event.stopPropagation(); onToothClick(fdi, p.rotateToMean); });
       }
     }
 
@@ -226,5 +229,7 @@ export function rosePlot({angleHistograms, toothStats, selectedFdi = [], onTooth
     .attr("text-anchor", "end").attr("font-size", 10).attr("fill", "#aaa")
     .text("Scroll para zoom · Drag para mover · Doble-clic para resetear");
 
-  return svg.node();
+  const node = svg.node();
+  node.update = (newParams) => { p = {...p, ...newParams}; draw(); };
+  return node;
 }

@@ -497,7 +497,7 @@ display(rotateToMeanInput);
 
 ```js
 // Modal imperativo: lo insertamos/removemos directamente del body.
-const showAngleModal = (fdi) => {
+const showAngleModal = (fdi, rotateToMean = true) => {
   // Cerrar cualquier modal previo
   document.querySelectorAll("[data-angle-modal]").forEach(el => el.remove());
   const record = angleHistograms.find(r => r.fdi === fdi);
@@ -574,15 +574,18 @@ const showAngleModal = (fdi) => {
 ```
 
 ```js
-display(rosePlot({
+const roseChart = rosePlot({
   angleHistograms,
   toothStats,
-  selectedFdi: selectedFdi,
   onToothClick: showAngleModal,
   width: Math.min(width, 900),
   height: Math.max(600, Math.round(Math.min(width, 900) * 0.72)),
-  rotateToMean,
-}));
+});
+display(roseChart);
+```
+
+```js
+roseChart.update({ selectedFdi, rotateToMean });
 ```
 
 ## Radar — Dispersión angular por diente
