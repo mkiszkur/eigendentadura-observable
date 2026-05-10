@@ -317,10 +317,40 @@ display(collapsible({
 
 Distribución de z̄ en las **${zEligible.length.toLocaleString("es-AR")} dentaduras elegibles**. Las barras rojas corresponden a los outliers (z̄ ≥ Q3 + 1.5·IQR = ${iqrThreshold.toFixed(3)}).
 
+<details>
+<summary style="cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;">¿Cómo leer este gráfico?</summary>
+<div style="padding:0.7rem 0.5rem 0.2rem;font-size:0.85rem;line-height:1.6;color:#444;">
+
+El **eje X** es el score de tipicidad z̄: cuanto mayor, más atípica es la dentadura respecto a la población. El **eje Y** cuenta la cantidad de dentaduras en cada rango de z̄.
+
+- **Barras azules**: dentaduras en el rango "normal" (z̄ < ${iqrThreshold.toFixed(2)}).
+- **Barras rojas**: outliers moderados (z̄ ≥ Q3 + 1.5·IQR = ${iqrThreshold.toFixed(2)}).
+- **Línea roja punteada**: umbral moderado (${iqrThreshold.toFixed(3)}).
+- **Línea roja sólida**: umbral extremo (Q3 + 3·IQR = ${iqrExtreme.toFixed(3)}).
+
+Usar "Zoom en cola" en las opciones de visualización para examinar en detalle la distribución de outliers.
+</div>
+</details>
+
 ```js
 const zoomOutliersInput = Inputs.toggle({label: "Zoom en cola de outliers", value: false});
 const zoomOutliers = Generators.input(zoomOutliersInput);
-display(zoomOutliersInput);
+```
+
+```js
+{
+  const vizDiv = document.createElement("details");
+  vizDiv.style.cssText = "margin-bottom:8px;";
+  const vizSum = document.createElement("summary");
+  vizSum.style.cssText = "cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;";
+  vizSum.textContent = "Opciones de visualización";
+  vizDiv.appendChild(vizSum);
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.5rem 0.3rem 0.2rem;";
+  inner.appendChild(zoomOutliersInput);
+  vizDiv.appendChild(inner);
+  display(vizDiv);
+}
 ```
 
 ```js
@@ -349,8 +379,6 @@ display(zoomOutliersInput);
   }));
 }
 ```
-
-<small>Línea roja punteada = umbral moderado (Q3 + 1.5·IQR = ${iqrThreshold.toFixed(3)}). Línea roja sólida = umbral extremo (Q3 + 3·IQR = ${iqrExtreme.toFixed(3)}). Activar "Zoom en cola" para ver la distribución de outliers en detalle.</small>
 
 <div style="border-left: 4px solid #54a24b; background: #f7fff7; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
 <strong>Hallazgo principal</strong> — La mayoría de los individuos son <strong>consistentemente típicos o consistentemente atípicos</strong> en posición y ángulo simultáneamente: la dentadura de un individuo tiende a ser globalmente regular o globalmente irregular, sin disociación marcada entre las dos dimensiones. Los outliers formales (z̄ ≥ Q3 + 1.5·IQR ≈ ${iqrThreshold.toFixed(2)}) se distribuyen sin concentración en ningún subgrupo clínico o demográfico particular.
