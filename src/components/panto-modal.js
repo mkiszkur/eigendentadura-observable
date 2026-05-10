@@ -16,6 +16,7 @@
  *     invalidation, // Promise — Observable invalidation para auto-cierre (opcional)
  *   });
  */
+import * as d3 from "d3";
 import { pantoSchematic } from "./panto-schematic.js";
 import { miniOdontograma } from "./mini-odontograma.js";
 
@@ -169,19 +170,23 @@ export async function openPantoModal({
   const schContainer = document.createElement("div");
 
   function renderSchematic() {
+    const prevSvg = schContainer.querySelector("svg");
+    const savedTransform = prevSvg ? d3.zoomTransform(prevSvg) : null;
     pantoSchematic(schContainer, geomData, {
-      showBbox:          false,
-      showPolygon:       vizState.showPolygon,
-      showCentroids:     vizState.showCentroids,
-      showLabels:        vizState.showLabels,
-      showEigenLabels:   vizState.showEigenLabels,
+      showBbox:            false,
+      showPolygon:         vizState.showPolygon,
+      showCentroids:       vizState.showCentroids,
+      showLabels:          vizState.showLabels,
+      showEigenLabels:     vizState.showEigenLabels,
       showSupernumeraries: vizState.showSupernumeraries,
-      showDividers:      true,
-      showCurve:         false,
-      showLandmarks:     false,
-      showEigendentadura: vizState.showEigendentadura,
+      showPopEllipses:     vizState.showPopEllipses,
+      showDividers:        true,
+      showCurve:           false,
+      showLandmarks:       false,
+      showEigendentadura:  vizState.showEigendentadura,
       eigendentaduraStats: toothStats,
-      thinStrokes:       true,
+      thinStrokes:         true,
+      initialTransform:    savedTransform,
     });
   }
 

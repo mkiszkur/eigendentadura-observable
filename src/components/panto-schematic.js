@@ -68,8 +68,10 @@ export function pantoSchematic(container, pantoData, options = {}) {
     showEigendentadura = false,
     eigendentaduraStats = null,
     showEigenLabels = true,
+    showPopEllipses = false,
     thinStrokes = false,
     showSupernumeraries = true,
+    initialTransform = null,
   } = options;
 
   // Tooth number filter: null/undefined = show all
@@ -111,6 +113,7 @@ export function pantoSchematic(container, pantoData, options = {}) {
     .on("zoom", (event) => g.attr("transform", event.transform));
   svg.call(zoom);
   svg.on("dblclick.zoom", () => svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity));
+  if (initialTransform) svg.call(zoom.transform, initialTransform);
 
   // ── Grid ──
   if (showGrid) {
@@ -326,9 +329,9 @@ export function pantoSchematic(container, pantoData, options = {}) {
       } else continue;
 
       const text = String(tn);
-      const fontSize = 18;
-      const approxW = text.length * 11 + 6;
-      const approxH = 20;
+      const fontSize = Math.round(14 * img_w / width);
+      const approxW = text.length * fontSize * 0.65 + fontSize * 0.4;
+      const approxH = fontSize * 1.25;
 
       const bg = labelG.append("rect");
       const label = labelG.append("text")
@@ -342,7 +345,7 @@ export function pantoSchematic(container, pantoData, options = {}) {
       // Background box centered on the label
       bg.attr("x", lx - approxW / 2).attr("y", ly - approxH / 2)
         .attr("width", approxW).attr("height", approxH)
-        .attr("rx", 3)
+        .attr("rx", Math.round(fontSize * 0.2))
         .attr("fill", "white")
         .attr("opacity", 0.75);
     }
@@ -459,34 +462,32 @@ export function pantoSchematic(container, pantoData, options = {}) {
         }
       }
 
+      const eigenFontSize = Math.round(12 * img_w / width);
       for (const stat of eigendentaduraStats) {
         if (toothFilterSet && !toothFilterSet.has(stat.fdi)) continue;
         const [px, py] = lmToPixel(stat.mean_x, stat.mean_y);
 
-        // 1σ ellipse (using std_x, std_y in normalized coords → scale to pixels)
-        const rx = stat.std_x * scale;
-        const ry = stat.std_y * scale;
-
-        // Draw rotated ellipse (aligned with intercondylar axis)
-        const nPts = 48;
-        const pts = [];
-        for (let i = 0; i <= nPts; i++) {
-          const t = (i / nPts) * 2 * Math.PI;
-          const ex = rx * Math.cos(t);
-          const ey = ry * Math.sin(t);
-          // Rotate by intercondylar angle
-          const rpx = ex * cos_a - ey * sin_a + px;
-          const rpy = ex * sin_a + ey * cos_a + py;
-          pts.push([rpx, rpy]);
+        if (showPopEllipses) {
+          const rx = stat.std_x * scale;
+          const ry = stat.std_y * scale;
+          const nPts = 48;
+          const pts = [];
+          for (let i = 0; i <= nPts; i++) {
+            const t = (i / nPts) * 2 * Math.PI;
+            const ex = rx * Math.cos(t);
+            const ey = ry * Math.sin(t);
+            const rpx = ex * cos_a - ey * sin_a + px;
+            const rpy = ex * sin_a + ey * cos_a + py;
+            pts.push([rpx, rpy]);
+          }
+          eigenG.append("path")
+            .attr("d", d3.line()(pts))
+            .attr("fill", "none")
+            .attr("stroke", "#888")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "4,3")
+            .attr("opacity", 0.5);
         }
-
-        eigenG.append("path")
-          .attr("d", d3.line()(pts))
-          .attr("fill", "none")
-          .attr("stroke", "#888")
-          .attr("stroke-width", 2)
-          .attr("stroke-dasharray", "4,3")
-          .attr("opacity", 0.5);
 
         eigenG.append("circle")
           .attr("cx", px).attr("cy", py)
@@ -498,9 +499,9 @@ export function pantoSchematic(container, pantoData, options = {}) {
 
         if (showEigenLabels) {
           eigenG.append("text")
-            .attr("x", px).attr("y", py + 5)
+            .attr("x", px).attr("y", py + eigenFontSize * 0.35)
             .attr("text-anchor", "middle")
-            .attr("font-size", 14)
+            .attr("font-size", eigenFontSize)
             .attr("fill", "#666")
             .attr("opacity", 0.7)
             .text(String(stat.fdi));
