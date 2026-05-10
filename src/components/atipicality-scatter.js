@@ -18,6 +18,7 @@ export function atipicalityScatter(scores, {
   zMeanRange = null,
   zPosRange = null,
   zAngRange = null,
+  superSet = null,         // Set de archivo IDs con supernumerarios (null = no resaltar)
 } = {}) {
   const data = scores.filter(d =>
     d.n_teeth >= minTeeth && d.n_teeth <= maxTeeth &&
@@ -150,6 +151,24 @@ export function atipicalityScatter(scores, {
       (d.n_pathologies != null ? ` · ${d.n_pathologies} patologías` : "") +
       (onClickPanto ? "\n\nClic para ver detalle" : "")
     );
+
+  // Marcador de supernumerarios: diamante naranja encima del punto
+  if (superSet != null) {
+    const geoIdRe = /database_original__(.+?)__json_url\.json/;
+    const superData = data.filter(d => {
+      const m = d.json_filename?.match(geoIdRe);
+      return m && superSet.has(m[1]);
+    });
+    g.selectAll("path.super-marker").data(superData).join("path")
+      .attr("class", "super-marker")
+      .attr("transform", d => `translate(${xScale(d.z_pos)},${yScale(d.z_ang)})`)
+      .attr("d", "M0,-4 L3,0 L0,4 L-3,0 Z")
+      .attr("fill", "#f28e2b")
+      .attr("stroke", "#c96a00")
+      .attr("stroke-width", 0.8)
+      .attr("opacity", 0.85)
+      .style("pointer-events", "none");
+  }
 
   if (onClickPanto) {
     gOuter.append("text").attr("x", innerW).attr("y", -5)

@@ -22,6 +22,7 @@ const typicalityExtremes = await FileAttachment("data/typicality_extremes.json")
 const individuals        = await FileAttachment("data/individual_scores.json").json();
 const geoPathData        = await FileAttachment("data/geo_patologia.json").json();
 const pantosRaw          = await FileAttachment("data/pantos_browser.json").json();
+const superCounts        = await FileAttachment("data/supernumerary_counts.json").json();
 ```
 
 ```js
@@ -112,6 +113,9 @@ const highlightOutliersInput = Inputs.toggle({label: "Resaltar outliers", value:
 const highlightOutliers = Generators.input(highlightOutliersInput);
 const excludeMixtaInput = Inputs.toggle({label: "Excluir dentición mixta", value: true});
 const excludeMixta = Generators.input(excludeMixtaInput);
+const highlightSuperInput = Inputs.toggle({label: "Resaltar supernumerarios", value: false});
+const highlightSuper = Generators.input(highlightSuperInput);
+const superSet = new Set(Object.keys(superCounts));
 
 // Sliders de z-scores (sólo visibles al colorear por Atipicidad)
 const zMeanMax = Math.ceil(d3.max(individualsEnriched, d => d.z_mean) * 10) / 10;
@@ -128,7 +132,7 @@ const zAngRange  = Generators.input(zAngSlider);
 ```js
 display(collapsible({
   title: "Opciones de visualización",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${teethRangeInput}${highlightOutliersInput}${excludeMixtaInput}</div>`,
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${teethRangeInput}${highlightOutliersInput}${excludeMixtaInput}${highlightSuperInput}</div>`,
   open: false,
 }));
 ```
@@ -178,6 +182,7 @@ display(atipicalityScatter(scatterData, {
   onClickPanto: setClickedIndividual,
   threshold: iqrThreshold,
   highlightOutliers,
+  superSet: highlightSuper ? superSet : null,
 }));
 ```
 
