@@ -5,19 +5,9 @@ title: Geometría Dental
 
 # Geometría Dental
 
-¿Dónde se ubica cada diente en la dentadura media? ¿Cuánto varía de individuo a individuo? Esta sección caracteriza la **eigendentadura** — la dentadura media de la población — y describe la distribución espacial y angular de las **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos.
+¿Dónde se ubica cada diente en la dentadura media? ¿Cuánto varía de individuo a individuo? Esta sección caracteriza la **eigendentadura** — la dentadura media de la población — y describe la distribución espacial y angular de las **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos, que aportan **${metadata.total_teeth.toLocaleString("es-AR")} dientes** al análisis.
 
-<details>
-<summary><strong>Universo de datos</strong> — ${metadata.total_teeth.toLocaleString()} dientes de ${metadata.unique_pantos.toLocaleString()} pantomografías <em>(clic para expandir)</em></summary>
-
-Se incluyen todos los dientes permanentes (FDI 11–48) que cumplen simultáneamente:
-1. Tienen el **número FDI anotado** por un revisor humano
-2. Tienen **coordenadas landmark-normalized** disponibles (la pantomografía tiene landmarks condíleos completos)
-
-No se restringe a dentaduras completas (32/32): cada diente aporta independientemente a la KDE de su pieza.
-Coordenadas normalizadas por marco condíleo (origen = punto medio intercondíleo, escala = distancia intercondílea).
-
-</details>
+Se incluyen todos los dientes permanentes (FDI 11–48) con número FDI anotado y coordenadas landmark-normalizadas disponibles. No se restringe a dentaduras completas: cada diente aporta independientemente a la estimación de su pieza. Las coordenadas están normalizadas por marco condíleo (origen en el punto medio intercondíleo, escala = distancia intercondílea).
 
 ```js
 import {odontograma} from "./components/odontograma.js";
