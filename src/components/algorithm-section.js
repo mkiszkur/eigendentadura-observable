@@ -344,7 +344,7 @@ export function algorithmSection({
       meanCard.style.cssText = "border:2px solid #4e79a733;border-radius:6px;padding:4px;background:#f8faff;";
       meanCard.appendChild(drawClusterDentition({
         clusterTeeth: cluster.teeth,
-        repTeeth: cluster.teeth,
+        repTeeth: [],
         eigendentadura,
         title: `C${cluster.cluster} — media (n=${cluster.n}, ${pct}%)`,
         w: cardW + 60,
