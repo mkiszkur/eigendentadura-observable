@@ -269,38 +269,103 @@ const selectedStats = toothStats.filter(s => selectedSet2.has(s.fdi));
 ```
 
 ```js
-if (selectedStats.length > 0) {
-  const nMin = d3.min(selectedStats, s => s.n);
-  const nMax = d3.max(selectedStats, s => s.n);
-  display(html`<p style="color:#555; font-size:13px;">
-    Mostrando <strong>${selectedStats.length}</strong> pieza(s).
-    Muestras por pieza: entre <strong>${nMin.toLocaleString()}</strong> y <strong>${nMax.toLocaleString()}</strong> dientes.
-  </p>`);
-}
+const heatmapToggleInput = Inputs.toggle({ label: "Modo heatmap (colorear celdas σ)", value: false });
+const heatmapMode = Generators.input(heatmapToggleInput);
+display(collapsible({
+  title: "Estilo de visualización",
+  open: false,
+  content: html`<div style="padding:0.25rem 0;">${heatmapToggleInput}</div>`,
+}));
 ```
 
 ```js
-display(Inputs.table(selectedStats, {
-  columns: ["fdi", "n", "mean_x", "mean_y", "std_x", "std_y", "mean_angle", "std_angle"],
-  header: {
-    fdi: "FDI",
-    n: "N",
-    mean_x: "μ X",
-    mean_y: "μ Y",
-    std_x: "σ X",
-    std_y: "σ Y",
-    mean_angle: "μ ángulo",
-    std_angle: "σ ángulo",
-  },
-  format: {
-    mean_x: d3.format(".4f"),
-    mean_y: d3.format(".4f"),
-    std_x: d3.format(".4f"),
-    std_y: d3.format(".4f"),
-    mean_angle: d3.format(".1f"),
-    std_angle: d3.format(".1f"),
-  },
-}));
+{
+  const fmt4 = d3.format(".4f"), fmt1 = d3.format(".1f");
+  const wrap = document.createElement("div");
+
+  // Subtítulo
+  if (selectedStats.length > 0) {
+    const nMin = d3.min(selectedStats, s => s.n);
+    const nMax = d3.max(selectedStats, s => s.n);
+    const p = document.createElement("p");
+    p.style.cssText = "color:#555;font-size:13px;margin:0 0 8px;";
+    p.innerHTML = `Mostrando <strong>${selectedStats.length}</strong> pieza(s). Muestras por pieza: entre <strong>${nMin.toLocaleString()}</strong> y <strong>${nMax.toLocaleString()}</strong> dientes.`;
+    wrap.appendChild(p);
+  }
+
+  if (!heatmapMode || selectedStats.length === 0) {
+    wrap.appendChild(Inputs.table(selectedStats, {
+      columns: ["fdi", "n", "mean_x", "mean_y", "std_x", "std_y", "mean_angle", "std_angle"],
+      header: { fdi: "FDI", n: "N", mean_x: "μ X", mean_y: "μ Y",
+                std_x: "σ X", std_y: "σ Y", mean_angle: "μ ángulo", std_angle: "σ ángulo" },
+      format: { mean_x: fmt4, mean_y: fmt4, std_x: fmt4, std_y: fmt4,
+                mean_angle: fmt1, std_angle: fmt1 },
+    }));
+  } else {
+    const QC = {1:"#4e79a7",2:"#59a14f",3:"#edc949",4:"#e15759"};
+    const sx = d3.scaleSequential(d3.interpolateOranges).domain([0, d3.max(selectedStats, d => d.std_x) || 1]);
+    const sy = d3.scaleSequential(d3.interpolateOranges).domain([0, d3.max(selectedStats, d => d.std_y) || 1]);
+    const sa = d3.scaleSequential(d3.interpolateBlues).domain([0, d3.max(selectedStats, d => d.std_angle) || 1]);
+
+    function mkTd(text, bg = null, extra = "") {
+      const td = document.createElement("td");
+      td.textContent = text;
+      td.style.cssText = `padding:5px 10px;text-align:right;border-bottom:1px solid #eee;font-size:13px;${extra}`;
+      if (bg) { td.style.background = bg; td.style.color = d3.hsl(bg).l < 0.55 ? "#fff" : "#333"; }
+      return td;
+    }
+
+    const table = document.createElement("table");
+    table.style.cssText = "border-collapse:collapse;width:100%;font-family:var(--sans-serif,system-ui,sans-serif);";
+    const hRow = table.createTHead().insertRow();
+    for (const h of ["FDI","N","μ X","μ Y","σ X","σ Y","μ ángulo","σ ángulo"]) {
+      const th = document.createElement("th");
+      th.textContent = h;
+      th.style.cssText = "padding:5px 10px;text-align:right;font-size:12px;color:#666;border-bottom:2px solid #ddd;background:#f8f8f8;white-space:nowrap;";
+      hRow.appendChild(th);
+    }
+    const tbody = table.createTBody();
+    for (const s of selectedStats) {
+      const q = Math.floor(s.fdi / 10);
+      const tr = tbody.insertRow();
+      tr.appendChild(mkTd(String(s.fdi), null, `color:${QC[q]};font-weight:600;`));
+      tr.appendChild(mkTd(s.n.toLocaleString()));
+      tr.appendChild(mkTd(fmt4(s.mean_x)));
+      tr.appendChild(mkTd(fmt4(s.mean_y)));
+      tr.appendChild(mkTd(fmt4(s.std_x), sx(s.std_x)));
+      tr.appendChild(mkTd(fmt4(s.std_y), sy(s.std_y)));
+      tr.appendChild(mkTd(fmt1(s.mean_angle)));
+      tr.appendChild(mkTd(fmt1(s.std_angle), sa(s.std_angle)));
+    }
+    // Leyenda de escalas
+    function gradientBar(interpolator, scale, label, fmtFn) {
+      const stops = d3.range(0, 1.01, 0.05).map(t => interpolator(t)).join(", ");
+      const [lo, hi] = scale.domain();
+      const el = document.createElement("div");
+      el.style.cssText = "display:flex;align-items:center;gap:6px;font-size:11px;color:#555;";
+      const bar = document.createElement("div");
+      bar.style.cssText = `width:90px;height:10px;border-radius:3px;border:1px solid #ddd;background:linear-gradient(to right,${stops});`;
+      const lbl  = Object.assign(document.createElement("span"), {textContent: label});
+      lbl.style.cssText = "min-width:54px;text-align:right;";
+      const loEl = Object.assign(document.createElement("span"), {textContent: fmtFn(lo)});
+      loEl.style.cssText = "font-size:10px;color:#aaa;";
+      const hiEl = Object.assign(document.createElement("span"), {textContent: fmtFn(hi)});
+      hiEl.style.cssText = "font-size:10px;color:#aaa;";
+      el.append(lbl, loEl, bar, hiEl);
+      return el;
+    }
+
+    const legend = document.createElement("div");
+    legend.style.cssText = "display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:10px;padding:8px 10px;background:#fafafa;border-radius:4px;border:1px solid #eee;";
+    legend.appendChild(gradientBar(d3.interpolateOranges, sx, "σ X", fmt4));
+    legend.appendChild(gradientBar(d3.interpolateOranges, sy, "σ Y", fmt4));
+    legend.appendChild(gradientBar(d3.interpolateBlues,   sa, "σ ángulo", fmt1));
+    wrap.appendChild(legend);
+    wrap.appendChild(table);
+  }
+
+  display(wrap);
+}
 ```
 
 ## Boxplots 2D — Dispersión posicional
