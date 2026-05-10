@@ -52,10 +52,10 @@ export function miniOdontograma({toothNumbers = [], cellSize = 16, gap = 2} = {}
       rect.setAttribute("width", cellSize);
       rect.setAttribute("height", cellSize);
       rect.setAttribute("rx", 2);
-      rect.setAttribute("fill", isPresent ? QUADRANT_COLORS[q] : "#eee");
-      rect.setAttribute("stroke", isPresent ? QUADRANT_COLORS[q] : "#ddd");
-      rect.setAttribute("stroke-width", 0.5);
-      rect.setAttribute("opacity", isPresent ? 0.85 : 0.4);
+      rect.setAttribute("fill", isPresent ? QUADRANT_COLORS[q] : "#e0e0e0");
+      rect.setAttribute("stroke", isPresent ? QUADRANT_COLORS[q] : "#aaa");
+      rect.setAttribute("stroke-width", isPresent ? 0.5 : 1);
+      rect.setAttribute("opacity", isPresent ? 0.85 : 1);
 
       const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
       title.textContent = `${fdi}${isPresent ? "" : " (ausente)"}`;
