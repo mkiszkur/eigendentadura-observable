@@ -158,8 +158,8 @@ export async function openPantoModal({
 
   // ── Toggles de visualización ────────────────────────────────────────────
   const vizState = {
-    showPolygon:         true,
-    showCentroids:       false,
+    showPolygon:         false,
+    showCentroids:       true,
     showEigenLabels:     true,
     showSupernumeraries: false,
     showTemporary:       false,

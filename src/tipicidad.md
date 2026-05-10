@@ -224,56 +224,90 @@ display(atipicalityScatter(scatterData, {
 </details>
 
 ```js
-const rankZMeanSlider = rangeSlider({label: "z̄",     min: 0, max: zMeanMax, value: [iqrThreshold, zMeanMax], step: 0.1});
-const rankZPosSlider  = rangeSlider({label: "z_pos", min: 0, max: zPosMax,  value: [0, zPosMax],             step: 0.1});
-const rankZAngSlider  = rangeSlider({label: "z_ang", min: 0, max: zAngMax,  value: [0, zAngMax],             step: 0.1});
+// Datos base del ranking (con supernumerarios incorporados)
+const rankDataBase = sortedDesc
+  .filter(d => d.z_mean >= iqrThreshold)
+  .map((d, i) => {
+    const geoId = extractGeoId(d.json_filename);
+    return {
+      ...d,
+      rank:              i + 1,
+      display_id:        simplifyFn(d.json_filename),
+      flags_str:         d.pb_flags ? Object.keys(d.pb_flags).join(", ") : "",
+      n_supernumeraries: superCounts[geoId] ?? 0,
+    };
+  });
+
+// Filtros del ranking
+const rankOrigins  = [...new Set(rankDataBase.map(d => d.data_origin).filter(Boolean))].sort();
+const rankSexes    = [...new Set(rankDataBase.map(d => d.sex).filter(Boolean))].sort();
+const rankDents    = [...new Set(rankDataBase.map(d => d.pb_denticion).filter(Boolean))].sort();
+const rankTeethExt = d3.extent(rankDataBase, d => d.n_teeth);
+const rankMaxSuper = d3.max(rankDataBase, d => d.n_supernumeraries) ?? 0;
+
+const rankOriginInput = Inputs.select(new Map([["Todos", null], ...rankOrigins.map(o => [o, o])]), {label: "Centro"});
+const rankSexInput    = Inputs.select(new Map([["Todos", null], ...rankSexes.map(s => [s, s])]),   {label: "Sexo"});
+const rankDentInput   = Inputs.select(new Map([["Todos", null], ...rankDents.map(d => [d, d])]),   {label: "Dentición"});
+const rankTeethSlider = rangeSlider({label: "N° dientes",       min: rankTeethExt[0], max: rankTeethExt[1], value: rankTeethExt,     step: 1});
+const rankSuperSlider = rangeSlider({label: "Supernumerarios",  min: 0,               max: Math.max(rankMaxSuper, 1), value: [0, Math.max(rankMaxSuper, 1)], step: 1});
+const rankZMeanSlider = rangeSlider({label: "z̄",                min: 0, max: zMeanMax, value: [iqrThreshold, zMeanMax], step: 0.1});
+const rankZPosSlider  = rangeSlider({label: "z_pos",            min: 0, max: zPosMax,  value: [0, zPosMax],             step: 0.1});
+const rankZAngSlider  = rangeSlider({label: "z_ang",            min: 0, max: zAngMax,  value: [0, zAngMax],             step: 0.1});
+
+const rankOrigin     = Generators.input(rankOriginInput);
+const rankSex        = Generators.input(rankSexInput);
+const rankDent       = Generators.input(rankDentInput);
+const rankTeeth      = Generators.input(rankTeethSlider);
+const rankSuper      = Generators.input(rankSuperSlider);
 const rankZMeanRange = Generators.input(rankZMeanSlider);
 const rankZPosRange  = Generators.input(rankZPosSlider);
 const rankZAngRange  = Generators.input(rankZAngSlider);
+
 display(collapsible({
   title: "Filtros",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${rankZMeanSlider}${rankZPosSlider}${rankZAngSlider}</div>`,
+  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">
+    ${rankOriginInput}${rankSexInput}${rankDentInput}
+    ${rankTeethSlider}${rankSuperSlider}
+    ${rankZMeanSlider}${rankZPosSlider}${rankZAngSlider}
+  </div>`,
   open: false,
 }));
 ```
 
 ```js
 {
-  const rankData = sortedDesc
-    .filter(d => d.z_mean >= iqrThreshold)
-    .map((d, i) => ({
-      ...d,
-      rank:       i + 1,
-      display_id: simplifyFn(d.json_filename),
-      flags_str:  d.pb_flags ? Object.keys(d.pb_flags).join(", ") : "",
-    }));
-
-  const filtered = rankData.filter(d =>
-    d.z_mean >= rankZMeanRange[0] && d.z_mean <= rankZMeanRange[1] &&
-    d.z_pos  >= rankZPosRange[0]  && d.z_pos  <= rankZPosRange[1] &&
-    d.z_ang  >= rankZAngRange[0]  && d.z_ang  <= rankZAngRange[1]
+  const filtered = rankDataBase.filter(d =>
+    (rankOrigin == null    || d.data_origin    === rankOrigin) &&
+    (rankSex    == null    || d.sex            === rankSex)    &&
+    (rankDent   == null    || d.pb_denticion   === rankDent)   &&
+    d.n_teeth          >= rankTeeth[0]      && d.n_teeth          <= rankTeeth[1]      &&
+    d.n_supernumeraries >= rankSuper[0]     && d.n_supernumeraries <= rankSuper[1]     &&
+    d.z_mean           >= rankZMeanRange[0] && d.z_mean           <= rankZMeanRange[1] &&
+    d.z_pos            >= rankZPosRange[0]  && d.z_pos            <= rankZPosRange[1]  &&
+    d.z_ang            >= rankZAngRange[0]  && d.z_ang            <= rankZAngRange[1]
   );
 
   display(paginatedTable({
     data: filtered,
     columns: [
-      { key: "rank",        header: "#",          sortable: false,
+      { key: "rank",             header: "#",             sortable: false,
         cellStyle: () => ({color: "#aaa"}) },
-      { key: "display_id",  header: "ID",          sortable: false,
+      { key: "display_id",       header: "ID",            sortable: false,
         cellStyle: () => ({fontFamily: "monospace", fontSize: "10px"}) },
-      { key: "data_origin", header: "Centro",      type: "category" },
-      { key: "sex",         header: "Sexo",        type: "category" },
-      { key: "n_teeth",     header: "Dientes",     type: "number" },
-      { key: "z_mean",      header: "z̄",           type: "number",
+      { key: "data_origin",      header: "Centro",        type: "category" },
+      { key: "sex",              header: "Sexo",          type: "category" },
+      { key: "pb_denticion",     header: "Dentición",     type: "category" },
+      { key: "n_teeth",          header: "Dientes",       type: "number" },
+      { key: "n_supernumeraries",header: "Supern.",       type: "number" },
+      { key: "z_mean",           header: "z̄",             type: "number",
         format: d => d.toFixed(4),
         cellStyle: d => ({fontWeight: "600", color: d >= iqrExtreme ? "#c0392b" : "#e15759"}) },
-      { key: "z_pos",       header: "z_pos",       type: "number", format: d => d.toFixed(4) },
-      { key: "z_ang",       header: "z_ang",       type: "number", format: d => d.toFixed(4) },
-      { key: "flags_str",   header: "Patologías",  sortable: false,
+      { key: "z_pos",            header: "z_pos",         type: "number", format: d => d.toFixed(4) },
+      { key: "z_ang",            header: "z_ang",         type: "number", format: d => d.toFixed(4) },
+      { key: "flags_str",        header: "Patologías",    sortable: false,
         cellStyle: () => ({color: "#888", fontSize: "11px"}) },
     ],
     pageSize: 10,
-    filterable: true,
     onRowClick: d => setClickedIndividual(d),
   }));
 }
