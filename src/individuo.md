@@ -9,6 +9,8 @@ Seleccioná una pantomografía de la tabla para comparar su geometría dental co
 ```js
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {pantoSchematic} from "./components/panto-schematic.js";
+import {miniOdontograma} from "./components/mini-odontograma.js";
+import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {archForm, computeArchMetrics, ARCH_UPPER, ARCH_LOWER} from "./components/arch-form.js";
 import {angleRose} from "./components/angle-rose.js";
 import {individualRosePlot} from "./components/individual-rose-plot.js";
@@ -39,6 +41,20 @@ const pbMap      = new Map(allBrowserPantos.map(p => [p.archivo, p]));
 const occMap     = new Map(occIndividuals.map(d => [cleanArchivo(d.json_filename), d]));
 const boltonMap  = new Map(boltonData.individuals.map(d => [d.short_filename, d]));
 
+// Symmetry score: mean lateral displacement of homologous tooth pairs
+function computeSymmetry(teeth) {
+  if (!teeth?.length) return null;
+  const byFdi = new Map(teeth.map(t => [t.fdi, t]));
+  const pairs = [[11,21],[12,22],[13,23],[14,24],[15,25],[16,26],[17,27],[18,28],
+                 [41,31],[42,32],[43,33],[44,34],[45,35],[46,36],[47,37],[48,38]];
+  let sum = 0, n = 0;
+  for (const [a, b] of pairs) {
+    const ta = byFdi.get(a), tb = byFdi.get(b);
+    if (ta && tb) { sum += Math.hypot(ta.cx + tb.cx, ta.cy - tb.cy); n++; }
+  }
+  return n > 0 ? sum / n : null;
+}
+
 // Arch form ratio (maxilar): depth / intermolar, computed from individual teeth in LM-normalized space
 function computeIndivArchRatio(teeth) {
   if (!teeth?.length) return null;
@@ -55,15 +71,32 @@ function computeIndivArchRatio(teeth) {
   return intermolar > 0 ? depth / intermolar : null;
 }
 
-// Enrich every panto with individual z-scores and arch form
-const indivScoreMap = new Map(individuals.map(d => [cleanArchivo(d.json_filename), {
-  z_mean: d.z_mean, z_max: d.z_max, z_pos: d.z_pos, z_ang: d.z_ang,
-  arch_ratio: computeIndivArchRatio(d.teeth),
-}]));
-
-const allPantosEnriched = allBrowserPantos.map(p => ({
-  ...p, ...indivScoreMap.get(p.archivo) ?? {},
+// Enrich every panto with individual z-scores, arch form, occlusion, and bolton
+const indivScoreMap = new Map(individuals.map(d => {
+  const sid = cleanArchivo(d.json_filename);
+  return [sid, {
+    z_mean:     d.z_mean,
+    z_max:      d.z_max,
+    z_pos:      d.z_pos,
+    z_ang:      d.z_ang,
+    arch_ratio: computeIndivArchRatio(d.teeth),
+    symmetry:   computeSymmetry(d.teeth),
+  }];
 }));
+
+const allPantosEnriched = allBrowserPantos.map(p => {
+  const score = indivScoreMap.get(p.archivo) ?? {};
+  const occ   = occMap.get(p.archivo) ?? {};
+  const bol   = boltonMap.get(p.archivo) ?? {};
+  return {
+    ...p,
+    ...score,
+    overjet:    occ.overjet           ?? null,
+    overbite:   occ.overbite          ?? null,
+    bolton_ant: bol.anterior_ratio    ?? null,
+    bolton_ov:  bol.overall_ratio     ?? null,
+  };
+});
 
 // Arch ratio → z-score relative to population distribution
 const _archRatios = allPantosEnriched.map(p => p.arch_ratio).filter(v => v != null);
@@ -74,9 +107,18 @@ for (const p of allPantosEnriched) {
     ? Math.abs((p.arch_ratio - archRatioMean) / archRatioStd)
     : null;
   p.arch_shape = p.arch_ratio != null
-    ? (p.arch_ratio > 0.85 ? "Triangular" : p.arch_ratio < 0.70 ? "Cuadrada" : "Ovalada")
+    ? (p.arch_ratio >= 0.0740 ? "Triangular" : p.arch_ratio >= 0.0352 ? "Ovalada" : "Cuadrada")
     : null;
+  // Morbilidad count
+  p.n_morb = Object.values(p.flags ?? {}).filter(v => v > 0).length;
 }
+
+// Ranking de atipicidad (1 = más atípico por z̄)
+const N_RANKED = allPantosEnriched.filter(p => p.z_mean != null).length;
+[...allPantosEnriched]
+  .filter(p => p.z_mean != null)
+  .sort((a, b) => b.z_mean - a.z_mean)
+  .forEach((p, i) => { p.rank_atypical = i + 1; });
 ```
 
 <!-- ═══════ FILTROS ═══════ -->
@@ -94,10 +136,20 @@ const dentFilter = Generators.input(dentInput);
 const flagInput  = Inputs.select(["Ninguna", ...meta.flag_names], {value: "Ninguna", label: "Patología"});
 const flagFilter = Generators.input(flagInput);
 
-const fdiInput  = Inputs.toggle({label: "FDI completo", value: false});
+const fdiInput  = Inputs.toggle({label: "Tiene FDI", value: false});
 const fdiFilter = Generators.input(fdiInput);
 const lmInput   = Inputs.toggle({label: "LM completos", value: false});
 const lmFilter  = Generators.input(lmInput);
+
+const archShapeInput  = Inputs.select(["Todas", "Ovalada", "Triangular", "Cuadrada"], {value: "Todas", label: "Arcada"});
+const archShapeFilter = Generators.input(archShapeInput);
+
+const multimorbInput  = Inputs.toggle({label: "Multimorbilidad (≥2)", value: false});
+const multimorbFilter = Generators.input(multimorbInput);
+const sinmorbInput    = Inputs.toggle({label: "Sin morbilidad", value: false});
+const sinmorbFilter   = Generators.input(sinmorbInput);
+const superInput      = Inputs.toggle({label: "Con supernumerarios", value: false});
+const superFilter     = Generators.input(superInput);
 
 // Tipicality range sliders (min–max)
 const zpVals = allPantosEnriched.map(p => p.z_pos).filter(v => v != null);
@@ -112,14 +164,69 @@ const azVals = allPantosEnriched.map(p => p.arch_z).filter(v => v != null);
 const azSlider = rangeSlider({label: "Δ arcada", min: 0, max: Math.ceil(d3.max(azVals)*10)/10, value: [0, Math.ceil(d3.max(azVals)*10)/10], step: 0.1, format: v => v.toFixed(2)});
 const azRange = Generators.input(azSlider);
 
+// Ranking de atipicidad
+const rankSlider = N_RANKED > 0
+  ? rangeSlider({label: "Ranking", min: 1, max: N_RANKED, value: [1, N_RANKED], step: 1, format: v => `#${Math.round(v)}`})
+  : null;
+const rankRange = rankSlider ? Generators.input(rankSlider) : null;
+
+// Simetría bilateral
+const symVals = allPantosEnriched.map(p => p.symmetry).filter(v => v != null);
+const symSlider = symVals.length ? rangeSlider({label: "Simetría", min: 0, max: Math.ceil(d3.max(symVals)*1000)/1000, value: [0, Math.ceil(d3.max(symVals)*1000)/1000], step: 0.001, format: v => v.toFixed(3)}) : null;
+const symRange = symSlider ? Generators.input(symSlider) : null;
+
+// z-score sliders (z_mean, z_max)
+const zmVals = allPantosEnriched.map(p => p.z_mean).filter(v => v != null);
+const zmSlider = zmVals.length ? rangeSlider({label: "z̄", min: 0, max: Math.ceil(d3.max(zmVals)*10)/10, value: [0, Math.ceil(d3.max(zmVals)*10)/10], step: 0.1, format: v => v.toFixed(2)}) : null;
+const zmRange = zmSlider ? Generators.input(zmSlider) : null;
+
+const zmxVals = allPantosEnriched.map(p => p.z_max).filter(v => v != null);
+const zmxSlider = zmxVals.length ? rangeSlider({label: "z_max", min: 0, max: Math.ceil(d3.max(zmxVals)*10)/10, value: [0, Math.ceil(d3.max(zmxVals)*10)/10], step: 0.1, format: v => v.toFixed(2)}) : null;
+const zmxRange = zmxSlider ? Generators.input(zmxSlider) : null;
+
+// Occlusion sliders (overjet, overbite)
+const ojVals = allPantosEnriched.map(p => p.overjet).filter(v => v != null);
+const ojMin = ojVals.length ? Math.floor(d3.min(ojVals)*10)/10 : 0;
+const ojMax = ojVals.length ? Math.ceil(d3.max(ojVals)*10)/10 : 1;
+const ojSlider = ojVals.length ? rangeSlider({label: "Overjet", min: ojMin, max: ojMax, value: [ojMin, ojMax], step: 0.1, format: v => v.toFixed(2)}) : null;
+const ojRange = ojSlider ? Generators.input(ojSlider) : null;
+
+const obVals = allPantosEnriched.map(p => p.overbite).filter(v => v != null);
+const obMin = obVals.length ? Math.floor(d3.min(obVals)*10)/10 : 0;
+const obMax = obVals.length ? Math.ceil(d3.max(obVals)*10)/10 : 1;
+const obSlider = obVals.length ? rangeSlider({label: "Overbite", min: obMin, max: obMax, value: [obMin, obMax], step: 0.1, format: v => v.toFixed(2)}) : null;
+const obRange = obSlider ? Generators.input(obSlider) : null;
+
+// Bolton sliders
+const baVals = allPantosEnriched.map(p => p.bolton_ant).filter(v => v != null);
+const baMin = baVals.length ? Math.floor(d3.min(baVals)*1000)/1000 : 0;
+const baMax = baVals.length ? Math.ceil(d3.max(baVals)*1000)/1000 : 1;
+const baSlider = baVals.length ? rangeSlider({label: "Bolton ant.", min: baMin, max: baMax, value: [baMin, baMax], step: 0.001, format: v => v.toFixed(3)}) : null;
+const baRange = baSlider ? Generators.input(baSlider) : null;
+
+const boVals = allPantosEnriched.map(p => p.bolton_ov).filter(v => v != null);
+const boMin = boVals.length ? Math.floor(d3.min(boVals)*1000)/1000 : 0;
+const boMax = boVals.length ? Math.ceil(d3.max(boVals)*1000)/1000 : 1;
+const boSlider = boVals.length ? rangeSlider({label: "Bolton total", min: boMin, max: boMax, value: [boMin, boMax], step: 0.001, format: v => v.toFixed(3)}) : null;
+const boRange = boSlider ? Generators.input(boSlider) : null;
+
 // Sort state — controlled by column header clicks in the table
 const sortState = Mutable({key: null, dir: "asc"});
+const setSortState = ({key, dir}) => { sortState.value = {key, dir}; };
 ```
 
 ```js
 const zpLo = zpRange[0], zpHi = zpRange[1];
 const zaLo = zaRange[0], zaHi = zaRange[1];
 const azLo = azRange[0], azHi = azRange[1];
+const rankLo = rankRange ? rankRange[0] : 1,       rankHi = rankRange ? rankRange[1] : Infinity;
+const symLo  = symRange  ? symRange[0]  : -Infinity, symHi  = symRange  ? symRange[1]  : Infinity;
+const zmLo  = zmRange  ? zmRange[0]  : -Infinity, zmHi  = zmRange  ? zmRange[1]  : Infinity;
+const zmxLo = zmxRange ? zmxRange[0] : -Infinity, zmxHi = zmxRange ? zmxRange[1] : Infinity;
+const ojLo  = ojRange  ? ojRange[0]  : -Infinity, ojHi  = ojRange  ? ojRange[1]  : Infinity;
+const obLo  = obRange  ? obRange[0]  : -Infinity, obHi  = obRange  ? obRange[1]  : Infinity;
+const baLo  = baRange  ? baRange[0]  : -Infinity, baHi  = baRange  ? baRange[1]  : Infinity;
+const boLo  = boRange  ? boRange[0]  : -Infinity, boHi  = boRange  ? boRange[1]  : Infinity;
 ```
 
 ```js
@@ -135,23 +242,31 @@ const azLo = azRange[0], azHi = azRange[1];
 
   const row1 = document.createElement("div");
   row1.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;";
-  row1.append(searchInput, catInput, dentInput, flagInput);
+  row1.append(searchInput, catInput, dentInput, flagInput, archShapeInput);
   inner.appendChild(row1);
 
   const row2 = document.createElement("div");
-  row2.style.cssText = "display:flex;gap:10px;align-items:center;";
-  row2.append(fdiInput, lmInput);
+  row2.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;align-items:center;";
+  row2.append(fdiInput, lmInput, multimorbInput, sinmorbInput, superInput);
   inner.appendChild(row2);
 
   const row3 = document.createElement("div");
   row3.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px;";
   const note = document.createElement("div");
   note.style.cssText = "grid-column:1/-1;font-size:0.78rem;color:#777;";
-  note.innerHTML = "Rangos de tipicidad y forma de arcada:";
+  note.innerHTML = "Rangos de ranking, tipicidad, simetría, arcada, oclusión y proporciones:";
   row3.appendChild(note);
+  if (rankSlider) row3.appendChild(rankSlider);
+  if (symSlider)  row3.appendChild(symSlider);
+  if (zmSlider)  row3.appendChild(zmSlider);
+  if (zmxSlider) row3.appendChild(zmxSlider);
   row3.appendChild(zpSlider);
   row3.appendChild(zaSlider);
   row3.appendChild(azSlider);
+  if (ojSlider) row3.appendChild(ojSlider);
+  if (obSlider) row3.appendChild(obSlider);
+  if (baSlider) row3.appendChild(baSlider);
+  if (boSlider) row3.appendChild(boSlider);
   inner.appendChild(row3);
 
   filtersDiv.appendChild(inner);
@@ -166,11 +281,23 @@ const _filtered = allPantosEnriched.filter(p => {
   if (catFilter !== "Todas" && p.categoria !== catFilter) return false;
   if (dentFilter !== "Todas" && !p.denticion?.toLowerCase().includes(dentFilter.toLowerCase())) return false;
   if (flagFilter !== "Ninguna" && !(p.flags && p.flags[flagFilter] > 0)) return false;
-  if (fdiFilter && !p.fdi_completo) return false;
+  if (fdiFilter && !(p.con_fdi > 0)) return false;
   if (lmFilter && !p.lm_completo) return false;
-  if (p.z_pos  != null && (p.z_pos  < zpLo || p.z_pos  > zpHi)) return false;
-  if (p.z_ang  != null && (p.z_ang  < zaLo || p.z_ang  > zaHi)) return false;
-  if (p.arch_z != null && (p.arch_z < azLo || p.arch_z > azHi)) return false;
+  if (archShapeFilter !== "Todas" && p.arch_shape !== archShapeFilter) return false;
+  if (multimorbFilter && p.n_morb < 2) return false;
+  if (sinmorbFilter && p.n_morb > 0) return false;
+  if (superFilter && !(p.n_super > 0)) return false;
+  if (p.rank_atypical != null && (p.rank_atypical < rankLo || p.rank_atypical > rankHi)) return false;
+  if (p.symmetry  != null && (p.symmetry  < symLo  || p.symmetry  > symHi))  return false;
+  if (p.z_mean    != null && (p.z_mean    < zmLo  || p.z_mean    > zmHi))  return false;
+  if (p.z_max     != null && (p.z_max     < zmxLo || p.z_max     > zmxHi)) return false;
+  if (p.z_pos     != null && (p.z_pos     < zpLo  || p.z_pos     > zpHi))  return false;
+  if (p.z_ang     != null && (p.z_ang     < zaLo  || p.z_ang     > zaHi))  return false;
+  if (p.arch_z    != null && (p.arch_z    < azLo  || p.arch_z    > azHi))  return false;
+  if (p.overjet   != null && (p.overjet   < ojLo  || p.overjet   > ojHi))  return false;
+  if (p.overbite  != null && (p.overbite  < obLo  || p.overbite  > obHi))  return false;
+  if (p.bolton_ant != null && (p.bolton_ant < baLo || p.bolton_ant > baHi)) return false;
+  if (p.bolton_ov != null && (p.bolton_ov < boLo  || p.bolton_ov > boHi))  return false;
   return true;
 });
 
@@ -200,6 +327,20 @@ function selectRow(archivo) { selectedArchivo.value = archivo; }
 ```
 
 ```js
+{
+  const nTotal    = allPantosEnriched.length;
+  const nFiltered = pantos.length;
+  const nNoScore  = pantos.filter(p => p.z_mean == null).length;
+  const bar = document.createElement("div");
+  bar.style.cssText = "font-size:11px;color:#888;margin-bottom:4px;display:flex;gap:12px;align-items:center;";
+  bar.innerHTML =
+    `<span><strong style="color:#333;">${nFiltered.toLocaleString("es-AR")}</strong> de ${nTotal.toLocaleString("es-AR")} registros</span>` +
+    (nNoScore > 0
+      ? `<span style="color:#e07020;">⚠ ${nNoScore} sin z-score (aparecen al final al ordenar por z)</span>`
+      : ``);
+  display(bar);
+}
+
 display(pantoTable({
   pantos,
   page: pageState,
@@ -209,13 +350,14 @@ display(pantoTable({
   onPage: goToPage,
   sortKey: sortState.key,
   sortDir: sortState.dir,
-  onSortChange: ({key, dir}) => { sortState.value = {key, dir}; },
+  onSortChange: setSortState,
   extraColumns: [
-    {key: "z_mean",     header: "z̄",      width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
-    {key: "z_pos",      header: "z_pos",   width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
-    {key: "z_ang",      header: "z_ang",   width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
-    {key: "arch_shape", header: "Arcada",  width: "70px", format: v => v ?? "—"},
-    {key: "arch_z",     header: "Δarc",    width: "42px", format: v => v != null ? v.toFixed(2) : "—"},
+    {key: "rank_atypical", header: "Rank",    width: "40px", format: v => v != null ? `#${v}` : "—"},
+    {key: "z_mean",        header: "z̄",       width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
+    {key: "z_pos",         header: "z_pos",   width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
+    {key: "z_ang",         header: "z_ang",   width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
+    {key: "arch_shape",    header: "Arcada",  width: "70px", format: v => v ?? "—"},
+    {key: "arch_z",        header: "Δarc",    width: "42px", format: v => v != null ? v.toFixed(2) : "—"},
   ],
 }));
 ```
@@ -240,72 +382,292 @@ const pantoGeom = selectedArchivo
   : null;
 ```
 
-```js
-{
-  const {indiv, indivPb} = selectedData;
-  if (indiv) {
-    const fl = Object.entries(indivPb?.flags ?? {}).filter(([,v]) => v > 0);
-    display(html`<div style="display:flex;gap:12px;flex-wrap:wrap;margin:0.6rem 0 0.4rem;font-size:13px;">
-      <div style="padding:5px 12px;background:#f5f5f5;border-radius:5px;"><strong>Archivo:</strong> ${cleanArchivo(indiv.json_filename)}</div>
-      <div style="padding:5px 12px;background:#f5f5f5;border-radius:5px;"><strong>Origen:</strong> ${indiv.data_origin ?? "—"}</div>
-      <div style="padding:5px 12px;background:#f5f5f5;border-radius:5px;"><strong>Sexo:</strong> ${indiv.sex ?? "—"}</div>
-      <div style="padding:5px 12px;background:#f5f5f5;border-radius:5px;"><strong>Dientes:</strong> ${indiv.n_teeth}</div>
-      <div style="padding:5px 12px;background:${indiv.z_mean > 2 ? '#fff3cd' : '#f5f5f5'};border-radius:5px;">
-        <strong>z̄:</strong> ${indiv.z_mean.toFixed(2)} &nbsp; <strong>z_max:</strong> ${indiv.z_max.toFixed(2)}
-      </div>
-      ${fl.length > 0 ? html`<div style="padding:5px 12px;background:#fdf0f0;border-radius:5px;font-size:12px;">${fl.map(([k,v]) => html`<span style="background:#e15759;color:#fff;border-radius:3px;padding:1px 6px;margin:0 2px;font-size:11px;">${k}: ${v}</span>`)}</div>` : ""}
-    </div>`);
-  }
-}
-```
-
-```js
-// Opciones de visualización del esquemático — reactivas
-const paContornosInput  = Inputs.toggle({label: "Contornos de dientes", value: true});
-const paEigenInput      = Inputs.toggle({label: "Eigendentadura (elipses ±1σ)", value: false});
-const paCentroidesInput = Inputs.toggle({label: "Centroides", value: true});
-const paLabelsInput     = Inputs.toggle({label: "Labels FDI", value: true});
-
-const paContornos  = Generators.input(paContornosInput);
-const paEigen      = Generators.input(paEigenInput);
-const paCentroides = Generators.input(paCentroidesInput);
-const paLabels     = Generators.input(paLabelsInput);
-```
-
-```js
-display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;background:#f9f9fb;margin:0.4rem 0 0.2rem;">
-  <summary style="padding:6px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;">Opciones de visualización</summary>
-  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:6px 12px 10px;font-size:0.85rem;border-top:1px solid #e5e5ec;">
-    ${paContornosInput}${paEigenInput}${paCentroidesInput}${paLabelsInput}
-  </div>
-</details>`);
-```
-
 <details><summary>Cómo leer este visor</summary>
 
-La pantomografía muestra la geometría completa del individuo. Activá **Eigendentadura** para superponer los elipses ±1σ de la eigendentadura (posición media ± desviación estándar de la población), proyectados al espacio de píxeles de la imagen usando la transformación inversa de los landmarks. Los **Contornos** muestran los polígonos de cada diente anotado; los **Centroides** son los puntos geométricos de cada diente; los **Labels FDI** muestran la numeración dental. Usá doble-clic para resetear el zoom.
+La pantomografía muestra la geometría completa del individuo. Activá **Eigendentadura** para superponer los centroides de la eigendentadura (posición media de la población). Activá **Elipses población** para ver los elipses ±1σ de dispersión poblacional. Los **Contornos** muestran los polígonos de cada diente; los **Centroides** son los puntos geométricos; las **Etiquetas FDI** muestran la numeración dental. Scroll para zoom, drag para mover, doble-clic para resetear.
 
 </details>
 
 ```js
 {
-  const container = document.createElement("div");
-  container.style.cssText = "border:1px solid #dde3f0;border-radius:8px;padding:6px;background:#fafafa;margin:0.6rem 0;overflow:hidden;";
-  if (pantoGeom) {
-    pantoSchematic(container, pantoGeom, {
-      showBbox: false,
-      showPolygon:       paContornos,
-      showCentroids:     paCentroides,
-      showLabels:        paLabels,
-      showDividers:      true,
-      showLandmarks:     false,
-      showEigendentadura: paEigen,
+  const {indiv, indivPb} = selectedData;
+
+  const ALL_FDI_PERM = [11,12,13,14,15,16,17,18, 21,22,23,24,25,26,27,28,
+                        31,32,33,34,35,36,37,38, 41,42,43,44,45,46,47,48];
+  const toothNumbers = indivPb?.tooth_numbers ?? [];
+  const presentSet   = new Set(toothNumbers);
+  const missing      = ALL_FDI_PERM.filter(f => !presentSet.has(f));
+  const nPermanent   = ALL_FDI_PERM.filter(f => presentSet.has(f)).length;
+  const nTemporary   = toothNumbers.filter(f => f >= 51 && f <= 85).length;
+  const nSuper       = pantoGeom?.shapes?.filter(s => s.et === "tooth" && s.es === "supernumerary").length ?? 0;
+
+  function zBadge(label, val, color = "#4c78a8") {
+    if (val == null) return "";
+    const hi = val >= 3, med = val >= 2;
+    const c = hi ? "#c0392b" : med ? "#e15759" : color;
+    return `<span style="display:inline-flex;align-items:center;gap:4px;background:${c}18;border:1px solid ${c}44;` +
+      `border-radius:4px;padding:2px 7px;margin:2px;font-size:0.78rem;">` +
+      `<span style="color:${c};font-weight:600;">${label}</span>` +
+      `<span style="color:#333;">${Number(val).toFixed(3)}</span></span>`;
+  }
+
+  const vizState = {
+    // Diente
+    showPolygon:         false,
+    showBbox:            false,
+    showMinbbox:         false,
+    showCentroids:       true,
+    showLabels:          false,
+    showGrid:            false,
+    showTemporary:       false,
+    showSupernumeraries: false,
+    // Referencia
+    showDividers:        false,
+    showCurve:           false,
+    showDentitionBbox:   false,
+    showLandmarks:       false,
+    showEigendentadura:  true,
+    showEigenLabels:     true,
+    showPopEllipses:     false,
+    showMinbboxUpper:    false,
+    showMinbboxLower:    false,
+    showMinbboxQ1:       false,
+    showMinbboxQ2:       false,
+    showMinbboxQ3:       false,
+    showMinbboxQ4:       false,
+    // Entidades
+    showMetalCrown:      true,
+    showMetalBridge:     true,
+    showMetalImplant:    true,
+    showMetalPost:       true,
+    showMetalOrtodoncia: true,
+    showMetalGeneric:    true,
+  };
+
+  let selectedTeeth = [...ALL_FDI];
+
+  const schContainer = document.createElement("div");
+  const toothSelContainer = document.createElement("div");
+
+  function renderSchematic() {
+    const prevSvg = schContainer.querySelector("svg");
+    const savedTransform = prevSvg ? d3.zoomTransform(prevSvg) : null;
+    pantoSchematic(schContainer, pantoGeom, {
+      initialTransform:    savedTransform,
+      thinStrokes:         true,
+      ...vizState,
+      selectedTeeth:       selectedTeeth.length === ALL_FDI.length ? null : selectedTeeth,
       eigendentaduraStats: toothStatsArch,
     });
-  } else {
-    container.innerHTML = `<p style="color:#aaa;text-align:center;padding:2rem 1rem;font-size:13px;">Sin geometría disponible para esta muestra${selectedArchivo ? ` (${selectedArchivo})` : ""}.</p>`;
   }
-  display(container);
+
+  function renderToothSel() {
+    toothSelContainer.innerHTML = "";
+    toothSelContainer.appendChild(teethSelector({
+      selected: selectedTeeth,
+      cellW: 22, cellH: 19,
+      onToggle: fdi => {
+        const i = selectedTeeth.indexOf(fdi);
+        selectedTeeth = i >= 0 ? selectedTeeth.filter(f => f !== fdi) : [...selectedTeeth, fdi];
+        renderToothSel();
+        if (pantoGeom) renderSchematic();
+      },
+      onSetSelection: fdis => {
+        selectedTeeth = [...fdis];
+        renderToothSel();
+        if (pantoGeom) renderSchematic();
+      },
+    }));
+  }
+
+  function makeToggle(label, key) {
+    const btn = document.createElement("button");
+    const update = () => {
+      btn.style.background  = vizState[key] ? "#e8f0fe" : "#f5f5f5";
+      btn.style.color       = vizState[key] ? "#2a5db0" : "#666";
+      btn.style.borderColor = vizState[key] ? "#4c78a8" : "#ccc";
+    };
+    btn.textContent = label;
+    btn.style.cssText = "padding:2px 8px;border:1px solid;border-radius:4px;cursor:pointer;font-size:11px;transition:all 0.1s;white-space:nowrap;";
+    update();
+    btn.addEventListener("click", () => {
+      vizState[key] = !vizState[key];
+      update();
+      if (pantoGeom) renderSchematic();
+    });
+    return btn;
+  }
+
+  function makeRow(...items) {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:3px 0;";
+    row.append(...items);
+    return row;
+  }
+
+  function makeSection(title) {
+    const det = document.createElement("details");
+    const sum = document.createElement("summary");
+    sum.style.cssText = "cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#666;padding:4px 0;user-select:none;";
+    sum.textContent = title;
+    det.appendChild(sum);
+    det.style.cssText = "border-top:1px solid #eee;padding:2px 0;";
+    return det;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = "border:1px solid #dde3f0;border-radius:8px;padding:1rem 1.2rem;background:#fafafa;margin:0.6rem 0;overflow:hidden;";
+
+  // ── Header: ID + metadata grid ──
+  if (indiv) {
+    const headerGrid = document.createElement("div");
+    headerGrid.style.cssText = "display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;margin-bottom:0.6rem;";
+
+    const metaDiv = document.createElement("div");
+    const metaParts = [
+      indivPb?.categoria ?? "–",
+      indivPb?.denticion ?? indiv.sex ?? "–",
+      `${nPermanent} perm.${missing.length > 0 ? ` (${missing.length} faltantes)` : ""}`,
+    ];
+    if (nTemporary > 0) metaParts.push(`${nTemporary} temp.`);
+    metaDiv.innerHTML =
+      `<div style="font-family:monospace;font-size:0.85rem;font-weight:700;margin-bottom:4px;">${selectedArchivo}</div>` +
+      `<div style="font-size:0.82rem;color:#666;">` +
+        metaParts.join(" · ") +
+        (nSuper > 0 ? ` · <span style="color:#e07020;font-weight:600;">${nSuper} supernumerario${nSuper > 1 ? "s" : ""}</span>` : "") +
+      `</div>` +
+      `<div style="font-size:0.78rem;color:#999;margin-top:2px;">` +
+        [indiv.data_origin, indiv.sex].filter(Boolean).join(" · ") +
+      `</div>`;
+
+    const odontDiv = document.createElement("div");
+    odontDiv.style.cssText = "display:flex;flex-direction:column;align-items:flex-end;gap:3px;";
+    odontDiv.appendChild(miniOdontograma({toothNumbers, cellSize: 14, gap: 2}));
+    const countParts = [`${nPermanent} perm. · ${missing.length} faltantes`];
+    if (nTemporary > 0) countParts.push(`${nTemporary} temp.`);
+    if (nSuper > 0) countParts.push(`${nSuper} supernum.`);
+    const countSpan = document.createElement("span");
+    countSpan.style.cssText = "font-size:11px;color:#888;text-align:right;";
+    countSpan.textContent = countParts.join(" · ");
+    odontDiv.appendChild(countSpan);
+
+    headerGrid.append(metaDiv, odontDiv);
+    wrapper.appendChild(headerGrid);
+
+    // ── Z-score badges ──
+    const badgesDiv = document.createElement("div");
+    badgesDiv.style.cssText = "display:flex;flex-wrap:wrap;margin-bottom:0.5rem;";
+    badgesDiv.innerHTML =
+      zBadge("z̄",     indiv.z_mean, "#54a24b") +
+      zBadge("z_max",  indiv.z_max,  "#e15759") +
+      zBadge("z_pos",  indiv.z_pos,  "#4c78a8") +
+      zBadge("z_ang",  indiv.z_ang,  "#7b52ab");
+    wrapper.appendChild(badgesDiv);
+
+    // ── Patologías ──
+    const flags = indivPb?.flags ?? {};
+    const activeFlags = Object.entries(flags).filter(([, v]) => v > 0);
+    if (activeFlags.length > 0) {
+      const flagsDiv = document.createElement("div");
+      flagsDiv.style.marginBottom = "0.6rem";
+      flagsDiv.innerHTML =
+        `<span style="font-size:11px;color:#888;font-weight:600;margin-right:6px;">Patologías:</span>` +
+        activeFlags.map(([k, v]) =>
+          `<span style="background:#fff5f0;border:1px solid #f4a46033;border-radius:3px;` +
+          `padding:1px 6px;font-size:0.77rem;margin:2px;display:inline-flex;gap:3px;">` +
+          `<span style="color:#e07020;">${k}</span><span style="color:#888;">(${v})</span></span>`
+        ).join("");
+      wrapper.appendChild(flagsDiv);
+    }
+  }
+
+  // ── Controls panel ──
+  const controlsPanel = document.createElement("div");
+  controlsPanel.style.cssText = "border-top:1px solid #e5e5ec;margin:0.5rem 0 0.4rem;padding-top:2px;";
+
+  // ▸ Diente
+  const secDiente = makeSection("Diente");
+  const dContent = document.createElement("div");
+  dContent.style.cssText = "padding:4px 0 6px;";
+  dContent.append(
+    makeRow(
+      makeToggle("Contornos",      "showPolygon"),
+      makeToggle("Centroides",     "showCentroids"),
+      makeToggle("Etiquetas FDI",  "showLabels"),
+      makeToggle("Bbox",           "showBbox"),
+      makeToggle("MinBbox",        "showMinbbox"),
+      makeToggle("Grilla",         "showGrid"),
+      makeToggle("Temporales",     "showTemporary"),
+      makeToggle("Supernumerarios","showSupernumeraries"),
+    ),
+    toothSelContainer,
+  );
+  renderToothSel();
+  secDiente.appendChild(dContent);
+
+  // ▸ Referencia
+  const secRef = makeSection("Referencia");
+  const mbGrp = document.createElement("span");
+  mbGrp.style.cssText = "font-size:11px;color:#888;white-space:nowrap;";
+  mbGrp.textContent = "MinBbox:";
+  const rContent = document.createElement("div");
+  rContent.style.cssText = "padding:4px 0 6px;";
+  rContent.append(
+    makeRow(
+      makeToggle("Divisores",       "showDividers"),
+      makeToggle("Curva maxilar",   "showCurve"),
+      makeToggle("Bbox dentición",  "showDentitionBbox"),
+      makeToggle("Landmarks",       "showLandmarks"),
+    ),
+    makeRow(
+      makeToggle("Eigendentadura",  "showEigendentadura"),
+      makeToggle("Elipses pobl.",   "showPopEllipses"),
+      makeToggle("Etiq. eigen",     "showEigenLabels"),
+    ),
+    makeRow(
+      mbGrp,
+      makeToggle("Sup", "showMinbboxUpper"),
+      makeToggle("Inf", "showMinbboxLower"),
+      makeToggle("Q1",  "showMinbboxQ1"),
+      makeToggle("Q2",  "showMinbboxQ2"),
+      makeToggle("Q3",  "showMinbboxQ3"),
+      makeToggle("Q4",  "showMinbboxQ4"),
+    ),
+  );
+  secRef.appendChild(rContent);
+
+  // ▸ Entidades
+  const secEnt = makeSection("Entidades");
+  const eContent = document.createElement("div");
+  eContent.style.cssText = "padding:4px 0 6px;";
+  eContent.appendChild(makeRow(
+    makeToggle("Coronas",    "showMetalCrown"),
+    makeToggle("Puentes",    "showMetalBridge"),
+    makeToggle("Implantes",  "showMetalImplant"),
+    makeToggle("Posts",      "showMetalPost"),
+    makeToggle("Ortodoncia", "showMetalOrtodoncia"),
+    makeToggle("Genérico",   "showMetalGeneric"),
+  ));
+  secEnt.appendChild(eContent);
+
+  controlsPanel.append(secDiente, secRef, secEnt);
+  wrapper.appendChild(controlsPanel);
+
+  // ── Visor ──
+  if (pantoGeom) {
+    const hint = document.createElement("div");
+    hint.style.cssText = "font-size:11px;color:#aaa;padding:2px 0 4px;";
+    hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear";
+    wrapper.append(hint, schContainer);
+    renderSchematic();
+  } else {
+    const noGeom = document.createElement("p");
+    noGeom.style.cssText = "color:#aaa;text-align:center;padding:2rem 1rem;font-size:13px;";
+    noGeom.textContent = `Sin geometría disponible para esta muestra${selectedArchivo ? ` (${selectedArchivo})` : ""}.`;
+    wrapper.appendChild(noGeom);
+  }
+
+  display(wrapper);
 }
 ```
 
