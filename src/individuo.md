@@ -138,6 +138,8 @@ const flagFilter = Generators.input(flagInput);
 
 const fdiInput  = Inputs.toggle({label: "Tiene FDI", value: false});
 const fdiFilter = Generators.input(fdiInput);
+const fdiComplInput  = Inputs.toggle({label: "FDI completo", value: false});
+const fdiComplFilter = Generators.input(fdiComplInput);
 const lmInput   = Inputs.toggle({label: "LM completos", value: false});
 const lmFilter  = Generators.input(lmInput);
 
@@ -247,7 +249,7 @@ const boLo  = boRange  ? boRange[0]  : -Infinity, boHi  = boRange  ? boRange[1] 
 
   const row2 = document.createElement("div");
   row2.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;align-items:center;";
-  row2.append(fdiInput, lmInput, multimorbInput, sinmorbInput, superInput);
+  row2.append(fdiInput, fdiComplInput, lmInput, multimorbInput, sinmorbInput, superInput);
   inner.appendChild(row2);
 
   const row3 = document.createElement("div");
@@ -282,6 +284,7 @@ const _filtered = allPantosEnriched.filter(p => {
   if (dentFilter !== "Todas" && !p.denticion?.toLowerCase().includes(dentFilter.toLowerCase())) return false;
   if (flagFilter !== "Ninguna" && !(p.flags && p.flags[flagFilter] > 0)) return false;
   if (fdiFilter && !(p.con_fdi > 0)) return false;
+  if (fdiComplFilter && !p.fdi_completo) return false;
   if (lmFilter && !p.lm_completo) return false;
   if (archShapeFilter !== "Todas" && p.arch_shape !== archShapeFilter) return false;
   if (multimorbFilter && p.n_morb < 2) return false;
@@ -764,7 +767,7 @@ display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;backgrou
 
 <details><summary>Cómo leer este gráfico</summary>
 
-**Eje X — z_pos**: atipicidad posicional media (desvío de los centroides dentales respecto al promedio poblacional). **Eje Y — z_ang**: atipicidad angular media. Cada punto es una pantomografía, coloreada por z̄ (atipicidad global: amarillo → rojo). El **punto rojo** con círculo es el individuo seleccionado. Individuos cerca del origen son los más típicos. Recortado en el percentil 99.
+**Eje X — z_pos**: atipicidad posicional media (desvío de los centroides dentales respecto al promedio poblacional). **Eje Y — z_ang**: atipicidad angular media. Cada punto es una pantomografía, coloreada por z̄ (atipicidad global: amarillo → rojo). El **punto rojo** con círculo es el individuo seleccionado. Individuos cerca del origen son los más típicos. Scroll para zoom, drag para mover, doble-clic para resetear.
 
 </details>
 
@@ -773,38 +776,64 @@ display(html`<details style="border:1px solid #e5e5ec;border-radius:6px;backgrou
   const {indiv} = selectedData;
   if (indiv) {
     const pop = individuals.filter(d => d.z_pos != null && d.z_ang != null);
-    const p99x = d3.quantile(pop.map(d => d.z_pos).sort(d3.ascending), 0.99);
-    const p99y = d3.quantile(pop.map(d => d.z_ang).sort(d3.ascending), 0.99);
     const zmMax = d3.max(pop, d => d.z_mean ?? 0);
     const colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, zmMax * 0.7]);
 
-    const W = Math.min(width, 600), H = 320;
+    const xMax = d3.max(pop, d => d.z_pos) * 1.05;
+    const yMax = d3.max(pop, d => d.z_ang) * 1.05;
+
+    const W = Math.min(width, 600), H = 380;
     const margin = {top:16,right:24,bottom:46,left:52};
     const iW = W - margin.left - margin.right;
     const iH = H - margin.top - margin.bottom;
-    const xS = d3.scaleLinear().domain([0,p99x]).range([0,iW]);
-    const yS = d3.scaleLinear().domain([0,p99y]).range([iH,0]);
+    const xS0 = d3.scaleLinear().domain([0, xMax]).range([0,iW]);
+    const yS0 = d3.scaleLinear().domain([0, yMax]).range([iH,0]);
+    let xS = xS0.copy(), yS = yS0.copy();
 
     const svg = d3.create("svg").attr("viewBox",[0,0,W,H]).attr("width",W).style("font-family","var(--sans-serif, system-ui)");
     svg.append("defs").append("clipPath").attr("id","indiv-clip2").append("rect").attr("width",iW).attr("height",iH);
     const gO = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
-    gO.append("g").attr("transform",`translate(0,${iH})`).call(d3.axisBottom(xS).ticks(5))
-      .append("text").attr("x",iW/2).attr("y",36).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_pos (atipicidad posicional)");
-    gO.append("g").call(d3.axisLeft(yS).ticks(4))
-      .append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-40).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_ang (atipicidad angular)");
+    const xAxisG = gO.append("g").attr("transform",`translate(0,${iH})`);
+    const yAxisG = gO.append("g");
+    const xLabel = gO.append("text").attr("x",margin.left + iW/2 - margin.left).attr("y",iH + 36).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_pos (atipicidad posicional)");
+    gO.append("text").attr("transform","rotate(-90)").attr("x",-iH/2).attr("y",-40).attr("fill","#555").attr("text-anchor","middle").attr("font-size",11).text("z_ang (atipicidad angular)");
 
     const g = gO.append("g").attr("clip-path","url(#indiv-clip2)");
-    g.selectAll("circle.pop").data(pop.filter(d => d.z_pos <= p99x && d.z_ang <= p99y)).join("circle")
-      .attr("cx",d=>xS(d.z_pos)).attr("cy",d=>yS(d.z_ang))
-      .attr("r",2).attr("fill",d=>colorScale(d.z_mean??0)).attr("opacity",0.45);
 
-    const zp = indiv.z_pos ?? 0, za = indiv.z_ang ?? 0;
-    if (zp <= p99x && za <= p99y) {
+    function drawScatter() {
+      g.selectAll("*").remove();
+      xAxisG.selectAll("*").remove();
+      yAxisG.selectAll("*").remove();
+      xAxisG.call(d3.axisBottom(xS).ticks(5));
+      yAxisG.call(d3.axisLeft(yS).ticks(4));
+
+      g.selectAll("circle.pop").data(pop).join("circle")
+        .attr("cx",d=>xS(d.z_pos)).attr("cy",d=>yS(d.z_ang))
+        .attr("r",2).attr("fill",d=>colorScale(d.z_mean??0)).attr("opacity",0.45);
+
+      const zp = indiv.z_pos ?? 0, za = indiv.z_ang ?? 0;
       g.append("circle").attr("cx",xS(zp)).attr("cy",yS(za)).attr("r",9).attr("fill","none").attr("stroke","#e15759").attr("stroke-width",2.5);
       g.append("circle").attr("cx",xS(zp)).attr("cy",yS(za)).attr("r",4).attr("fill","#e15759").attr("opacity",0.95);
     }
+    drawScatter();
+
+    // Zoom & pan
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 20])
+      .on("zoom", ({transform}) => {
+        xS = transform.rescaleX(xS0);
+        yS = transform.rescaleY(yS0);
+        drawScatter();
+      });
+    svg.call(zoom);
+    svg.on("dblclick.zoom", () => {
+      svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity);
+      xS = xS0.copy(); yS = yS0.copy();
+      drawScatter();
+    });
+
     display(svg.node());
-    display(html`<small style="color:#888">● rojo = individuo seleccionado · color = z̄ (amarillo→rojo: más atípico) · recortado en p99.</small>`);
+    display(html`<small style="color:#888">● rojo = individuo seleccionado · color = z̄ (amarillo→rojo: más atípico) · scroll para zoom, drag para mover, doble-clic para resetear.</small>`);
   } else {
     display(html`<p style="color:#999">Seleccioná un individuo.</p>`);
   }

@@ -82,14 +82,16 @@ export function pantoTable({
         ["", null, "30px", "center"],
         ["Archivo", "archivo", "", "left"],
         ["Dientes", "dientes", "60px", "center"],
-        ["FDI", "fdi_completo", "40px", "center"],
+        ["FDI", "con_fdi", "40px", "center"],
+        ["FDI \u2714", "fdi_completo", "40px", "center"],
         ["Cat", "categoria", "40px", "center"],
-        ["Dentición", "denticion", "", "left"],
+        ["Dentici\u00f3n", "denticion", "", "left"],
       ]
     : [
         ["Archivo", "archivo", "", "left"],
         ["Dientes", "dientes", "60px", "center"],
-        ["FDI", "fdi_completo", "40px", "center"],
+        ["FDI", "con_fdi", "40px", "center"],
+        ["FDI \u2714", "fdi_completo", "40px", "center"],
         ["Cat", "categoria", "40px", "center"],
         ["Dentición", "denticion", "", "left"],
       ];
@@ -167,11 +169,17 @@ export function pantoTable({
     tdD.textContent = p.dientes;
     tr.append(tdD);
 
-    // FDI
+    // FDI (count)
     const tdFdi = document.createElement("td");
     tdFdi.style.cssText = "padding: 4px; text-align: center;";
-    tdFdi.textContent = p.fdi_completo ? "✓" : "—";
+    tdFdi.textContent = p.con_fdi > 0 ? p.con_fdi : "—";
     tr.append(tdFdi);
+
+    // FDI completo
+    const tdFdiC = document.createElement("td");
+    tdFdiC.style.cssText = "padding: 4px; text-align: center;";
+    tdFdiC.textContent = p.fdi_completo ? "✓" : "—";
+    tr.append(tdFdiC);
 
     // Categoría
     const tdCat = document.createElement("td");
