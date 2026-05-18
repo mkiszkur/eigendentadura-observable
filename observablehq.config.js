@@ -54,5 +54,18 @@ export default {
       ],
     },
     {path: "/conclusiones", name: "Conclusiones y síntesis"},
+    {
+      name: "Anexo: Experimentos metodológicos",
+      open: false,
+      pages: [
+        {name: "Resumen del anexo",                        path: "/anexo-experimentos"},
+        {name: "exp01 — LLM visual vs prior geométrico",   path: "/anexo-exp01-llm"},
+        {name: "exp02 — Landmarks por CV híbrida",          path: "/anexo-exp02-cv"},
+        {name: "exp03 — Preprocesamiento + re-anchor",      path: "/anexo-exp03-preproc"},
+        {name: "exp04 — Detector aprendido (SmallUNet)",    path: "/anexo-exp04-nn"},
+        {name: "exp05 — Propagación + imputación FDI",      path: "/anexo-exp05-propagacion"},
+        {name: "exp11 — Forma del diente (Uso B)",          path: "/anexo-exp11-forma"},
+      ],
+    },
   ],
 };

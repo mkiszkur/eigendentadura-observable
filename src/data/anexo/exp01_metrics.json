@@ -1,0 +1,1 @@
+[{"method":"Prior geométrico","n":70,"median":2.8,"p75":4.243,"max":6.834},{"method":"LLM v1 (overview)","n":35,"median":6.95,"p75":9.255,"max":12.64},{"method":"LLM v2 (crops + self-check)","n":32,"median":3.812,"p75":5.461,"max":8.921}]
