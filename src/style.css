@@ -2,6 +2,30 @@
    El tema default limita body a 1440px y p/table/figure a 640px. */
 :root {
   --observablehq-max-width: 1600px;
+
+  /* ── Paleta categórica (Tableau 10, subset usado en el proyecto) ── */
+  --color-primary: #4c78a8;     /* azul: cifras neutras, eje principal */
+  --color-positive: #54a24b;    /* verde: éxito, valor confirmado */
+  --color-warning: #f58518;     /* naranja: alerta, sesgo, advertencia */
+  --color-danger: #e45756;      /* rojo: error, ausencia, problema */
+  --color-accent: #7b52ab;      /* violeta: contraste, segundo eje */
+  --color-teal: #4e8c9e;        /* turquesa: tercer eje */
+  --color-experiment: #08306b;  /* azul oscuro: cohorte/universo geométrico */
+
+  /* ── Neutros ── */
+  --color-text: #222;
+  --color-text-soft: #555;
+  --color-text-muted: #888;
+  --color-text-faint: #aaa;
+  --color-border: #e0e0e0;
+  --color-border-strong: #ccc;
+  --color-bg-soft: #f5f5f5;
+  --color-bg-row-alt: #fafafa;
+
+  /* ── Espaciado / radios ── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --spacing-card: 0.85rem 1.1rem;
 }
 
 /* Dejar que párrafos, tablas, figuras y listas ocupen todo el ancho del main */
@@ -56,5 +80,101 @@ details > summary:hover {
 details[open] > summary {
   margin-bottom: 0.4rem;
   color: #333;
+}
+
+/* ── KPI grid + tarjetas ──
+   Uso recomendado: el helper `kpi(items)` en components/kpi.js.
+   Cada tarjeta toma su color de la variable --card-color (inline).
+   Patrón heredado de `directores/03-dataset.md`. */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 0.6rem 0 1.4rem;
+}
+
+.kpi-card {
+  --card-color: var(--color-primary);
+  background: color-mix(in srgb, var(--card-color) 7%, transparent);
+  border-left: 4px solid var(--card-color);
+  padding: var(--spacing-card);
+  border-radius: var(--radius-md);
+}
+
+.kpi-card .kpi-label {
+  font-size: 0.65rem;
+  color: var(--color-text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-card .kpi-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--card-color);
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.kpi-card .kpi-sub {
+  font-size: 0.78rem;
+  color: var(--color-text-soft);
+  margin-top: 3px;
+}
+
+/* ── Tarjetas simples (sin acento de color) ── */
+.simple-card {
+  border: 1px solid #ddd;
+  padding: 0.9rem;
+  border-radius: var(--radius-md);
+}
+
+.simple-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+/* ── Callouts ──
+   Uso: <div class="callout callout-warning"> ... </div>
+   También admite el patrón --card-color para color dinámico. */
+.callout {
+  --card-color: var(--color-primary);
+  background: color-mix(in srgb, var(--card-color) 5%, transparent);
+  border-left: 4px solid var(--card-color);
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.callout-warning   { --card-color: var(--color-warning); }
+.callout-danger    { --card-color: var(--color-danger); }
+.callout-positive  { --card-color: var(--color-positive); }
+.callout-experiment{ --card-color: var(--color-experiment); }
+
+/* ── Tablas “de datos” (estilo uniforme) ──
+   Uso: <table class="data-table">. Mantiene compat. con tablas
+   Markdown — solo agrega zebra y header gris. */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table thead {
+  background: var(--color-bg-soft);
+}
+
+.data-table th,
+.data-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+  text-align: left;
 }
 
