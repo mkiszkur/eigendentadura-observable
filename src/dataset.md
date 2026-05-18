@@ -18,14 +18,17 @@ const ds = await FileAttachment("data/dataset_stats.json").json();
 
 ## Embudo de filtrado
 
-A partir de las ${ds.funnel[0].n.toLocaleString("es-AR")} pantomografías digitalizadas,
-se aplican sucesivos criterios de inclusión para obtener el universo de cada análisis.
+```js
+display(htl.html`<p>A partir de las ${ds.funnel[0].n.toLocaleString("es-AR")} pantomografías digitalizadas,
+se aplican sucesivos criterios de inclusión para obtener el universo de cada análisis.</p>`);
+```
 
 ```js
 display(funnelChart(ds.funnel, {width: Math.min(width, 700)}));
 ```
 
-<div style="margin-top: 1rem; display: flex; gap: 2rem; flex-wrap: wrap;">
+```js
+display(htl.html`<div style="margin-top: 1rem; display: flex; gap: 2rem; flex-wrap: wrap;">
 <div style="background: #e8f0fb; border-left: 4px solid #2171b5; padding: 0.8rem 1.2rem; border-radius: 4px; min-width: 220px;">
   <div style="font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em;">Universo prevalencias</div>
   <div style="font-size: 2rem; font-weight: bold; color: #2171b5;">${ds.universe_prevalencia.toLocaleString("es-AR")}</div>
@@ -36,14 +39,17 @@ display(funnelChart(ds.funnel, {width: Math.min(width, 700)}));
   <div style="font-size: 2rem; font-weight: bold; color: #08306b;">${ds.universe_kde.toLocaleString("es-AR")}</div>
   <div style="font-size: 0.8rem; color: #555;">pantomografías con landmarks condíleos</div>
 </div>
-</div>
+</div>`);
+```
 
 <details style="margin-top: 1rem;">
 <summary><strong>Criterios de inclusión y exclusión</strong></summary>
 
-**Universo de prevalencias** (${ds.universe_prevalencia.toLocaleString("es-AR")} pantomografías): Se incluyen todos los dientes permanentes (FDI 11–48) con número FDI anotado por un revisor humano. No se requiere dentadura completa ni landmarks.
+```js
+display(htl.html`<p><strong>Universo de prevalencias</strong> (${ds.universe_prevalencia.toLocaleString("es-AR")} pantomografías): Se incluyen todos los dientes permanentes (FDI 11–48) con número FDI anotado por un revisor humano. No se requiere dentadura completa ni landmarks.</p>
 
-**Universo eigendentadura / KDE** (${ds.universe_kde.toLocaleString("es-AR")} pantomografías): Se añade el requisito de **landmarks condíleos completos** (puntos derecho e izquierdo), necesarios para la normalización de coordenadas. El origen se sitúa en el punto medio intercondíleo y la escala se define por la distancia intercondílea.
+<p><strong>Universo eigendentadura / KDE</strong> (${ds.universe_kde.toLocaleString("es-AR")} pantomografías): Se añade el requisito de <strong>landmarks condíleos completos</strong> (puntos derecho e izquierdo), necesarios para la normalización de coordenadas. El origen se sitúa en el punto medio intercondíleo y la escala se define por la distancia intercondílea.</p>`);
+```
 
 Se excluyen de ambos universos:
 - Dientes deciduos (FDI 51–85)
@@ -86,7 +92,11 @@ display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680)
 ```
 
 <div style="border-left: 4px solid #4c78a8; background: #f0f4ff; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
-<strong>Composición del universo</strong> — El dataset parte de <strong>${ds.funnel[0].n.toLocaleString("es-AR")} pantomografías</strong>, de las cuales ${ds.funnel[2].n.toLocaleString("es-AR")} tienen al menos un diente permanente anotado (universo epidemiológico) y ${ds.funnel[3].n.toLocaleString("es-AR")} cuentan además con landmarks condíleos completos (universo geométrico). Esta distinción define qué preguntas puede responder cada análisis: prevalencia de patologías usa el universo más amplio; eigendentadura, z-scores y morfometría requieren el universo geométrico.
+
+```js
+display(htl.html`<strong>Composición del universo</strong> — El dataset parte de <strong>${ds.funnel[0].n.toLocaleString("es-AR")} pantomografías</strong>, de las cuales ${ds.funnel[2].n.toLocaleString("es-AR")} tienen al menos un diente permanente anotado (universo epidemiológico) y ${ds.funnel[3].n.toLocaleString("es-AR")} cuentan además con landmarks condíleos completos (universo geométrico). Esta distinción define qué preguntas puede responder cada análisis: prevalencia de patologías usa el universo más amplio; eigendentadura, z-scores y morfometría requieren el universo geométrico.`);
+```
+
 </div>
 
 ## Composición por cuadrante, maxilar y tipo de diente

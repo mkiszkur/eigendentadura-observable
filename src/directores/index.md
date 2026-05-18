@@ -47,23 +47,6 @@ Cada sección reproduce el contenido del capítulo correspondiente con:
 
 ## Tabla de contenidos
 
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:0.9rem; margin:1rem 0 2rem;">
-
-${tocCard("1", "Introducción", "Preguntas P1–P5, scope, principio rector.", "./01-introduccion", "✅")}
-${tocCard("2", "Marco teórico", "PCA, Procrustes, KDE, eigenshape, FDI.", "./02-marco-teorico", "✅")}
-${tocCard("3", "Dataset", "5.114 JSON · 7 versiones · errores C1–C9 · cohortes.", "./03-dataset", "★ A FONDO")}
-${tocCard("4", "Metodología", "Pipeline ETL, parity check, splits canónicos.", "./04-metodologia", "✅")}
-${tocCard("5", "EDA", "Distribuciones, missingness estructural, prevalencias.", "./05-eda", "★ A FONDO")}
-${tocCard("6", "Normalización geométrica", "Similitud por landmarks vs. afín · exp16.", "./06-normalizacion", "★ A FONDO")}
-${tocCard("7", "Eigendentadura", "PCA global, varianza, ausencia de bimodalidad.", "./07-eigendentadura", "✅")}
-${tocCard("8", "Análisis por pieza", "PCA por pieza, KDE, z-scores.", "./08-analisis-por-pieza", "✅")}
-${tocCard("9", "Subpoblaciones", "Clustering · género · origen · exp28.", "./09-subpoblaciones", "✅")}
-${tocCard("10", "Herramienta", "Arquitectura Observable, stages, deploy.", "./10-herramienta", "🟡")}
-${tocCard("11", "Conclusiones", "Respuestas P1–P5, resultados negativos, futuro.", "./11-conclusiones", "✅")}
-${tocCard("12", "Anexo experimentos", "exp01–exp28 con cierre y veredicto.", "./12-experimentos", "✅")}
-
-</div>
-
 ```js
 function tocCard(num, title, sub, href, badge) {
   const badgeColor = badge.startsWith("★") ? "#7b52ab"
@@ -78,6 +61,23 @@ function tocCard(num, title, sub, href, badge) {
     <div style="font-size:0.82rem; color:#555; line-height:1.4;">${sub}</div>
   </a>`;
 }
+```
+
+```js
+display(htl.html`<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:0.9rem; margin:1rem 0 2rem;">
+${tocCard("1", "Introducción", "Preguntas P1–P5, scope, principio rector.", "./01-introduccion", "✅")}
+${tocCard("2", "Marco teórico", "PCA, Procrustes, KDE, eigenshape, FDI.", "./02-marco-teorico", "✅")}
+${tocCard("3", "Dataset", "5.114 JSON · 7 versiones · errores C1–C9 · cohortes.", "./03-dataset", "★ A FONDO")}
+${tocCard("4", "Metodología", "Pipeline ETL, parity check, splits canónicos.", "./04-metodologia", "✅")}
+${tocCard("5", "EDA", "Distribuciones, missingness estructural, prevalencias.", "./05-eda", "★ A FONDO")}
+${tocCard("6", "Normalización geométrica", "Similitud por landmarks vs. afín · exp16.", "./06-normalizacion", "★ A FONDO")}
+${tocCard("7", "Eigendentadura", "PCA global, varianza, ausencia de bimodalidad.", "./07-eigendentadura", "✅")}
+${tocCard("8", "Análisis por pieza", "PCA por pieza, KDE, z-scores.", "./08-analisis-por-pieza", "✅")}
+${tocCard("9", "Subpoblaciones", "Clustering · género · origen · exp28.", "./09-subpoblaciones", "✅")}
+${tocCard("10", "Herramienta", "Arquitectura Observable, stages, deploy.", "./10-herramienta", "🟡")}
+${tocCard("11", "Conclusiones", "Respuestas P1–P5, resultados negativos, futuro.", "./11-conclusiones", "✅")}
+${tocCard("12", "Anexo experimentos", "exp01–exp28 con cierre y veredicto.", "./12-experimentos", "✅")}
+</div>`);
 ```
 
 ---

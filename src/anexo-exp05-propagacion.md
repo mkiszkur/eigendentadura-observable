@@ -73,21 +73,26 @@ Se evalúa por separado en cuatro "usos":
 }
 ```
 
-Sin un detector adoptable, **${coverage.pct_missing} % del corpus**
+```js
+display(htl.html`<p>Sin un detector adoptable, <strong>${coverage.pct_missing} % del corpus</strong>
 queda fuera de la eigendentadura, la normalización por landmarks y
 la imputación FDI. exp05 mide el costo real de usar el detector en
-lugar del GT humano, sobre los dos splits que sí tienen GT.
+lugar del GT humano, sobre los dos splits que sí tienen GT.</p>`);
+```
 
 ## Universo evaluado
 
-> ${splits.exp05_universe.description}
->
-> Las estadísticas `tooth_stats_lm` y el clasificador k-NN para FDI
-> se entrenan **únicamente** sobre el corpus de fitting
-> (${splits.exp05_universe.n_corpus_pantos.toLocaleString("es-AR")}
-> pantos). val (${splits.exp05_universe.n_val_pantos}) y holdout
-> (${splits.exp05_universe.n_holdout_pantos}) quedan reservados para
-> evaluación.
+```js
+display(htl.html`<blockquote>
+  <p>${splits.exp05_universe.description}</p>
+  <p>Las estadísticas <code>tooth_stats_lm</code> y el clasificador k-NN para FDI
+  se entrenan <strong>únicamente</strong> sobre el corpus de fitting
+  (${splits.exp05_universe.n_corpus_pantos.toLocaleString("es-AR")}
+  pantos). val (${splits.exp05_universe.n_val_pantos}) y holdout
+  (${splits.exp05_universe.n_holdout_pantos}) quedan reservados para
+  evaluación.</p>
+</blockquote>`);
+```
 
 ## Uso A — propagación del detector a `tooth_stats_lm` (eigendentadura)
 

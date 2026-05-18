@@ -71,12 +71,16 @@ por grupo anatómico y top-2 (ambas cumplidas con holgura).
 
 ### Splits
 
-- **train** — ${exp11.splits.train_n.toLocaleString("es-AR")} dientes
-  (todos los pantos del dataset menos val ∪ holdout).
-- **val** — ${exp11.splits.val_n.toLocaleString("es-AR")} dientes
-  (257 pantos del split canónico exp05).
-- **holdout** — ${exp11.splits.holdout_n.toLocaleString("es-AR")} dientes
-  (140 pantos, todos `T_completa`).
+```js
+display(htl.html`<ul>
+  <li><strong>train</strong> — ${exp11.splits.train_n.toLocaleString("es-AR")} dientes
+  (todos los pantos del dataset menos val ∪ holdout).</li>
+  <li><strong>val</strong> — ${exp11.splits.val_n.toLocaleString("es-AR")} dientes
+  (257 pantos del split canónico exp05).</li>
+  <li><strong>holdout</strong> — ${exp11.splits.holdout_n.toLocaleString("es-AR")} dientes
+  (140 pantos, todos <code>T_completa</code>).</li>
+</ul>`);
+```
 
 > A diferencia de exp04/exp05, el clasificador de forma **no usa
 > landmarks**, así que el train no se restringe al corpus geométrico

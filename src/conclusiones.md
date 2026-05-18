@@ -18,7 +18,7 @@ import * as d3 from "d3";
 
 <div style="border-left: 4px solid #4c78a8; padding: 0.8rem 1rem; background: #f7f9ff;">
   <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">Distribución continua, sin subtipos discretos</div>
-  <div style="font-size: 0.85rem; color: #555; line-height: 1.5;">Los cinco algoritmos de clustering evaluados (KMeans, Ward, GMM, Spectral, HDBSCAN) arrojan silhouette scores < 0.25 sobre las ${ds.universe_kde.toLocaleString("es-AR")} dentaduras con landmarks. La variabilidad dental en esta población es un continuo, no un conjunto de fenotipos discretos.</div>
+  <div style="font-size: 0.85rem; color: #555; line-height: 1.5;">Los cinco algoritmos de clustering evaluados (KMeans, Ward, GMM, Spectral, HDBSCAN) arrojan silhouette scores < 0.25 sobre las <strong>2.704</strong> dentaduras con landmarks. La variabilidad dental en esta población es un continuo, no un conjunto de fenotipos discretos.</div>
 </div>
 
 <div style="border-left: 4px solid #7b52ab; padding: 0.8rem 1rem; background: #f9f7ff;">

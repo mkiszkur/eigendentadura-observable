@@ -65,13 +65,15 @@ entre pacientes.
 
 ### Set B — 5 pantos curadas a mano
 
-**Set B** es un mini-eval set armado al inicio del proyecto:
+```js
+display(htl.html`<p><strong>Set B</strong> es un mini-eval set armado al inicio del proyecto:
 ${splits.exp01_setB.n_pantos} pantomografías elegidas para cubrir
 variedad de tamaños de cráneo y calidad de imagen, con GT humano de
 los 7 landmarks revisado. Como cada panto aporta 7 mediciones,
 resulta en ${splits.exp01_setB.n_landmarks_eval} comparaciones por
 método. Es chico a propósito: el LLM v2 hace una llamada API por
-landmark, y a USD ~0,01/llamada el costo escala rápido.
+landmark, y a USD ~0,01/llamada el costo escala rápido.</p>`);
+```
 
 ### Prior geométrico
 
@@ -108,10 +110,12 @@ Error relativo: err_rel = ‖ p̂ − p_GT ‖ / d_intercondilar_GT
 
 ## Resultado principal
 
-Las tres cifras de abajo son la **mediana del error relativo** sobre
+```js
+display(htl.html`<p>Las tres cifras de abajo son la <strong>mediana del error relativo</strong> sobre
 ${splits.exp01_setB.n_landmarks_eval} mediciones (5 pantos × 7
 landmarks). Verde = prior geométrico (baseline). Rojo = LLM v1.
-Naranja = LLM v2.
+Naranja = LLM v2.</p>`);
+```
 
 ```js
 {

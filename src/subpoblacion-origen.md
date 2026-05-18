@@ -5,9 +5,31 @@ title: Subpoblación — Origen clínico
 
 # Subpoblación — Origen clínico
 
-Comparación de la dentadura media entre los **dos centros clínicos** del dataset (**${kdeOrigen.groups["Centro A"].n_pantos + kdeOrigen.groups["Centro B"].n_pantos} pantomografías** totales).
+```js
+import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
+import {subpopKdePlot} from "./components/subpop-kde-plot.js";
+import {subpopDiffHeatmap} from "./components/subpop-diff-heatmap.js";
+import {subpopRosePlot} from "./components/subpop-rose-plot.js";
+import {subpopArchForm} from "./components/subpop-arch-form.js";
+import {subpopViolinPlot} from "./components/subpop-violin-plot.js";
+import * as d3 from "d3";
+```
+
+```js
+const toothStats        = await FileAttachment("data/tooth_stats.json").json();
+const subpopStats       = await FileAttachment("data/tooth_stats_subpop.json").json();
+const kdeOrigen         = await FileAttachment("data/kde_grids_origen.json").json();
+const kdeDiffOrigen     = await FileAttachment("data/kde_diff_origen.json").json();
+const bagplotOrigen     = await FileAttachment("data/bagplot_outliers_origen.json").json();
+const violinOrigen      = await FileAttachment("data/violin_grids_origen.json").json();
+const metadata          = await FileAttachment("data/metadata.json").json();
+```
+
+```js
+display(htl.html`<p>Comparación de la dentadura media entre los <strong>dos centros clínicos</strong> del dataset (<strong>${kdeOrigen.groups["Centro A"].n_pantos + kdeOrigen.groups["Centro B"].n_pantos} pantomografías</strong> totales).
 Cada centro aporta su propia nube de centroides por pieza dental; la comparación
-responde si hay diferencias sistemáticas en la geometría dental entre poblaciones.
+responde si hay diferencias sistemáticas en la geometría dental entre poblaciones.</p>`);
+```
 
 <details>
 <summary><strong>Universo de datos</strong> <em>(clic para expandir)</em></summary>
@@ -70,9 +92,11 @@ function setSelection(fs) { selectedFdi.value = fs; }
 
 ## Mapa KDE comparativo
 
-Mismo formato que la página poblacional pero con dos capas de contornos:
-**${labelMap["Centro A"]}** (azul) y **${labelMap["Centro B"]}** (rojo). El gris de fondo
-son los centroides de la eigendentadura completa (contexto).
+```js
+display(htl.html`<p>Mismo formato que la página poblacional pero con dos capas de contornos:
+<strong>${labelMap["Centro A"]}</strong> (azul) y <strong>${labelMap["Centro B"]}</strong> (rojo). El gris de fondo
+son los centroides de la eigendentadura completa (contexto).</p>`);
+```
 
 <details open>
 <summary>Cómo leer este gráfico</summary>
@@ -287,18 +311,24 @@ if (selRows.length === 0) {
 
 ## Diferencia por diente (heatmap)
 
-Magnitud de la diferencia entre **${labelMap["Centro A"]}** y **${labelMap["Centro B"]}** para cada
-diente y feature, expresada en **desviaciones estándar pooled**. Azul oscuro indica que
-${labelMap["Centro B"]} tiene valores mayores; rojo oscuro que ${labelMap["Centro A"]} los tiene mayores.
+```js
+display(htl.html`<p>Magnitud de la diferencia entre <strong>${labelMap["Centro A"]}</strong> y <strong>${labelMap["Centro B"]}</strong> para cada
+diente y feature, expresada en <strong>desviaciones estándar pooled</strong>. Azul oscuro indica que
+${labelMap["Centro B"]} tiene valores mayores; rojo oscuro que ${labelMap["Centro A"]} los tiene mayores.</p>`);
+```
 
 <details>
 <summary>Cómo leer este gráfico</summary>
 
 Cada celda muestra la diferencia entre grupos para ese diente y esa variable, expresada en **desviaciones estándar pooled** (effect size equivalente a Cohen's *d*).
 
-- **Color rojo**: ${labelMap["Centro A"]} tiene valores mayores en esa variable para ese diente.
-- **Color azul**: ${labelMap["Centro B"]} tiene valores mayores.
-- **Blanco / color pálido**: diferencia pequeña o nula.
+```js
+display(htl.html`<ul>
+  <li><strong>Color rojo</strong>: ${labelMap["Centro A"]} tiene valores mayores en esa variable para ese diente.</li>
+  <li><strong>Color azul</strong>: ${labelMap["Centro B"]} tiene valores mayores.</li>
+  <li><strong>Blanco / color pálido</strong>: diferencia pequeña o nula.</li>
+</ul>`);
+```
 
 Guía de magnitud: |d| < 0.2 trivial · 0.2–0.5 pequeño · 0.5–0.8 moderado · > 0.8 grande.
 

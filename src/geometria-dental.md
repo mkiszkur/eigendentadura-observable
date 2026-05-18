@@ -5,10 +5,6 @@ title: Geometría Dental
 
 # Geometría Dental
 
-¿Dónde se ubica cada diente en la dentadura media? ¿Cuánto varía de individuo a individuo? Esta sección caracteriza la **eigendentadura** — la dentadura media de la población — y describe la distribución espacial y angular de las **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos, que aportan **${metadata.total_teeth.toLocaleString("es-AR")} dientes** al análisis.
-
-Se incluyen todos los dientes permanentes (FDI 11–48) con número FDI anotado y coordenadas landmark-normalizadas disponibles. No se restringe a dentaduras completas: cada diente aporta independientemente a la estimación de su pieza. Las coordenadas están normalizadas por marco condíleo (origen en el punto medio intercondíleo, escala = distancia intercondílea).
-
 ```js
 import {odontograma} from "./components/odontograma.js";
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
@@ -31,6 +27,12 @@ const boxplotOutliers = await FileAttachment("data/tooth_boxplot_outliers.json")
 ```
 
 ```js
+display(htl.html`<p>¿Dónde se ubica cada diente en la dentadura media? ¿Cuánto varía de individuo a individuo? Esta sección caracteriza la <strong>eigendentadura</strong> — la dentadura media de la población — y describe la distribución espacial y angular de las <strong>${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías</strong> con landmarks condíleos, que aportan <strong>${metadata.total_teeth.toLocaleString("es-AR")} dientes</strong> al análisis.</p>
+
+<p>Se incluyen todos los dientes permanentes (FDI 11–48) con número FDI anotado y coordenadas landmark-normalizadas disponibles. No se restringe a dentaduras completas: cada diente aporta independientemente a la estimación de su pieza. Las coordenadas están normalizadas por marco condíleo (origen en el punto medio intercondíleo, escala = distancia intercondílea).</p>`);
+```
+
+```js
 const selectedFdi = Mutable([...ALL_FDI]);
 
 function toggleTooth(fdi) {
@@ -48,7 +50,9 @@ function setSelection(fdis) { selectedFdi.value = fdis; }
 
 ## La eigendentadura
 
-La **eigendentadura** es la dentadura "promedio" de la población: la posición media de cada pieza dental en coordenadas landmark-normalized. Funciona como el mapa de referencia sobre el que se interpretan todas las variaciones individuales y de subpoblaciones estudiadas en este dashboard. Cada punto es el centroide de los casos disponibles para esa pieza (entre ${d3.min(toothStats, d => d.n).toLocaleString("es-AR")} y ${d3.max(toothStats, d => d.n).toLocaleString("es-AR")} pantomografías según la pieza).
+```js
+display(htl.html`<p>La <strong>eigendentadura</strong> es la dentadura "promedio" de la población: la posición media de cada pieza dental en coordenadas landmark-normalized. Funciona como el mapa de referencia sobre el que se interpretan todas las variaciones individuales y de subpoblaciones estudiadas en este dashboard. Cada punto es el centroide de los casos disponibles para esa pieza (entre ${d3.min(toothStats, d => d.n).toLocaleString("es-AR")} y ${d3.max(toothStats, d => d.n).toLocaleString("es-AR")} pantomografías según la pieza).</p>`);
+```
 
 ```js
 display(collapsible({

@@ -6,8 +6,6 @@ title: Forma del arco
 
 ¿Qué tan profundo, simétrico y regular es el arco dental en cada panto? Esta vista materializa el experimento **exp30** ("clustering sobre la curva del arco dental"): ajusta polinomios sobre los centroides de las piezas permanentes en cada arcada y reporta un conjunto interpretable de descriptores —profundidad, anchura, asimetría L/R, R² de fit— por panto.
 
-> **Hallazgo P3 (continuo, no discreto).** El análisis sistemático sobre 11 familias de features (poly2…poly6, FPCA, spline natural, catenaria) sobre **${corpus.n_pantos.toLocaleString("es-AR")} pantos** (universo geométrico canónico) **no** revela subgrupos discretos. Sí aparece un **eje continuo** ortogonal a los ejes previos: arcadas **profundas + regulares** vs **planas + irregulares**, capturado por `arch_depth_score`. Cierre completo en `docs/experimentos/30_clustering_curva_maxilar/99_cierre.md`.
-
 ```js
 import * as d3 from "d3";
 import {openPantoModal} from "./components/panto-modal.js";
@@ -19,6 +17,10 @@ const perc      = await FileAttachment("data/arch_features_percentiles.json").js
 const toothStats = await FileAttachment("data/tooth_stats.json").json();
 const pantosRaw  = await FileAttachment("data/pantos_browser.json").json();
 const pantosMapA = new Map(pantosRaw.pantos.map(p => [p.archivo, p]));
+```
+
+```js
+display(htl.html`<blockquote><strong>Hallazgo P3 (continuo, no discreto).</strong> El análisis sistemático sobre 11 familias de features (poly2…poly6, FPCA, spline natural, catenaria) sobre <strong>${corpus.n_pantos.toLocaleString("es-AR")} pantos</strong> (universo geométrico canónico) <strong>no</strong> revela subgrupos discretos. Sí aparece un <strong>eje continuo</strong> ortogonal a los ejes previos: arcadas <strong>profundas + regulares</strong> vs <strong>planas + irregulares</strong>, capturado por <code>arch_depth_score</code>. Cierre completo en <code>docs/experimentos/30_clustering_curva_maxilar/99_cierre.md</code>.</blockquote>`);
 ```
 
 ```js
@@ -74,7 +76,9 @@ const archivoInput = Inputs.select(archivosOrdenados, {
 const archivoSel = Generators.input(archivoInput);
 ```
 
-<div>${archivoInput}</div>
+```js
+display(htl.html`<div>${archivoInput}</div>`);
+```
 
 ```js
 const seleccion = corpusMap.get(archivoSel);
@@ -168,7 +172,9 @@ Línea <span style="color:#dc2626;font-weight:600;">sólida</span> = grado 2 (in
 
 ## Distribución del corpus
 
-Histogramas de las **8 features G06** (`depth`, `width`, `apex_x`, `apex_y`, `curv_apex`, `asym_LR`, `R²`, `log_arclen`) sobre los ${corpus.n_pantos.toLocaleString("es-AR")} pantos del corpus. La línea vertical marca el panto seleccionado.
+```js
+display(htl.html`<p>Histogramas de las <strong>8 features G06</strong> (<code>depth</code>, <code>width</code>, <code>apex_x</code>, <code>apex_y</code>, <code>curv_apex</code>, <code>asym_LR</code>, <code>R²</code>, <code>log_arclen</code>) sobre los <strong>${corpus.n_pantos.toLocaleString("es-AR")}</strong> pantos del corpus. La línea vertical marca el panto seleccionado.</p>`);
+```
 
 ```js
 function featureHist(featKey, panto) {
@@ -262,12 +268,18 @@ display(Plot.plot({
 }));
 ```
 
-<div style="font-size:0.85rem;color:#4b5563;margin-bottom:1.5rem;">
-Panto seleccionado: <strong>${seleccion ? `score = ${seleccion.arch_depth_score?.toFixed(2) ?? "—"}` : "—"}</strong> →
-<span style="color:${selCluster === 0 ? "#c2410c" : selCluster === 1 ? "#0369a1" : "#6b7280"};font-weight:600;">
-  ${selCluster === 0 ? "arco plano/irregular" : selCluster === 1 ? "arco profundo/regular" : "sin clasificar"}
-</span>.
-</div>
+```js
+{
+  const sc = seleccion?.arch_depth_score;
+  const cl = seleccion?.arch_depth_cluster;
+  const clColor = cl === 0 ? "#c2410c" : cl === 1 ? "#0369a1" : "#6b7280";
+  const clLabel = cl === 0 ? "arco plano/irregular" : cl === 1 ? "arco profundo/regular" : "sin clasificar";
+  const scTxt = sc == null ? "—" : `score = ${sc.toFixed(2)}`;
+  display(htl.html`<div style="font-size:0.85rem;color:#4b5563;margin-bottom:1.5rem;">
+    Panto seleccionado: <strong>${scTxt}</strong> → <span style="color:${clColor};font-weight:600;">${clLabel}</span>.
+  </div>`);
+}
+```
 
 <!-- ═══════ E.4  GALERÍA DE EXTREMOS ═══════ -->
 
@@ -360,8 +372,12 @@ display(htl.html`
 
 ### Cobertura y fuentes
 
-- **Corpus**: ${corpus.n_pantos.toLocaleString("es-AR")} pantos (universo geométrico canónico del exp30: ≥5 piezas permanentes anotadas en **cada** arcada, frame `*_lm` válido).
-- **Features G06** (16 cols en `pantos.csv`): `{max,man}_arch_{depth, width, apex_x, apex_y, curv_apex, asym_LR, R2_fit, log_arclen}`.
-- **Eje continuo**: `arch_depth_score` (proyección z-score sobre μ₀→μ₁ del clustering `G09_spline_kmeans_k2`) + `arch_depth_cluster_exp30 ∈ {0, 1}` (dicotomía advertida — la estructura es continua).
-- **Pipeline**: `pipeline/stage_40_arch_features.py` reusa `utils/exp30_clustering_curva_maxilar/features.py` y valida byte-igualdad contra los parquets de exp30.
-- **Sidecars de esta vista**: `data/arch_curve_corpus.json` (coeficientes deg-2/deg-4 + centroides por panto del corpus), `data/arch_features_percentiles.json` (p5/p25/p50/p75/p95 de las 16 features).
+```js
+display(htl.html`<ul>
+  <li><strong>Corpus</strong>: ${corpus.n_pantos.toLocaleString("es-AR")} pantos (universo geométrico canónico del exp30: ≥5 piezas permanentes anotadas en <strong>cada</strong> arcada, frame <code>*_lm</code> válido).</li>
+  <li><strong>Features G06</strong> (16 cols en <code>pantos.csv</code>): <code>{max,man}_arch_{depth, width, apex_x, apex_y, curv_apex, asym_LR, R2_fit, log_arclen}</code>.</li>
+  <li><strong>Eje continuo</strong>: <code>arch_depth_score</code> (proyección z-score sobre μ₀→μ₁ del clustering <code>G09_spline_kmeans_k2</code>) + <code>arch_depth_cluster_exp30 ∈ {0, 1}</code> (dicotomía advertida — la estructura es continua).</li>
+  <li><strong>Pipeline</strong>: <code>pipeline/stage_40_arch_features.py</code> reusa <code>utils/exp30_clustering_curva_maxilar/features.py</code> y valida byte-igualdad contra los parquets de exp30.</li>
+  <li><strong>Sidecars de esta vista</strong>: <code>data/arch_curve_corpus.json</code> (coeficientes deg-2/deg-4 + centroides por panto del corpus), <code>data/arch_features_percentiles.json</code> (p5/p25/p50/p75/p95 de las 16 features).</li>
+</ul>`);
+```

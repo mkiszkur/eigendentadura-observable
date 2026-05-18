@@ -4,8 +4,6 @@ title: Individuo vs Población
 
 # Individuo vs Población
 
-Seleccioná una pantomografía de la tabla para comparar su geometría dental con la eigendentadura poblacional. **${individuals.length.toLocaleString("es-AR")} pantomografías** disponibles.
-
 ```js
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {pantoSchematic} from "./components/panto-schematic.js";
@@ -35,7 +33,13 @@ const toothStatsArch = toothStats.map(s => ({
   ...s, mean_x: s.cx_mean, mean_y: s.cy_mean,
   std_x: s.cx_std ?? 0, std_y: s.cy_std ?? 0,
 }));
+```
 
+```js
+display(htl.html`<p>Seleccioná una pantomografía de la tabla para comparar su geometría dental con la eigendentadura poblacional. <strong>${individuals.length.toLocaleString("es-AR")} pantomografías</strong> disponibles.</p>`);
+```
+
+```js
 // Build lookup maps
 const pbMap      = new Map(allBrowserPantos.map(p => [p.archivo, p]));
 const occMap     = new Map(occIndividuals.map(d => [cleanArchivo(d.json_filename), d]));

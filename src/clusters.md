@@ -4,22 +4,26 @@ title: ¿Existen subtipos de dentadura?
 
 # ¿Existen subtipos de dentadura?
 
-Si existieran fenotipos dentales discretos — por ejemplo, un "tipo angosto", un "tipo ancho" — deberían ser detectables como clusters separados en el espacio de z-scores. Evaluamos **5 algoritmos** sobre **${clustering.meta.n_dentitions}** dentaduras completas (32/32 FDI anotados) para responder esta pregunta. La respuesta es **no** — y ese resultado es en sí mismo informativo sobre la naturaleza de la variabilidad dental.
-
-Se utilizan únicamente dentaduras con los 32 dientes permanentes anotados porque PCA no admite valores faltantes; las dentaduras incompletas quedan excluidas del análisis.
-
-_Espacio de features: ${clustering.meta.n_features} z-scores → PCA (${clustering.pca.n_components_90} PCs, 90% varianza) → clustering._
-
-```js
-import {algorithmSection} from "./components/algorithm-section.js";
-import * as d3 from "d3";
-```
-
 ```js
 const clustering = FileAttachment("data/clustering.json").json();
 const toothStatsCl = await FileAttachment("data/tooth_stats.json").json();
 const pantosRawCl = await FileAttachment("data/pantos_browser.json").json();
 const pantosMapCl = new Map(pantosRawCl.pantos.map(p => [p.archivo, p]));
+```
+
+```js
+display(htl.html`<p>Si existieran fenotipos dentales discretos — por ejemplo, un "tipo angosto", un "tipo ancho" — deberían ser detectables como clusters separados en el espacio de z-scores. Evaluamos <strong>5 algoritmos</strong> sobre <strong>${clustering.meta.n_dentitions}</strong> dentaduras completas (32/32 FDI anotados) para responder esta pregunta. La respuesta es <strong>no</strong> — y ese resultado es en sí mismo informativo sobre la naturaleza de la variabilidad dental.</p>`);
+```
+
+Se utilizan únicamente dentaduras con los 32 dientes permanentes anotados porque PCA no admite valores faltantes; las dentaduras incompletas quedan excluidas del análisis.
+
+```js
+display(htl.html`<p><em>Espacio de features: ${clustering.meta.n_features} z-scores → PCA (${clustering.pca.n_components_90} PCs, 90% varianza) → clustering.</em></p>`);
+```
+
+```js
+import {algorithmSection} from "./components/algorithm-section.js";
+import * as d3 from "d3";
 ```
 
 ```js

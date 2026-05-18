@@ -4,11 +4,6 @@ title: Patologías — Análisis epidemiológico
 
 # Patologías — Análisis epidemiológico
 
-Distribución, co-ocurrencia y multimorbilidad de hallazgos clínicos en las
-**${ds.universe_prevalencia.toLocaleString("es-AR")} pantomografías** con al menos un diente
-permanente anotado (FDI 11–48). No se requieren landmarks condíleos — este universo es
-más amplio que el de la eigendentadura (${ds.universe_kde.toLocaleString("es-AR")} pantos).
-
 ```js
 import {upsetPlot} from "./components/upset-plot.js";
 import {fdiPathologyHeatmap, prevalenceByToothType} from "./components/pathology-heatmap.js";
@@ -19,6 +14,13 @@ import * as d3 from "d3";
 ```js
 const ds = await FileAttachment("data/dataset_stats.json").json();
 const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();
+```
+
+```js
+display(htl.html`<p>Distribución, co-ocurrencia y multimorbilidad de hallazgos clínicos en las
+<strong>${ds.universe_prevalencia.toLocaleString("es-AR")} pantomografías</strong> con al menos un diente
+permanente anotado (FDI 11–48). No se requieren landmarks condíleos — este universo es
+más amplio que el de la eigendentadura (${ds.universe_kde.toLocaleString("es-AR")} pantos).</p>`);
 ```
 
 ```js

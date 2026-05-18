@@ -4,10 +4,6 @@ title: Análisis de casos atípicos
 
 # Análisis de casos atípicos
 
-¿Qué hace a una dentadura "típica" o "atípica"? Esta sección analiza la distribución de la **tipicidad posicional y angular** en la población completa, identifica las dentaduras más y menos representativas, y permite visualizarlas sobre la eigendentadura.
-
-**${individuals.length.toLocaleString("es-AR")} pantomografías** con z-scores calculados (posición y ángulo de cada diente relativo a la media poblacional).
-
 ```js
 import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import {openPantoModal} from "./components/panto-modal.js";
@@ -24,6 +20,12 @@ const individuals        = await FileAttachment("data/individual_scores.json").j
 const geoPathData        = await FileAttachment("data/geo_patologia.json").json();
 const pantosRaw          = await FileAttachment("data/pantos_browser.json").json();
 const superCounts        = await FileAttachment("data/supernumerary_counts.json").json();
+```
+
+```js
+display(htl.html`<p>¿Qué hace a una dentadura "típica" o "atípica"? Esta sección analiza la distribución de la <strong>tipicidad posicional y angular</strong> en la población completa, identifica las dentaduras más y menos representativas, y permite visualizarlas sobre la eigendentadura.</p>
+
+<p><strong>${individuals.length.toLocaleString("es-AR")} pantomografías</strong> con z-scores calculados (posición y ángulo de cada diente relativo a la media poblacional).</p>`);
 ```
 
 ```js
@@ -214,7 +216,9 @@ display(atipicalityScatter(scatterData, {
 <details>
 <summary>Cómo interpretar este ranking</summary>
 
-**Criterio de outlier**: z̄ ≥ Q3 + 1.5·IQR = **${iqrThreshold.toFixed(3)}** (Q1=${iqrQ1.toFixed(3)}, Q3=${iqrQ3.toFixed(3)}, IQR=${iqrVal.toFixed(3)}). Las **${sortedDesc.filter(d => d.z_mean >= iqrThreshold).length} dentaduras** que superan este umbral se consideran outliers moderados. Las que superan Q3 + 3·IQR = **${iqrExtreme.toFixed(3)}** son outliers extremos (z̄ en rojo oscuro).
+```js
+display(htl.html`<p><strong>Criterio de outlier</strong>: z̄ ≥ Q3 + 1.5·IQR = <strong>${iqrThreshold.toFixed(3)}</strong> (Q1=${iqrQ1.toFixed(3)}, Q3=${iqrQ3.toFixed(3)}, IQR=${iqrVal.toFixed(3)}). Las <strong>${sortedDesc.filter(d => d.z_mean >= iqrThreshold).length} dentaduras</strong> que superan este umbral se consideran outliers moderados. Las que superan Q3 + 3·IQR = <strong>${iqrExtreme.toFixed(3)}</strong> son outliers extremos (z̄ en rojo oscuro).</p>`);
+```
 
 - **z̄** — score de atipicidad global (promedio de z_pos y z_ang).
 - **z_pos** — desvío posicional: cuánto se alejan los centroides dentales de la media poblacional.
@@ -315,7 +319,9 @@ display(collapsible({
 
 ## Distribución de z̄ — histograma poblacional
 
-Distribución de z̄ en las **${zEligible.length.toLocaleString("es-AR")} dentaduras elegibles**. Las barras rojas corresponden a los outliers (z̄ ≥ Q3 + 1.5·IQR = ${iqrThreshold.toFixed(3)}).
+```js
+display(htl.html`<p>Distribución de z̄ en las <strong>${zEligible.length.toLocaleString("es-AR")} dentaduras elegibles</strong>. Las barras rojas corresponden a los outliers (z̄ ≥ Q3 + 1.5·IQR = ${iqrThreshold.toFixed(3)}).</p>`);
+```
 
 <details>
 <summary style="cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;">¿Cómo leer este gráfico?</summary>
@@ -323,10 +329,14 @@ Distribución de z̄ en las **${zEligible.length.toLocaleString("es-AR")} dentad
 
 El **eje X** es el score de tipicidad z̄: cuanto mayor, más atípica es la dentadura respecto a la población. El **eje Y** cuenta la cantidad de dentaduras en cada rango de z̄.
 
-- **Barras azules**: dentaduras en el rango "normal" (z̄ < ${iqrThreshold.toFixed(2)}).
-- **Barras rojas**: outliers moderados (z̄ ≥ Q3 + 1.5·IQR = ${iqrThreshold.toFixed(2)}).
-- **Línea roja punteada**: umbral moderado (${iqrThreshold.toFixed(3)}).
-- **Línea roja sólida**: umbral extremo (Q3 + 3·IQR = ${iqrExtreme.toFixed(3)}).
+```js
+display(htl.html`<ul>
+  <li><strong>Barras azules</strong>: dentaduras en el rango "normal" (z̄ < ${iqrThreshold.toFixed(2)}).</li>
+  <li><strong>Barras rojas</strong>: outliers moderados (z̄ ≥ Q3 + 1.5·IQR = ${iqrThreshold.toFixed(2)}).</li>
+  <li><strong>Línea roja punteada</strong>: umbral moderado (${iqrThreshold.toFixed(3)}).</li>
+  <li><strong>Línea roja sólida</strong>: umbral extremo (Q3 + 3·IQR = ${iqrExtreme.toFixed(3)}).</li>
+</ul>`);
+```
 
 Usar "Zoom en cola" en las opciones de visualización para examinar en detalle la distribución de outliers.
 </div>
@@ -380,6 +390,6 @@ const zoomOutliers = Generators.input(zoomOutliersInput);
 }
 ```
 
-<div style="border-left: 4px solid #54a24b; background: #f7fff7; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
-<strong>Hallazgo principal</strong> — La mayoría de los individuos son <strong>consistentemente típicos o consistentemente atípicos</strong> en posición y ángulo simultáneamente: la dentadura de un individuo tiende a ser globalmente regular o globalmente irregular, sin disociación marcada entre las dos dimensiones. Los outliers formales (z̄ ≥ Q3 + 1.5·IQR ≈ ${iqrThreshold.toFixed(2)}) se distribuyen sin concentración en ningún subgrupo clínico o demográfico particular.
-</div>
+```js
+display(htl.html`<div style="border-left: 4px solid #54a24b; background: #f7fff7; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;"><strong>Hallazgo principal</strong> — La mayoría de los individuos son <strong>consistentemente típicos o consistentemente atípicos</strong> en posición y ángulo simultáneamente: la dentadura de un individuo tiende a ser globalmente regular o globalmente irregular, sin disociación marcada entre las dos dimensiones. Los outliers formales (z̄ ≥ Q3 + 1.5·IQR ≈ ${iqrThreshold.toFixed(2)}) se distribuyen sin concentración en ningún subgrupo clínico o demográfico particular.</div>`);
+```

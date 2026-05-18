@@ -4,8 +4,6 @@ title: Geometría × Patología
 
 # ¿La posición atípica predice patología?
 
-Cruce de la atipicidad geométrica individual (z-scores de posición y ángulo) con la carga patológica registrada en la pantomografía. Universo: **${geoPath.meta.n_records.toLocaleString("es-AR")} pantomografías** con landmarks condíleos y ≥ 8 dientes anotados.
-
 ```js
 const geoPath = await FileAttachment("data/geo_patologia.json").json();
 import * as d3 from "d3";
@@ -13,6 +11,10 @@ import {openPantoModal} from "./components/panto-modal.js";
 const toothStatsGeo = await FileAttachment("data/tooth_stats.json").json();
 const pantosRawGeo = await FileAttachment("data/pantos_browser.json").json();
 const pantosMapGeo = new Map(pantosRawGeo.pantos.map(p => [p.archivo, p]));
+```
+
+```js
+display(htl.html`<p>Cruce de la atipicidad geométrica individual (z-scores de posición y ángulo) con la carga patológica registrada en la pantomografía. Universo: <strong>${geoPath.meta.n_records.toLocaleString("es-AR")} pantomografías</strong> con landmarks condíleos y ≥ 8 dientes anotados.</p>`);
 ```
 
 ```js

@@ -5,9 +5,31 @@ title: Subpoblación — Sexo biológico
 
 # Subpoblación — Sexo biológico
 
-Comparación de la dentadura media entre **Male** y **Female** (**${kdeGenero.groups.male.n_pantos + kdeGenero.groups.female.n_pantos} pantomografías** con sexo inferido por OCR).
-La comparación responde si existe **dimorfismo sexual** detectable en la
-posición/orientación de las piezas dentales sobre la pantomografía.
+```js
+import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
+import {subpopKdePlot} from "./components/subpop-kde-plot.js";
+import {subpopDiffHeatmap} from "./components/subpop-diff-heatmap.js";
+import {subpopRosePlot} from "./components/subpop-rose-plot.js";
+import {subpopArchForm} from "./components/subpop-arch-form.js";
+import {subpopViolinPlot} from "./components/subpop-violin-plot.js";
+import * as d3 from "d3";
+```
+
+```js
+const toothStats        = await FileAttachment("data/tooth_stats.json").json();
+const subpopStats       = await FileAttachment("data/tooth_stats_subpop.json").json();
+const kdeGenero         = await FileAttachment("data/kde_grids_genero.json").json();
+const kdeDiffGenero     = await FileAttachment("data/kde_diff_genero.json").json();
+const bagplotGenero     = await FileAttachment("data/bagplot_outliers_genero.json").json();
+const violinGenero      = await FileAttachment("data/violin_grids_genero.json").json();
+const metadata          = await FileAttachment("data/metadata.json").json();
+```
+
+```js
+display(htl.html`<p>Comparación de la dentadura media entre <strong>Male</strong> y <strong>Female</strong> (<strong>${kdeGenero.groups.male.n_pantos + kdeGenero.groups.female.n_pantos} pantomografías</strong> con sexo inferido por OCR).
+La comparación responde si existe <strong>dimorfismo sexual</strong> detectable en la
+posición/orientación de las piezas dentales sobre la pantomografía.</p>`);
+```
 
 <details>
 <summary><strong>Universo de datos</strong> <em>(clic para expandir)</em></summary>
@@ -74,9 +96,11 @@ function setSelection(fs) { selectedFdi.value = fs; }
 
 ## Mapa KDE comparativo
 
-Mismo formato que la página poblacional pero con dos capas de contornos:
-**${labelMap.male}** (azul) y **${labelMap.female}** (rojo). El gris de fondo
-son los centroides de la eigendentadura completa (contexto).
+```js
+display(htl.html`<p>Mismo formato que la página poblacional pero con dos capas de contornos:
+<strong>${labelMap.male}</strong> (azul) y <strong>${labelMap.female}</strong> (rojo). El gris de fondo
+son los centroides de la eigendentadura completa (contexto).</p>`);
+```
 
 <details open>
 <summary>Cómo leer este gráfico</summary>
@@ -291,18 +315,24 @@ if (selRows.length === 0) {
 
 ## Diferencia por diente (heatmap)
 
-Magnitud de la diferencia entre **${labelMap.male}** y **${labelMap.female}** para cada
-diente y feature, expresada en **desviaciones estándar pooled**. Azul oscuro indica que
-${labelMap.female} tiene valores mayores; rojo oscuro que ${labelMap.male} los tiene mayores.
+```js
+display(htl.html`<p>Magnitud de la diferencia entre <strong>${labelMap.male}</strong> y <strong>${labelMap.female}</strong> para cada
+diente y feature, expresada en <strong>desviaciones estándar pooled</strong>. Azul oscuro indica que
+${labelMap.female} tiene valores mayores; rojo oscuro que ${labelMap.male} los tiene mayores.</p>`);
+```
 
 <details>
 <summary>Cómo leer este gráfico</summary>
 
 Cada celda muestra la diferencia entre grupos para ese diente y esa variable, expresada en **desviaciones estándar pooled** (effect size equivalente a Cohen's *d*).
 
-- **Color rojo**: ${labelMap.male} tiene valores mayores en esa variable para ese diente.
-- **Color azul**: ${labelMap.female} tiene valores mayores.
-- **Blanco / color pálido**: diferencia pequeña o nula.
+```js
+display(htl.html`<ul>
+  <li><strong>Color rojo</strong>: ${labelMap.male} tiene valores mayores en esa variable para ese diente.</li>
+  <li><strong>Color azul</strong>: ${labelMap.female} tiene valores mayores.</li>
+  <li><strong>Blanco / color pálido</strong>: diferencia pequeña o nula.</li>
+</ul>`);
+```
 
 Guía de magnitud: |d| < 0.2 trivial · 0.2–0.5 pequeño · 0.5–0.8 moderado · > 0.8 grande.
 

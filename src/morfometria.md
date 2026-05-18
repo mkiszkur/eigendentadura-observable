@@ -4,8 +4,6 @@ title: Morfometría clínica
 
 # Morfometría clínica
 
-¿Cuál es la forma de arcada predominante en esta población? ¿Qué tan simétrica es la dentadura media? Esta sección deriva métricas clínicas de la geometría dental: **forma de arcada**, **overbite / overjet**, **índice de Bolton** y **simetría bilateral**, sobre **${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías** con landmarks condíleos.
-
 ```js
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";
@@ -27,6 +25,10 @@ const boltonData         = await FileAttachment("data/bolton.json").json();
 const occIndividuals     = await FileAttachment("data/occlusion_individuals.json").json();
 const individualsRaw     = await FileAttachment("data/individual_scores.json").json();
 const pantosRawM         = await FileAttachment("data/pantos_browser.json").json();
+```
+
+```js
+display(htl.html`<p>¿Cuál es la forma de arcada predominante en esta población? ¿Qué tan simétrica es la dentadura media? Esta sección deriva métricas clínicas de la geometría dental: <strong>forma de arcada</strong>, <strong>overbite / overjet</strong>, <strong>índice de Bolton</strong> y <strong>simetría bilateral</strong>, sobre <strong>${metadata.unique_pantos.toLocaleString("es-AR")} pantomografías</strong> con landmarks condíleos.</p>`);
 ```
 
 ```js
@@ -191,7 +193,11 @@ Medidas clásicas de oclusión calculadas a partir de los **centroides de los in
 
 Por estar basados en centroides 2D (y no en bordes incisales reales),
 estas son **proxies poblacionales** útiles para comparar dentaduras entre sí,
-no medidas clínicas en milímetros. n = ${occlusionData.n_dentitions} dentaduras con los 4 incisivos presentes.
+no medidas clínicas en milímetros.
+
+```js
+display(htl.html`<p>n = ${occlusionData.n_dentitions} dentaduras con los 4 incisivos presentes.</p>`);
+```
 
 <details>
 <summary>Cómo leer este gráfico</summary>
@@ -713,9 +719,9 @@ display(Inputs.table(boltRows, {
 }));
 ```
 
-<div style="font-size:0.85rem; color:#555; background:#f8f8f8; border:1px solid #e8e8e8; border-radius:4px; padding:0.7rem 1rem; margin:0.8rem 0 1.5rem; line-height:1.6;">
-<strong>Contexto bibliográfico</strong> — La mediana de esta cohorte (anterior: <strong>${boltonData.stats.anterior.median.toFixed(2)}</strong>, overall: <strong>${boltonData.stats.overall.median.toFixed(2)}</strong>) se mantiene dentro del rango normativo original de Bolton (1958). La dispersión observada (P05–P95 en la tabla) es más amplia que en la muestra original de Bolton (<em>n</em> = 55 individuos con oclusión ideal), lo cual es esperable dado el carácter poblacional —no seleccionado— de esta cohorte. Estudios en diversas poblaciones (Paredes-Gallardo &amp; Cibrián-Uhalte, 2006; Uysal et al., 2005) confirman amplia aplicabilidad transcultural de las normas de Bolton con variaciones menores.
-</div>
+```js
+display(htl.html`<div style="font-size:0.85rem; color:#555; background:#f8f8f8; border:1px solid #e8e8e8; border-radius:4px; padding:0.7rem 1rem; margin:0.8rem 0 1.5rem; line-height:1.6;"><strong>Contexto bibliográfico</strong> — La mediana de esta cohorte (anterior: <strong>${boltonData.stats.anterior.median.toFixed(2)}</strong>, overall: <strong>${boltonData.stats.overall.median.toFixed(2)}</strong>) se mantiene dentro del rango normativo original de Bolton (1958). La dispersión observada (P05–P95 en la tabla) es más amplia que en la muestra original de Bolton (<em>n</em> = 55 individuos con oclusión ideal), lo cual es esperable dado el carácter poblacional —no seleccionado— de esta cohorte. Estudios en diversas poblaciones (Paredes-Gallardo &amp; Cibrián-Uhalte, 2006; Uysal et al., 2005) confirman amplia aplicabilidad transcultural de las normas de Bolton con variaciones menores.</div>`);
+```
 
 ## Simetría bilateral
 

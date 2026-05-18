@@ -17,11 +17,13 @@ const splits  = await FileAttachment("data/anexo/splits.json").json();
 
 ## Pregunta de investigación
 
-Con el eval set ampliado a **n=${splits.eval_set_v3.n_total} pantos**
+```js
+display(htl.html`<p>Con el eval set ampliado a <strong>n=${splits.eval_set_v3.n_total} pantos</strong>
 (train ${splits.eval_set_v3.n_train} / test ${splits.eval_set_v3.n_test}),
 ¿alguna combinación de preprocesamiento de imagen (CLAHE / top-hat /
 unsharp masking) y re-anchor de priors a partir de anclas anatómicas
-batirá al prior geométrico en L1/L2/L6/L7?
+batirá al prior geométrico en L1/L2/L6/L7?</p>`);
+```
 
 ## Hipótesis
 

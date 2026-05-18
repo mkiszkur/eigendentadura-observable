@@ -111,11 +111,13 @@ abajo cuantifican la magnitud del problema:
 }
 ```
 
-**Casi la mitad del corpus** (${coverage.pct_missing} %) carece de
+```js
+display(htl.html`<p><strong>Casi la mitad del corpus</strong> (${coverage.pct_missing} %) carece de
 landmarks anotados por humanos. Sin un detector confiable o un prior
 robusto, esos pantos quedan fuera de la eigendentadura, la
 normalización por landmarks y la imputación FDI. Los cinco
-experimentos del anexo construyen y validan ese detector.
+experimentos del anexo construyen y validan ese detector.</p>`);
+```
 
 ## Conjuntos de validación
 
