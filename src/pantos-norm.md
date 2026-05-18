@@ -119,6 +119,12 @@ display(pantoTable({
   onSelectA: selectPantoA,
   onSelectB: selectPantoB,
   onPage: goToPage,
+  extraColumns: [
+    {key: "arch_depth_cluster", header: "Arc.",  width: "38px", sortKey: "arch_depth_cluster",
+     format: v => v == null ? "—" : (v === 1 ? "P" : "□")},
+    {key: "arch_depth_score",   header: "Δarc", width: "50px", sortKey: "arch_depth_score",
+     format: v => v == null ? "—" : v.toFixed(2)},
+  ],
 }));
 ```
 

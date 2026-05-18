@@ -45,11 +45,14 @@ const cariesFilterInput = Inputs.toggle({label: "Con caries", value: false});
 const cariesRequired = Generators.input(cariesFilterInput);
 const sinFdiInput = Inputs.toggle({label: "Sin FDI", value: false});
 const sinFdiFilter = Generators.input(sinFdiInput);
+const archClusterOpts = ["Todas", "Plano/irregular (0)", "Profundo/regular (1)", "Sin dato"];
+const archClusterInput = Inputs.select(archClusterOpts, {value: "Todas", label: "Arcada (exp30)"});
+const archClusterFilter = Generators.input(archClusterInput);
 ```
 
 ```js
 display(html`<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: end;">
-  ${searchInput}${catInput}${dentInput}${flagInput}
+  ${searchInput}${catInput}${dentInput}${flagInput}${archClusterInput}
 </div>`);
 ```
 
@@ -75,6 +78,11 @@ const pantos = allPantos.filter(p => {
   if (metalRequired && !(p.flags && p.flags["Metal"] > 0)) return false;
   if (cariesRequired && !(p.flags && p.flags["Caries"] > 0)) return false;
   if (sinFdiFilter && p.con_fdi > 0) return false;
+  if (archClusterFilter !== "Todas") {
+    if (archClusterFilter === "Sin dato") { if (p.arch_depth_cluster != null) return false; }
+    else if (archClusterFilter === "Plano/irregular (0)") { if (p.arch_depth_cluster !== 0) return false; }
+    else if (archClusterFilter === "Profundo/regular (1)") { if (p.arch_depth_cluster !== 1) return false; }
+  }
   return true;
 });
 ```
@@ -104,6 +112,12 @@ display(pantoTable({
   selectedA: selectedArchivo,
   onSelectA: selectRow,
   onPage: goToPage,
+  extraColumns: [
+    {key: "arch_depth_cluster", header: "Arc.",  width: "38px", sortKey: "arch_depth_cluster",
+     format: v => v == null ? "—" : (v === 1 ? "P" : "□")},
+    {key: "arch_depth_score",   header: "Δarc", width: "50px", sortKey: "arch_depth_score",
+     format: v => v == null ? "—" : v.toFixed(2)},
+  ],
 }));
 ```
 

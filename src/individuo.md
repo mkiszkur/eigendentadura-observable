@@ -365,6 +365,10 @@ display(pantoTable({
     {key: "z_ang",         header: "z_ang",   width: "42px", format: v => v != null ? v.toFixed(1) : "—"},
     {key: "arch_shape",    header: "Arcada",  width: "70px", format: v => v ?? "—"},
     {key: "arch_z",        header: "Δarc",    width: "42px", format: v => v != null ? v.toFixed(2) : "—"},
+    {key: "arch_depth_cluster", header: "Exp30", width: "42px",
+     format: v => v == null ? "—" : (v === 1 ? "P" : "□")},
+    {key: "arch_depth_score",   header: "Δexp30", width: "50px",
+     format: v => v == null ? "—" : v.toFixed(2)},
   ],
 }));
 ```

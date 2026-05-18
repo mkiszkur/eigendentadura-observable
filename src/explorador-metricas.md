@@ -67,6 +67,8 @@ const joined = individualsRaw.map(d => {
     n_resto:      pb.flags?.Restauracion         ?? 0,
     n_retenido:   pb.flags?.Retenido             ?? 0,
     n_raiz:       pb.flags?.["Raiz remanente"]   ?? 0,
+    arch_depth_score:   pb.arch_depth_score   ?? null,
+    arch_depth_cluster: pb.arch_depth_cluster ?? null,
   };
 });
 ```
@@ -224,6 +226,10 @@ const sortedFiltered = (() => {
     {key:"overbite",  header:"Overbite",     format: v => v != null ? fmt3(v)  : "—", sortKey:"overbite",  width:"70px",  align:"center"},
     {key:"bolton_ant",header:"Bolton ant",   format: v => v != null ? fmt1(v)+"%" : "—", sortKey:"bolton_ant", width:"80px", align:"center"},
     {key:"bolton_ov", header:"Bolton tot",   format: v => v != null ? fmt1(v)+"%" : "—", sortKey:"bolton_ov",  width:"80px", align:"center"},
+    {key:"arch_depth_cluster", header:"Arc.",  width:"40px", sortKey:"arch_depth_cluster",
+     format: v => v == null ? "—" : (v === 1 ? "P" : "□"), align:"center"},
+    {key:"arch_depth_score",   header:"Δarc", width:"55px", sortKey:"arch_depth_score",
+     format: v => v == null ? "—" : v.toFixed(2), align:"center"},
     {key:"sex",       header:"Sexo",         format: v => v ?? "—",             width:"55px",  align:"center"},
     {key:"origin",    header:"Origen",       format: v => v ?? "—",             width:"70px",  align:"center"},
   ];
