@@ -21,7 +21,7 @@ const PATHO_LABELS = {
   has_caries: "Caries",
   has_endodoncia: "Endodoncia",
   has_retenido: "Retenido",
-  has_radiolucidez: "Radiolucidez",
+  has_radiolucidez: "Radiolucencia",
   has_raiz_remanente: "Raíz remanente",
 };
 const PATHO_COLORS = {
@@ -59,7 +59,7 @@ function clearClickedGeo() { clickedGeo.value = null; }
 
 - **Atipicidad posicional (z_pos)** — promedio de $\sqrt{z_x^2 + z_y^2}$ por diente: cuántas desvíos estándar se aleja la posición de cada centroide del promedio poblacional.
 - **Atipicidad angular (z_ang)** — promedio de $|z_{ángulo}|$ por diente.
-- **Patologías consideradas**: Restauración, Caries, Endodoncia, Retenido, Radiolucidez, Raíz remanente. Los flags son a nivel pantomografía (conteo de dientes afectados), no por diente individual.
+- **Patologías consideradas**: Restauración, Caries, Endodoncia, Retenido, Radiolucencia, Raíz remanente. Los flags son a nivel pantomografía (conteo de dientes afectados), no por diente individual.
 - El análisis es **observacional y exploratorio**: correlación no implica causalidad. La dirección de causalidad (¿la atipicidad favorece la patología, o la patología altera la geometría?) no puede determinarse con datos de corte transversal.
 
 </details>
@@ -73,7 +73,7 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 
 - **Eje X (z_pos)** — atipicidad posicional: desvío promedio de los centroides dentales respecto al promedio poblacional, en desvíos estándar. Valores altos = dientes muy desplazados de su posición típica.
 - **Eje Y (z_ang)** — atipicidad angular: desvío medio del ángulo de cada diente respecto al ángulo poblacional medio.
-- **Color** — gradiente de amarillo a rojo: cuántos de los 6 tipos de patología agregados tiene esa dentadura simultáneamente (0 = ninguno, 6 = todos). Los 6 tipos son: Restauración, Caries, Endodoncia, Pieza retenida, Radiolucidez y Raíz remanente. Hay 21 dentaduras con los 6 tipos a la vez.
+- **Color** — gradiente de amarillo a rojo: cuántos de los 6 tipos de patología agregados tiene esa dentadura simultáneamente (0 = ninguno, 6 = todos). Los 6 tipos son: Restauración, Caries, Endodoncia, Pieza retenida, Radiolucencia y Raíz remanente. Hay 21 dentaduras con los 6 tipos a la vez.
 - **Nota**: este conteo difiere del indicador de multimorbilidad en la página Patologías, que usa 14 flags más granulares (ej. Caries incipiente / moderada / avanzada como tipos separados) y por eso llega a un máximo de 4.
 - **Ausencia de gradiente visible** — si la nube de puntos no muestra gradiente de color claro, indica que los pacientes con más patologías no se concentran en ningún cuadrante particular.
 - Los ejes están recortados al percentil 99 para excluir valores extremos; los puntos fuera del corte representan < 1 % de la muestra.
@@ -167,7 +167,7 @@ Cada punto es una pantomografía. El color indica el número de **tipos de patol
 }
 ```
 
-<small>Eje recortado en el percentil 99 para excluir outliers extremos. Los puntos recortados representan &lt; 1% de la muestra. Scroll/pinch para hacer zoom; doble clic para resetear. · El color cuenta <strong>6 flags agregados</strong> (Restauración, Caries, Endodoncia, Pieza retenida, Radiolucidez, Raíz remanente); el máximo posible es 6 y hay 21 dentaduras con los 6 a la vez. Esto difiere del gráfico de Multimorbilidad (pág. Patologías), que usa 14 flags más granulares y llega a un máximo de 4.</small>
+<small>Eje recortado en el percentil 99 para excluir outliers extremos. Los puntos recortados representan &lt; 1% de la muestra. Scroll/pinch para hacer zoom; doble clic para resetear. · El color cuenta <strong>6 flags agregados</strong> (Restauración, Caries, Endodoncia, Pieza retenida, Radiolucencia, Raíz remanente); el máximo posible es 6 y hay 21 dentaduras con los 6 a la vez. Esto difiere del gráfico de Multimorbilidad (pág. Patologías), que usa 14 flags más granulares y llega a un máximo de 4.</small>
 
 ## z_mean medio por carga patológica
 
