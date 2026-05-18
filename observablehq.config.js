@@ -32,6 +32,7 @@ export default {
         {name: "Geometría Dental",     path: "/geometria-dental"},
         {name: "Análisis de casos atípicos",  path: "/tipicidad"},
         {name: "Morfometría clínica",  path: "/morfometria"},
+        {name: "Forma del arco",       path: "/arch_form"},
         {name: "Patologías",           path: "/patologias"},
         {name: "Geometría × Patología", path: "/geo-patologia"},
         {name: "¿Existen subtipos?",   path: "/clusters"},
