@@ -2,13 +2,16 @@
 // (preview local), y en deploy a GitHub Pages se setea via env var.
 const base = process.env.OBSERVABLE_BASE || "/";
 
+import katex from "@vscode/markdown-it-katex";
+
 export default {
   title: "Analíticos visuales en odontología",
   root: "src",
   output: "dist",
   base,
   theme: "light",
-  head: '<link rel="stylesheet" href="/style.css">',
+  head: '<link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">',
+  markdownIt: (md) => md.use(katex.default ?? katex),
   header: '<div style="font-size:0.8rem;color:#777;text-align:right;padding:6px 1.2rem;border-bottom:1px solid #ececec;background:#fafafa;line-height:1.4;">Autor: Lic. Eduardo Miguel Kiszkurno &nbsp;·&nbsp; Directores: Dr. Claudio Delrieux, Dra. Debora Pollicelli</div>',
   footer: '<div style="font-size:0.78rem;color:#aaa;text-align:center;padding:10px 1rem 16px;border-top:1px solid #f0f0f0;margin-top:3rem;">Maestría en Explotación de Datos y Descubrimiento del Conocimiento — UBA FCEN</div>',
   pages: [
