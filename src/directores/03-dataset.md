@@ -19,8 +19,12 @@ display(directoresNav("03"));
 ```js
 import {funnelChart, teethDistChart} from "../components/funnel-chart.js";
 import {zoomableChart} from "../components/zoomable-chart.js";
+import {paginatedTable} from "../components/paginated-table.js";
+import {openPantoModal} from "../components/panto-modal.js";
 import * as d3 from "d3";
 const ds = await FileAttachment("../data/dataset_stats.json").json();
+const pantosRaw = await FileAttachment("../data/pantos_browser.json").json();
+const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
 ```
 
 ```js
@@ -265,15 +269,29 @@ manuales) se documentan en `docs/dataset/errores_datos.md`.
 
 ---
 
-## 3.7 Clasificación de calidad A–E
+## 3.7 Sistema de calidad A–E (construcción propia)
+
+**Motivación.** El dataset no traía una etiqueta de calidad lista para
+filtrar. Para los análisis morfométricos necesitábamos un criterio
+**objetivo, reproducible y trazable** que permitiera (i) excluir
+denticiones no permanentes (mixta / temporal), (ii) separar pantos con
+identificación FDI completa de las parciales, y (iii) priorizar dentro
+de la cohorte permanente las pantos sin patología — *gold standard*
+para estimar la dentadura media.
+
+La **categoría** (A–E) y el **score** (0–100) son una **construcción
+del pipeline** (`lib.panto.Panto.calidad_categoria` /
+`.calidad_score`). No vienen del JSON crudo; se derivan de los flags
+de dentición, del porcentaje de FDI anotado, de `landmarks_complete`
+y del conteo de flags de patología.
 
 ```js
 const cal = [
-  {cat: "A", desc: "Ideal — FDI 100% sin patología",  n: 86,    pct: 1.7,  color: "#54a24b"},
-  {cat: "B", desc: "Muy buena — FDI 100% con patología", n: 2415, pct: 47.2, color: "#72b7b2"},
-  {cat: "C", desc: "Aceptable — FDI ≥85% <100%",         n: 6,    pct: 0.1,  color: "#f58518"},
-  {cat: "D", desc: "Limitada — FDI <85% (en práctica =0%)", n: 1882, pct: 36.8, color: "#e45756"},
-  {cat: "E", desc: "Excluir — dentición mixta o temporal",  n: 725,  pct: 14.2, color: "#888"},
+  {cat: "A", desc: "Ideal — FDI 100% sin patología",       n: 86,   pct: 1.7,  color: "#54a24b", score: "80–100"},
+  {cat: "B", desc: "Muy buena — FDI 100% con patología",   n: 2415, pct: 47.2, color: "#72b7b2", score: "50–90"},
+  {cat: "C", desc: "Aceptable — FDI 85–99 %",              n: 6,    pct: 0.1,  color: "#f58518", score: "50–95"},
+  {cat: "D", desc: "Limitada — FDI <85 % (en práctica =0%)", n: 1882, pct: 36.8, color: "#e45756", score: "0–66"},
+  {cat: "E", desc: "Excluir — dentición mixta o temporal",  n: 725,  pct: 14.2, color: "#888",    score: "5–15"},
 ];
 display(Plot.plot({
   width: Math.min(width, 700), height: 220, marginLeft: 30,
@@ -288,15 +306,235 @@ display(Plot.plot({
 }));
 ```
 
-**Hallazgo clave.** No existen identificaciones FDI parciales. Los pantos
-tienen FDI completo (100%) o nulo (0%). El filtro queda **binario** en la
-práctica.
+```js
+display(html`<table style="width:100%; max-width:780px; border-collapse:collapse; font-size:0.85rem; margin-top:0.4rem;">
+  <thead style="background:#f5f5f5;"><tr>
+    <th style="text-align:center; padding:6px 10px;">Cat.</th>
+    <th style="text-align:left; padding:6px 10px;">Criterio</th>
+    <th style="text-align:center; padding:6px 10px;">Score</th>
+    <th style="text-align:right; padding:6px 10px;">n</th>
+    <th style="text-align:right; padding:6px 10px;">%</th>
+  </tr></thead>
+  <tbody>${cal.map(c => html`<tr style="border-bottom:1px solid #eee;">
+    <td style="padding:5px 10px; text-align:center; font-weight:700; color:${c.color};">${c.cat}</td>
+    <td style="padding:5px 10px;">${c.desc}</td>
+    <td style="padding:5px 10px; text-align:center; color:#555; font-family:monospace;">${c.score}</td>
+    <td style="padding:5px 10px; text-align:right;">${c.n.toLocaleString("es-AR")}</td>
+    <td style="padding:5px 10px; text-align:right;">${c.pct.toFixed(1)} %</td>
+  </tr>`)}</tbody>
+</table>`);
+```
 
-> 📓 Notebook 003
+### Algoritmo de clasificación
+
+La lógica es un árbol de decisión sobre las propiedades de la panto.
+Sean $p_\text{FDI}$ el porcentaje de dientes con identificación FDI,
+$n_\text{patol}$ el conteo de flags de patología y $\mathbb{1}_\text{LM}$
+el indicador de landmarks completos:
+
+$$
+\text{categoria} = \begin{cases}
+\text{E} & \text{si dentición mixta o temporal,} \\
+\text{D} & \text{si } p_\text{FDI} < 85, \\
+\text{C} & \text{si } 85 \le p_\text{FDI} < 100, \\
+\text{A} & \text{si } p_\text{FDI} = 100 \text{ y } n_\text{patol} = 0, \\
+\text{B} & \text{si } p_\text{FDI} = 100 \text{ y } n_\text{patol} > 0.
+\end{cases}
+$$
+
+El **score** ajusta dentro de cada categoría: bonus por
+`landmarks_complete`, por `permanent_complete`, por tener exactamente
+32 dientes (categoría A) o por ausencia de patologías; penalización
+en B por cantidad de flags ($-\min(n_\text{patol}/3, 10)$).
+
+<details>
+<summary>▸ Fórmula completa del score por categoría</summary>
+
+| Categoría | Score base | Bonus | Tope |
+|---|---|---|---|
+| **E** | 5 (temp.) o 10 (mixta) | +5 si landmarks | 15 |
+| **D** | $\lfloor 0{,}6 \cdot p_\text{FDI} \rfloor$ | +10 LM, +5 si $n_\text{patol}=0$ | 99 |
+| **C** | $50 + 2(p_\text{FDI}-85)$ | +10 LM, +5 si $n_\text{patol}=0$ | 99 |
+| **A** | 80 | +15 si `perm_complete` ∧ 32 dientes; +10 si solo `perm_complete`; +5 si LM | 100 |
+| **B** | 70 | +10 `perm_complete`, +5 si $\ge 28$ dientes, +5 LM, $-\min(n_\text{patol}/3, 10)$ | $\ge 50$ |
+
+Implementación: `lib/panto/_panto.py::_calcular_calidad()`.
+
+</details>
+
+**Hallazgo clave.** No existen identificaciones FDI parciales. Las
+pantos tienen FDI completo (100 %) o nulo (0 %). El filtro queda
+**binario** en la práctica: la categoría C es residual (6 pantos) y D
+se colapsa con $p_\text{FDI}=0$.
+
+> 📓 Notebook 003 · `lib/panto/_panto.py`
 
 ---
 
-## 3.8 Consideraciones éticas
+## 3.8 Explorador interactivo del dataset
+
+La tabla siguiente permite **navegar las 5.113 pantos** del corpus
+combinando filtros por categoría, dentición, completitud FDI y
+landmarks. **Click en cualquier fila** abre el panel detallado del
+panto (esquema dental + odontograma + metadatos).
+
+Es el mismo modal que se usa en el [sitio público para odontólogos](../).
+Aquí está restringido a fines metodológicos: validar visualmente
+clasificaciones, encontrar casos atípicos, inspeccionar errores.
+
+```js
+// Enriquecer cada panto con métricas derivadas (no se recalcula nada,
+// solo se aplanan campos del JSON crudo para que la tabla los pueda
+// filtrar y ordenar).
+const pantosTable = pantosRaw.pantos.map(p => {
+  const flagsTotal = p.flags ? Object.values(p.flags).reduce((a,b)=>a+b, 0) : 0;
+  const flagsLabels = p.flags ? Object.keys(p.flags).sort() : [];
+  return {
+    archivo: p.archivo,
+    categoria: p.categoria ?? "–",
+    score: p.score ?? null,
+    denticion: p.denticion ?? "–",
+    dientes: p.dientes ?? 0,
+    con_fdi: p.con_fdi ?? 0,
+    pct_fdi: p.dientes ? Math.round(100 * (p.con_fdi ?? 0) / p.dientes) : 0,
+    fdi_completo: p.fdi_completo ? "Sí" : "No",
+    lm_completo: p.lm_completo ? "Sí" : "No",
+    n_super: p.n_super ?? 0,
+    n_flags: flagsTotal,
+    flags_str: flagsLabels.join(", ") || "—",
+    _raw: p,
+  };
+});
+const pantosMap = new Map(pantosRaw.pantos.map(p => [p.archivo, p]));
+```
+
+```js
+// Estado de búsqueda y filtros rápidos.
+const searchInput = view(Inputs.search(pantosTable, {
+  placeholder: "Buscar por ID de archivo (ej. 00c0Dy...)",
+  columns: ["archivo"],
+  width: 360,
+}));
+```
+
+```js
+const presetSel = view(Inputs.radio(
+  [
+    "Todas",
+    "Universo geométrico (FDI ∧ landmarks)",
+    "Categoría A (gold standard)",
+    "Categoría E (excluir)",
+    "Sin landmarks",
+    "Posibles supernumerarios (n_super > 0)",
+    "FDI incompleto (< 100 %)",
+  ],
+  {label: "Filtro rápido", value: "Todas"},
+));
+```
+
+```js
+function applyPreset(rows, preset) {
+  switch (preset) {
+    case "Universo geométrico (FDI ∧ landmarks)":
+      return rows.filter(r => r.fdi_completo === "Sí" && r.lm_completo === "Sí");
+    case "Categoría A (gold standard)":
+      return rows.filter(r => r.categoria === "A");
+    case "Categoría E (excluir)":
+      return rows.filter(r => r.categoria === "E");
+    case "Sin landmarks":
+      return rows.filter(r => r.lm_completo === "No");
+    case "Posibles supernumerarios (n_super > 0)":
+      return rows.filter(r => r.n_super > 0);
+    case "FDI incompleto (< 100 %)":
+      return rows.filter(r => r.fdi_completo === "No");
+    default:
+      return rows;
+  }
+}
+const filteredRows = applyPreset(searchInput, presetSel);
+```
+
+```js
+// Contador.
+display(html`<div style="font-size:0.82rem; color:#555; margin:0.4rem 0 0.6rem;">
+  Mostrando <strong>${filteredRows.length.toLocaleString("es-AR")}</strong>
+  de <strong>${pantosTable.length.toLocaleString("es-AR")}</strong> pantos.
+  ${filteredRows.length === pantosTable.length ? "" : html`<span style="color:#888;"> · filtro: ${presetSel}</span>`}
+</div>`);
+```
+
+```js
+// Estado para modal
+const clickedPanto = Mutable(null);
+function setClickedPanto(p) { clickedPanto.value = p; }
+function clearClickedPanto() { clickedPanto.value = null; }
+```
+
+```js
+// Disparar modal cuando hay panto clickeada
+{
+  const c = clickedPanto;
+  if (c) {
+    openPantoModal({
+      id: c.archivo,
+      pantoMeta: pantosMap.get(c.archivo) ?? null,
+      toothStats: toothStatsLM,
+      extraBadges: [
+        {label: "score", value: c.score?.toFixed(1) ?? "–", color: "#4c78a8"},
+        {label: "% FDI",  value: `${c.pct_fdi}`, color: "#54a24b"},
+        ...(c.n_flags > 0 ? [{label: "flags", value: String(c.n_flags), color: "#f58518"}] : []),
+      ],
+      onClose: clearClickedPanto,
+      invalidation,
+    });
+  }
+}
+```
+
+```js
+function catBadge(cat) {
+  const col = ({A:"#54a24b", B:"#72b7b2", C:"#f58518", D:"#e45756", E:"#888"})[cat] ?? "#aaa";
+  return html`<span style="display:inline-block;width:1.4em;height:1.4em;line-height:1.4em;text-align:center;background:${col}22;color:${col};border-radius:50%;font-weight:700;font-size:0.78rem;">${cat}</span>`;
+}
+
+display(paginatedTable({
+  data: filteredRows,
+  pageSize: 12,
+  filterable: true,
+  onRowClick: row => setClickedPanto(row),
+  columns: [
+    {key: "archivo",      header: "ID archivo",   type: "string",   sortable: true,
+     format: v => html`<span style="font-family:monospace;font-size:0.78rem;color:#4c78a8;">${v}</span>`},
+    {key: "categoria",    header: "Cat.",          type: "category", sortable: true,
+     format: v => catBadge(v)},
+    {key: "score",        header: "Score",         type: "number",   sortable: true,
+     format: v => v != null ? v.toFixed(0) : "–"},
+    {key: "denticion",    header: "Dentición",     type: "category", sortable: true},
+    {key: "dientes",      header: "# dientes",     type: "number",   sortable: true},
+    {key: "pct_fdi",      header: "% FDI",         type: "number",   sortable: true,
+     format: v => `${v} %`},
+    {key: "fdi_completo", header: "FDI 100 %",     type: "category", sortable: true},
+    {key: "lm_completo",  header: "Landmarks",     type: "category", sortable: true},
+    {key: "n_super",      header: "Super.",        type: "number",   sortable: true},
+    {key: "n_flags",      header: "# flags",       type: "number",   sortable: true},
+    {key: "flags_str",    header: "Patologías",    type: "string",   sortable: false,
+     format: v => html`<span style="color:#666;font-size:0.78rem;">${v}</span>`},
+  ],
+}));
+```
+
+<div style="font-size:0.78rem; color:#888; margin-top:0.5rem;">
+  Los filtros desplegables del encabezado de la tabla se combinan con el filtro
+  rápido y la búsqueda. La columna “# flags” cuenta el total de patologías
+  declaradas (suma sobre las 13 categorías de la sección 3.6).
+</div>
+
+> 📓 Dato fuente: `pantos_browser.json` (generado por `pipeline/stage_06_observable.py`).
+> Modal: `lib`-independiente, define el contrato en `observable/src/components/panto-modal.js`.
+
+---
+
+## 3.9 Consideraciones éticas
 
 - **Anonimización**: identificador primario es un hash interno
   (`panto_id`), no asociable a historia clínica sin acceso autorizado.
