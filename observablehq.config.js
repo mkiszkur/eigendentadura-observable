@@ -1,7 +1,12 @@
+// `base` define el sub-path donde se sirve el sitio. En `npm run dev` queda en "/"
+// (preview local), y en deploy a GitHub Pages se setea via env var.
+const base = process.env.OBSERVABLE_BASE || "/";
+
 export default {
   title: "Analíticos visuales en odontología",
   root: "src",
   output: "dist",
+  base,
   theme: "light",
   head: '<link rel="stylesheet" href="/style.css">',
   header: '<div style="font-size:0.8rem;color:#777;text-align:right;padding:6px 1.2rem;border-bottom:1px solid #ececec;background:#fafafa;line-height:1.4;">Autor: Lic. Eduardo Miguel Kiszkurno &nbsp;·&nbsp; Directores: Dr. Claudio Delrieux, Dra. Debora Pollicelli</div>',
