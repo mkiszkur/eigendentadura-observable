@@ -21,22 +21,11 @@ import {funnelChart, teethDistChart} from "../components/funnel-chart.js";
 import {zoomableChart} from "../components/zoomable-chart.js";
 import {paginatedTable} from "../components/paginated-table.js";
 import {openPantoModal} from "../components/panto-modal.js";
+import {kpi} from "../components/kpi.js";
 import * as d3 from "d3";
 const ds = await FileAttachment("../data/dataset_stats.json").json();
 const pantosRaw = await FileAttachment("../data/pantos_browser.json").json();
 const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
-```
-
-```js
-function kpi(items) {
-  return html`<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:1rem; margin:0.6rem 0 1.4rem;">
-    ${items.map(it => html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:0.85rem 1.1rem; border-radius:6px;">
-      <div style="font-size:0.65rem; color:#666; text-transform:uppercase; letter-spacing:.05em;">${it.label}</div>
-      <div style="font-size:1.7rem; font-weight:700; color:${it.color}; line-height:1.1; margin-top:2px;">${it.value}</div>
-      <div style="font-size:0.78rem; color:#666; margin-top:3px;">${it.sub ?? ""}</div>
-    </div>`)}
-  </div>`;
-}
 ```
 
 ## 3.1 Origen y volumen
@@ -92,20 +81,20 @@ display(Plot.plot({
 ```
 
 ```js
-display(html`<table style="width:100%; max-width:760px; border-collapse:collapse; font-size:0.85rem;">
-  <thead style="background:#f5f5f5;"><tr>
-    <th style="text-align:left; padding:6px 10px;">Versión</th>
-    <th style="text-align:right; padding:6px 10px;">n</th>
-    <th style="text-align:center; padding:6px 10px;">Landmarks</th>
-    <th style="text-align:center; padding:6px 10px;">flag <code>dental_restoration</code></th>
-    <th style="text-align:center; padding:6px 10px;">flag <code>atheroma</code></th>
+display(html`<table class="data-table" style="max-width:760px;">
+  <thead><tr>
+    <th>Versión</th>
+    <th style="text-align:right;">n</th>
+    <th style="text-align:center;">Landmarks</th>
+    <th style="text-align:center;">flag <code>dental_restoration</code></th>
+    <th style="text-align:center;">flag <code>atheroma</code></th>
   </tr></thead>
-  <tbody>${versiones.map(v => html`<tr style="border-bottom:1px solid #eee;">
-    <td style="padding:5px 10px; font-family:monospace;">${v.ver}</td>
-    <td style="padding:5px 10px; text-align:right;">${v.n.toLocaleString("es-AR")}</td>
-    <td style="padding:5px 10px; text-align:center; color:${v.landmarks?"#54a24b":"#e45756"};">${v.landmarks?"✓":"✗"}</td>
-    <td style="padding:5px 10px; text-align:center; color:${v.restoration?"#54a24b":"#e45756"};">${v.restoration?"✓":"✗"}</td>
-    <td style="padding:5px 10px; text-align:center; color:${v.atheroma?"#54a24b":"#e45756"};">${v.atheroma?"✓":"✗"}</td>
+  <tbody>${versiones.map(v => html`<tr>
+    <td style="font-family:monospace;">${v.ver}</td>
+    <td style="text-align:right;">${v.n.toLocaleString("es-AR")}</td>
+    <td style="text-align:center; color:${v.landmarks?"var(--color-positive)":"var(--color-danger)"};">${v.landmarks?"✓":"✗"}</td>
+    <td style="text-align:center; color:${v.restoration?"var(--color-positive)":"var(--color-danger)"};">${v.restoration?"✓":"✗"}</td>
+    <td style="text-align:center; color:${v.atheroma?"var(--color-positive)":"var(--color-danger)"};">${v.atheroma?"✓":"✗"}</td>
   </tr>`)}</tbody>
 </table>`);
 ```
@@ -137,18 +126,18 @@ Cierre en `docs/experimentos/20_sesgo_version_labelme/01_cierre.md`.
 Cada diente tiene **3 shapes** relacionadas:
 
 ```js
-display(html`<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1rem; margin:1rem 0;">
-  <div style="border:1px solid #ddd; padding:0.9rem; border-radius:6px;">
-    <div style="font-weight:600; color:#4c78a8;">Polígono</div>
-    <div style="font-size:0.85rem; color:#555; margin-top:4px;">14–24 puntos del contorno del diente. <strong>Lleva los flags clínicos</strong>.</div>
+display(html`<div class="simple-card-grid">
+  <div class="simple-card">
+    <div style="font-weight:600; color:var(--color-primary);">Polígono</div>
+    <div style="font-size:0.85rem; color:var(--color-text-soft); margin-top:4px;">14–24 puntos del contorno del diente. <strong>Lleva los flags clínicos</strong>.</div>
   </div>
-  <div style="border:1px solid #ddd; padding:0.9rem; border-radius:6px;">
-    <div style="font-weight:600; color:#54a24b;">Centroide</div>
-    <div style="font-size:0.85rem; color:#555; margin-top:4px;">Punto único marcando el centro geométrico del diente.</div>
+  <div class="simple-card">
+    <div style="font-weight:600; color:var(--color-positive);">Centroide</div>
+    <div style="font-size:0.85rem; color:var(--color-text-soft); margin-top:4px;">Punto único marcando el centro geométrico del diente.</div>
   </div>
-  <div style="border:1px solid #ddd; padding:0.9rem; border-radius:6px;">
-    <div style="font-weight:600; color:#f58518;">MinBBox</div>
-    <div style="font-size:0.85rem; color:#555; margin-top:4px;">Bounding box mínimo rotado (4 vértices). De aquí sale el ángulo del diente.</div>
+  <div class="simple-card">
+    <div style="font-weight:600; color:var(--color-warning);">MinBBox</div>
+    <div style="font-size:0.85rem; color:var(--color-text-soft); margin-top:4px;">Bounding box mínimo rotado (4 vértices). De aquí sale el ángulo del diente.</div>
   </div>
 </div>`);
 ```
