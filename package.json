@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "observable preview",
     "build": "observable build && cp -r src/data/pantos_geometry dist/_file/data/",
-    "data": "../.venv/bin/python3 generate_data.py"
+    "data": "../.venv/bin/python3 generate_data.py",
+    "lint:md": "node scripts/lint-md-interpolation.mjs"
   },
   "keywords": [],
   "author": "",
