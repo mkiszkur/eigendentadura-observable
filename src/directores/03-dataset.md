@@ -41,13 +41,15 @@ function kpi(items) {
 
 ## 3.1 Origen y volumen
 
-${kpi([
+```js
+display(kpi([
   {label: "Archivos JSON", value: "5.114", sub: "1 panto = 1 JSON LabelMe", color: "#4c78a8"},
   {label: "Shapes totales", value: "475.985", sub: "anotaciones individuales", color: "#4e8c9e"},
   {label: "Dientes anotados", value: "146.596", sub: "polígonos con FDI", color: "#54a24b"},
   {label: "Promedio shapes/panto", value: "≈93", sub: "dientes + landmarks + auxiliares", color: "#7b52ab"},
   {label: "Centros clínicos", value: "2", sub: "Centro A · Centro B", color: "#f58518"},
-])}
+]));
+```
 
 Cada archivo JSON es la salida de LabelMe. Contiene:
 
