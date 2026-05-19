@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "n_pantos": 853,
+    "B": 300,
+    "seed": 20260519,
+    "source_experiment": "exp35_desplazamiento_ejes_dentales"
+  },
+  "variants": {
+    "V_img": {
+      "pc1_pct": 29.966130139186564,
+      "pc1_ci95_pct": [
+        28.85887755913127,
+        31.44977030803669
+      ],
+      "pr": 5.13819879006366,
+      "r2_combined": 0.12401834723131677,
+      "pc1_per_tooth_mean_pct": 41.208670181288774
+    },
+    "V_local_perFDI": {
+      "pc1_pct": 31.2805260084419,
+      "pc1_ci95_pct": [
+        30.037772975236926,
+        32.47948089317892
+      ],
+      "pr": 4.987193654138215,
+      "r2_combined": 0.12141147757521131,
+      "pc1_per_tooth_mean_pct": 46.38926946063202
+    },
+    "V_local_perTooth": {
+      "pc1_pct": 30.17071057679016,
+      "pc1_ci95_pct": [
+        29.11671361871944,
+        31.314322981841293
+      ],
+      "pr": 5.003743883416239,
+      "r2_combined": 0.11347466910866788,
+      "pc1_per_tooth_mean_pct": 45.594071067155
+    }
+  },
+  "procrustes_d2": {
+    "V_img__V_local_perFDI": 0.025971479655119655,
+    "V_img__V_local_perTooth": 0.05235607531143358,
+    "V_local_perFDI__V_local_perTooth": 0.025579321644558537
+  },
+  "displacement_variance": {
+    "var_along": 0.0022467678387594254,
+    "var_across": 0.0004043237218989118,
+    "ratio_along_over_across": 5.556853856238255,
+    "var_x_img": 0.020680575499860975,
+    "var_y_img": 0.014215857904297167,
+    "ratio_x_over_y_img": 1.4547539541848473
+  },
+  "summary_metrics": {
+    "delta_pc1_img_vs_local_per_tooth_pp": 0.204580437603596,
+    "ari_k4_img_vs_local_per_tooth": 0.8357386448634104,
+    "pc1_per_tooth_lift_pp": 4.3854008858662255
+  }
+}

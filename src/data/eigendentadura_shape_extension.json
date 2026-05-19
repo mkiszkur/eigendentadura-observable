@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "n_pantos": 853,
+    "B": 300,
+    "seed": 20260519,
+    "source_experiment": "exp34_contornos_eigendentadura"
+  },
+  "variants": {
+    "V_base": {
+      "n_features": 96,
+      "pc1_pct": 29.966130139186586,
+      "pc1_ci95_pct": [
+        28.858877559131308,
+        31.449770308036694
+      ],
+      "pr": 5.6982734219553235,
+      "r2_combined": 0.12401834723131677
+    },
+    "V_shape": {
+      "n_features": 352,
+      "pc1_pct": 9.790819588067787,
+      "pc1_ci95_pct": [
+        9.345256925354027,
+        10.59760338075369
+      ],
+      "pr": 11.205594582258358,
+      "r2_combined": 0.0779763842422474
+    },
+    "V_shape_only": {
+      "n_features": 256,
+      "pc1_pct": 9.640748023986816,
+      "pc1_ci95_pct": [
+        8.965575154870749,
+        10.947649460285902
+      ],
+      "pr": 11.958593368530273,
+      "r2_combined": 0.06071064666077919
+    }
+  },
+  "procrustes_d2": {
+    "V_base__V_shape": 0.7350517577360829,
+    "V_base__V_shape_only": 1.2932531217718726,
+    "V_shape__V_shape_only": 0.34247731349523947
+  },
+  "first_shape_dominated_pc": {
+    "pc": 1,
+    "var_pct": 9.790819588067787,
+    "frac_shape": 0.6243965722254876
+  },
+  "summary_metrics": {
+    "ari_base_vs_shapeonly_k2": 0.014528591591971216,
+    "pr_lift_v_shape_over_v_base": 1.96648945259163
+  }
+}

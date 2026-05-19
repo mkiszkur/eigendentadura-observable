@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "n_pantos": 853,
+    "B": 300,
+    "seed": 20260519,
+    "source_experiment": "exp33_minbbox_eigendentadura"
+  },
+  "variants": {
+    "V_base": {
+      "n_features": 96,
+      "pc1_pct": 29.966130139186586,
+      "pc1_ci95_pct": [
+        28.85887755913128,
+        31.44977030803669
+      ],
+      "pr": 5.69982383347659,
+      "r2_combined": 0.12401834723131677
+    },
+    "V_size": {
+      "n_features": 192,
+      "pc1_pct": 21.72224064199501,
+      "pc1_ci95_pct": [
+        20.65159555480048,
+        23.248154020748505
+      ],
+      "pr": 6.908111743148341,
+      "r2_combined": 0.10899957209875988
+    },
+    "V_size_only": {
+      "n_features": 96,
+      "pc1_pct": 23.72400213844289,
+      "pc1_ci95_pct": [
+        22.413602933642085,
+        25.67829665256402
+      ],
+      "pr": 6.5987070378162676,
+      "r2_combined": 0.09398079696620254
+    }
+  },
+  "procrustes_d2": {
+    "V_base__V_size": 0.4765646276307207,
+    "V_base__V_size_only": 0.8183223746947044,
+    "V_size__V_size_only": 0.28986876345790485
+  },
+  "first_size_dominated_pc": {
+    "pc": 1,
+    "var_pct": 21.72224064199501,
+    "frac_size": 0.624185100908406
+  },
+  "summary_metrics": {
+    "ari_base_vs_sizeonly_k2": 0.18204789523242695,
+    "pr_lift_v_size_over_v_base": 1.2119868867832637
+  }
+}
