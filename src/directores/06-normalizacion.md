@@ -204,8 +204,8 @@ rotación** de los componentes, sino una reorganización completa.
 
 ```js
 const pcaPieza = [
-  {variante: "3F-img",  features: "cx_norm, cy_norm, angle", pc1: 40.0, pc1pc2: 73.4, color: "#bbb"},
-  {variante: "3F-lm",   features: "cx_lm, cy_lm, angle",     pc1: 57.0, pc1pc2: 90.1, color: "#54a24b"},
+  {variante: "3F-img",  features: "cx_norm, cy_norm, angle_normalized", pc1: 40.0, pc1pc2: 73.4, color: "#bbb"},
+  {variante: "3F-lm",   features: "cx_lm, cy_lm, angle_normalized_lm",   pc1: 43.1, pc1pc2: 74.8, color: "#54a24b"},
   {variante: "8F-lm",   features: "+ 5 geométricos (área, compactness, …)", pc1: 39.7, pc1pc2: 61.4, color: "#e45756"},
 ];
 display(html`<table style="width:100%; max-width:780px; border-collapse:collapse; font-size:0.9rem;">
@@ -224,23 +224,17 @@ display(html`<table style="width:100%; max-width:780px; border-collapse:collapse
 </table>`);
 ```
 
-**3F-lm es claramente superior**: PC1 promedio pasa de 40% a 57% y PC1+PC2
-de 73% a 90%. Los **features geométricos adicionales (8F-lm) diluyen la
-señal posicional**: con 8 features PC1 pasa a estar dominada por
-`minbbox_area` (28/32 piezas), capturando tamaño pero no estructura
-posicional. Conclusión: **(cx_lm, cy_lm, angle) es el set óptimo**.
+**3F-lm concentra ligeramente más varianza en PC1** (43,1 % vs 40,0 %; PC1+PC2 74,8 % vs 73,4 %). Los **features geométricos adicionales (8F-lm) diluyen la señal posicional**: con 8 features PC1 pasa a estar dominada por `minbbox_area` (28/32 piezas), capturando tamaño pero no estructura posicional. Conclusión: **(cx_lm, cy_lm, angle_normalized_lm) es el set óptimo**.
 
 ### Clustering por pieza (K-Means k=2..6)
 
 | Variante | Silhouette | Calinski-H | k mediana | Outliers (|z|>3) |
 |---|---|---|---|---|
-| 3F-img | 0.260 ± 0.013 | 866 ± 146 | 2 | 2.1% |
-| **3F-lm** | **0.381 ± 0.070** | **1907 ± 760** | **2** | **1.3%** |
-| 8F-lm | 0.259 ± 0.033 | 918 ± 112 | 2 | 5.8% |
+| 3F-img | 0,260 ± 0,013 | 866 ± 146 | 2 | 2,1 % |
+| **3F-lm** | **0,262 ± 0,016** | **902 ± 150** | **2** | **2,0 %** |
+| 8F-lm | 0,214 ± 0,031 | 669 ± 102 | 2 | 6,3 % |
 
-Silhouette **+47%** vs imagen; Calinski **+120%**. 8F-lm además remueve
-3× más outliers, evidenciando distribuciones con colas pesadas: confirma
-que sumar área/forma agrega ruido, no señal.
+Silhouette **+0,8 %** vs imagen; Calinski **+4 %**. **La normalización por landmarks no mejora la separabilidad de subgrupos por pieza** —un resultado negativo coherente con la conclusión del capítulo 9 (P3: ausencia de subgrupos discretos). 8F-lm además remueve 3× más outliers (6,3 % vs 2,0 %), evidenciando distribuciones con colas pesadas: confirma que sumar área/forma agrega ruido, no señal.
 
 > 📓 Notebook 037
 
@@ -268,9 +262,13 @@ calidad de clustering**, no std crudo.
   requiere bbox-norm como fallback.
 - Landmarks L1–L7 son **anotaciones manuales** y tienen variabilidad de
   medición.
-- El ángulo del diente (`angle_normalized`) **no se ve afectado** por
-  esta normalización; rotar por el eje intercondíleo podría sumar señal
-  marginal (futuro).
+- El ángulo del diente dispone de dos versiones: `angle_normalized`
+  (frente a la imagen) y `angle_normalized_lm` (rotado por el eje
+  intercondíleo). Para coherencia de frame, los análisis con
+  coordenadas `*_lm` usan `angle_normalized_lm`; los análisis con
+  `*_norm` usan `angle_normalized`. Impacto cuantitativo pequeño
+  (Procrustes $d^2/\|A\|^2 = 0{,}012$ entre la variante mixta previa
+  y la coherente actual), pero metodológicamente necesario.
 - Trabajo futuro: explorar **transformación afín** (3 puntos) en piezas
   donde la similitud sea insuficiente.
 
