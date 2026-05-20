@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "N": 831,
+    "P": 96,
+    "K": 10,
+    "source_experiment": "exp21_manifold"
+  },
+  "intrinsic_dim": {
+    "two_nn": 20.133112548036856,
+    "method": "Facco et al. 2017 (Two-NN, frac=0.9)"
+  },
+  "pca": {
+    "r2_reconstruction": 0.7570471860891097,
+    "rho_distances": 0.971939827612956,
+    "var_cumulative_k10": 0.7570344306793111
+  },
+  "kernel_pca_rbf": {
+    "best_gamma": 0.005208333333333333,
+    "r2_reconstruction": 0.6627041549358172,
+    "rho_distances": 0.8455959072002905
+  },
+  "isomap": {
+    "n_neighbors": 30,
+    "reconstruction_error": 31.580741904357026,
+    "rho_distances": 0.9271436128158351
+  },
+  "umap_best": {
+    "n_neighbors": 15,
+    "min_dist": 0.5,
+    "rho_distances": 0.7256758007752944
+  }
+}
