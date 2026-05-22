@@ -153,8 +153,8 @@ display(Inputs.table(metrics, {
 | **H2** — ≥4/7 sin LLM | **Cierta** · 5/7 |
 | **H3** — CV + LLM supera Geom | **No testeada** · F4 no ejecutado, queda diferido |
 
-**Mediana agregada** del pipeline mixto: 1.79 % vs Geom 2.93 % vs
-LLM v2 3.81 %. Pero el **max** sube a 10.92 % por un outlier (panto
+**Mediana agregada** del pipeline mixto: 1,79 % vs Geom 2,93 % vs
+LLM v2 3,81 %. Pero el **max** sube a 10,92 % por un outlier (panto
 LMCZyn) que requiere fallback no implementado.
 
 ## Limitaciones explícitas

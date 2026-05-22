@@ -258,7 +258,7 @@ calidad de clustering**, no std crudo.
 
 ## 6.7 Limitaciones
 
-- **Cobertura 46.2%** sin landmarks → análisis sobre toda la población
+- **Cobertura 46,2 %** sin landmarks → análisis sobre toda la población
   requiere bbox-norm como fallback.
 - Landmarks L1–L7 son **anotaciones manuales** y tienen variabilidad de
   medición.

@@ -155,9 +155,9 @@ detector nuevo por landmark.
 
 ## Por qué la inversión L6/L7 es importante
 
-En exp02 (n=5) el detector CV para L6/L7 reportaba median 1.49 % vs
-Geom 4.45 %. En exp03 (n=469) la relación se **invierte**: CV 4.65 %
-vs Geom 3.47 %. Esto es un **caso de libro de overfitting al set
+En exp02 (n=5) el detector CV para L6/L7 reportaba median 1,49 % vs
+Geom 4,45 %. En exp03 (n=469) la relación se **invierte**: CV 4,65 %
+vs Geom 3,47 %. Esto es un **caso de libro de overfitting al set
 de validación**: la cifra de exp02 era un artefacto de muestra chica
 con outliers favorables, no una mejora real.
 

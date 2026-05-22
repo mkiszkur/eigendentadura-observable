@@ -356,11 +356,11 @@ el diente quedó al menos en la zona correcta.
 
 **Lectura clave**:
 
-- **λ=0** (posición sólo) → 88.4 % top-1 val · 99.2 % holdout.
-- **λ=0.5** (+ forma del polígono) → **92.7 % top-1 val** (+4.3 pp). Adoptable.
+- **λ=0** (posición sólo) → 88,4 % top-1 val · 99,2 % holdout.
+- **λ=0.5** (+ forma del polígono) → **92,7 % top-1 val** (+4,3 pp). Adoptable.
 - **λ=1.0** (sólo forma) → degrada → la forma sola no alcanza.
 - **Costo del detector NN** vs GT: ≤ 0.6 pp en cualquier variante.
-- **Confusión por cuadrante**: ≥ 99.5 % en NN — el detector preserva
+- **Confusión por cuadrante**: ≥ 99,5 % en NN — el detector preserva
   perfectamente el cuadrante anatómico.
 
 ## Tabla — todas las dentaduras evaluadas y sus imputaciones
@@ -447,8 +447,8 @@ dientes y la geometría normalizada.
 
 | Uso | ¿Adoptable en el pipeline? | Justificación |
 |---|---|---|
-| **D — imputación FDI** | **Sí, sin reservas.** | 88.4 % top-1 val / 99.2 % holdout. Costo del detector ≤ 0.6 pp. |
-| **D + E.A — con forma λ=0.5** | **Sí, recomendado.** | +4.3 pp val (92.7 %). Adoptable. |
+| **D — imputación FDI** | **Sí, sin reservas.** | 88,4 % top-1 val / 99,2 % holdout. Costo del detector ≤ 0,6 pp. |
+| **D + E.A — con forma λ=0.5** | **Sí, recomendado.** | +4,3 pp val (92,7 %). Adoptable. |
 | **A — `tooth_stats_lm`** | **Sí con filtro `conf_min ≥ p5`.** | `cx_std` mejora 2.6× respecto a v1 pero sigue fuera de tolerancia sin filtro; sesgo vertical nuevo no eliminado. |
 | **E.B — estratificación por patrón de FDI faltantes** | **No.** | k-means k=4 sobre T_completa / T_sin_terceros / T_mixta / T_residual: −0.02 pp con tipo bien predicho. Resultado negativo informativo para P3. |
 

@@ -324,12 +324,12 @@ la posición media normalizada por tamaño de imagen, mucho menos preciso.
 
 **En el dataset completo (5.114 pantos)**:
 
-- **2.781 pantos (54.4 %)** tienen anotación FDI en al menos un diente
-  (de ellos, **853 — 16.7 %** tienen FDI completo en los 32 dientes).
-- De las pantos con FDI, **2.706 (52.9 %)** también tienen los 7
+- **2.781 pantos (54,4 %)** tienen anotación FDI en al menos un diente
+  (de ellos, **853 — 16,7 %** tienen FDI completo en los 32 dientes).
+- De las pantos con FDI, **2.706 (52,9 %)** también tienen los 7
   landmarks GT anotados (el set sobre el cual se calibró el prior
   y donde es aplicable de forma plena).
-- Las **2.333 pantos (45.6 %) sin FDI** quedan fuera del alcance del
+- Las **2.333 pantos (45,6 %) sin FDI** quedan fuera del alcance del
   prior basado en anclas FDI → necesitan un fallback distinto
   (centroide normalizado por imagen, o un detector basado en píxeles).
 - De las 2.749 pantos con landmarks completos, **43** no tienen FDI
@@ -373,7 +373,7 @@ la posición media normalizada por tamaño de imagen, mucho menos preciso.
   tampoco tienen landmarks) se necesita un método que trabaje
   directamente sobre la imagen — motivación directa del **exp02**
   (modelos de CV) y **exp04** (red neuronal especializada).
-- El buen rendimiento del prior (mediana 2.8%) es genuino pero
+- El buen rendimiento del prior (mediana 2,8 %) es genuino pero
   opera sobre un subconjunto privilegiado: pantos con anotación
   completa de FDI, que son las más cuidadosamente anotadas del dataset.
 
@@ -383,9 +383,9 @@ la posición media normalizada por tamaño de imagen, mucho menos preciso.
 
 | Hipótesis | Resultado |
 |---|---|
-| **H1** — LLM v1 mediana ≤ 3 % | **Falsa** (6.95 %, más del doble del objetivo) |
-| **H2** — v2 supera el piso de v1 | **Parcial** (3.81 % vs 6.95 % — sí mejora pero no alcanza al prior) |
-| **H3** — LLM bate al prior en algún landmark | **Falsa** (prior 2.80 % > LLM v2 3.81 %) |
+| **H1** — LLM v1 mediana ≤ 3 % | **Falsa** (6,95 %, más del doble del objetivo) |
+| **H2** — v2 supera el piso de v1 | **Parcial** (3,81 % vs 6,95 % — sí mejora pero no alcanza al prior) |
+| **H3** — LLM bate al prior en algún landmark | **Falsa** (prior 2,80 % > LLM v2 3,81 %) |
 
 **Conclusión**: el LLM como anotador visual *a ojo* tiene un piso de
 precisión que no se cierra con prompt engineering. Lee píxeles por

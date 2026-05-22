@@ -136,8 +136,8 @@ display(Plot.plot({
 }));
 ```
 
-**Missingness global del dataset completo: 38.4%**. Restringido a dientes
-reales baja a **11.65%**. La mayor parte es **estructural por versión de
+**Missingness global del dataset completo: 38,4 %**. Restringido a dientes
+reales baja a **11,65 %**. La mayor parte es **estructural por versión de
 esquema** y se compensa porque `json_label` (0% missing) permite siempre
 clasificación anatómica.
 

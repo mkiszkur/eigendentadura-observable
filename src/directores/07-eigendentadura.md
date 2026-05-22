@@ -83,8 +83,8 @@ display(html`<table style="width:100%; max-width:600px; border-collapse:collapse
 
 El tamaño residual se redistribuye hacia PC2/PC3 (R² 0.37, 0.43). Una
 PCA residualizando cada feature contra el área del hull deja PC1
-prácticamente inalterada (30.1% → 31.3%). Como referencia, bajo el
-esquema `*_norm` (no canónico) PC1 se asociaba en **90%** con la norma de
+prácticamente inalterada (30,1 % → 31,3 %). Como referencia, bajo el
+esquema `*_norm` (no canónico) PC1 se asociaba en **90 %** con la norma de
 centroides — ese artefacto desaparece bajo `*_lm`.
 
 > 📓 `docs/experimentos/18_pc1_tamano_vs_forma/99_cierre.md`
@@ -100,7 +100,7 @@ acá para mantener brevedad.
 
 ## 7.4 Limitaciones
 
-- Solo el **16.7%** del dataset (853 pantos) tiene dentición permanente
+- Solo el **16,7 %** del dataset (853 pantos) tiene dentición permanente
   completa. La eigendentadura **no representa la población general** —
   representa la subpoblación con dentadura intacta. Los ausentes (terceros
   molares, premolares perdidos) se discuten en cap. 8 (PCA por pieza, que

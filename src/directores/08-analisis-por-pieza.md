@@ -37,8 +37,8 @@ observable público bajo *Geometría Dental*.
 
 | Variante | PC1 promedio | PC1+PC2 prom |
 |---|---|---|
-| 3F-img (cx_norm, cy_norm, angle) | 40.0% | 73.4% |
-| **3F-lm (cx_lm, cy_lm, angle)** | **57.0%** | **90.1%** |
+| 3F-img (cx_norm, cy_norm, angle) | 40,0 % | 73,4 % |
+| **3F-lm (cx_lm, cy_lm, angle)** | **57,0 %** | **90,1 %** |
 
 Detalle cuantitativo en [cap. 6](./06-normalizacion#6-5-pca-por-pieza).
 16/32 piezas cambian su feature dominante en PC1 al usar landmarks
@@ -81,7 +81,7 @@ mayoritariamente artefactos de anotación (no señal anatómica).
 
 A escala local $(FDI, \text{patología})$, **sí hay señal robusta**:
 
-- **131 de 250 tests** (52.4%) significativos bajo BH-FDR $q < 0{,}05$.
+- **131 de 250 tests** (52,4 %) significativos bajo BH-FDR $q < 0{,}05$.
 - Esperados por azar: **12.5**.
 - **`neoformation`** sobre **18 FDIs** con $M^2 \in [1{,}9;\,7{,}4]$ —
   huella más amplia, biológicamente plausible (lesiones expansivas

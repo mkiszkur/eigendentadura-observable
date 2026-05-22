@@ -104,12 +104,12 @@ desentrelazable sin metadata adicional.
 
 ## 9.5 Dentición mixta (exp10)
 
-273 pantos (5.3%) con $\geq 1$ diente deciduo + 513 (10.0%) con
+273 pantos (5,3 %) con $\geq 1$ diente deciduo + 513 (10,0 %) con
 `dentition_type='unknown'`. Imputación KNN + proyección en eigendentadura
 limpia ($n = 726$):
 
 - Mahalanobis mediana: **2.36** (mixta) vs **2.06** (limpia).
-- Solo **15.4%** supera el percentil 95 de la distribución limpia.
+- Solo **15,4 %** supera el percentil 95 de la distribución limpia.
 
 → La dentición mixta **no es categórica respecto de la geometría adulta**:
 se solapa significativamente.

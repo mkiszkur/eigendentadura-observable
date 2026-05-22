@@ -21,7 +21,7 @@ display(directoresNav("11"));
 ```js
 const P = [
   {id: "P1", titulo: "Espacio latente compacto",
-   resp: "Sí — k = 4 componentes ≈ 60% var; PC1 = 29.97% [28.80; 31.42] (forma genuina, no tamaño, exp18); estable bajo bootstrap.",
+   resp: "Sí — k = 4 componentes ≈ 60 % var; PC1 = 29,97 % [28,80; 31,42] (forma genuina, no tamaño, exp18); estable bajo bootstrap.",
    color: "#54a24b", cap: "7"},
   {id: "P2", titulo: "Mejor normalización",
    resp: "Landmarks condíleos — reduce R² covariables 10× ($0.541 \\to 0.054$). PC1 por pieza pasa de 40% a 57%. Silhouette +47%.",
@@ -62,7 +62,7 @@ display(html`<div style="display:grid; gap:0.7rem;">
 ## 11.3 Limitaciones
 
 - Cobertura **54%** de landmarks (estructural por versión LabelMe).
-- Dentición permanente completa: solo **16.7%** del dataset.
+- Dentición permanente completa: solo **16,7 %** del dataset.
 - Sin GT diagnóstico longitudinal → sin validación supervisada
   externa.
 - Sin metadata clínica (edad, género verificado, equipo) → sin

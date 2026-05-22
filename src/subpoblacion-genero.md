@@ -131,7 +131,7 @@ El gráfico muestra la **distribución de posición** de cada pieza dental en la
 
 - **KDE**: densidad kernel gaussiana bivariada, ancho de banda por regla de Silverman, calculada sobre coordenadas normalizadas por marco condíleo.
 - **Elipses de covarianza**: elipses 1σ/2σ construidas sobre la matriz de covarianza empírica. Asumen distribución gaussiana bivariada.
-- **Niveles σ**: umbrales HDR equivalentes a las regiones σ de una gaussiana 2D: 1σ ↔ 39.3 %, 2σ ↔ 86.5 %, 3σ ↔ 98.9 % (cuantiles de χ²(2)).
+- **Niveles σ**: umbrales HDR equivalentes a las regiones σ de una gaussiana 2D: 1σ ↔ 39,3 %, 2σ ↔ 86,5 %, 3σ ↔ 98,9 % (cuantiles de χ²(2)).
 - **HDR (25 %, 50 %, 95 %)**: umbrales de densidad calculados como el mínimo valor de densidad tal que la región suprayacente contiene exactamente ese porcentaje de la masa total del KDE. No asume gaussianidad.
 - **Mapa de diferencia A−B**: diferencia de densidades normalizada (KDE_A/Σ_A − KDE_B/Σ_B) evaluada en grilla compartida por pieza (media ± 4σ del pool de ambos grupos). La normalización por suma permite comparar grupos de distinto tamaño muestral. Precalculado en pipeline stage 13. Paleta RdBu: rojo = grupo A domina, azul = grupo B domina.
 - **Bagplot**: aproximación gaussiana (distancia de Mahalanobis equivalente al halfspace depth para distribuciones simétricas). Bag = cuantil χ²(2) al 50 % → r ≈ 1.18 unidades Mahalanobis. Fence = 3 × bag → r ≈ 3.53. Outliers pre-calculados en stage 13.
