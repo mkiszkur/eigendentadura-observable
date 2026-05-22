@@ -5,6 +5,8 @@ title: Subpoblación — Sexo biológico
 
 # Subpoblación — Sexo biológico
 
+> **Contexto**: Tras explorar [diferencias por origen clínico](/subpoblacion-origen), ahora comparamos las dentaduras promedio entre **sexos biológicos** — ¿existen dimorfismos sistemáticos en la geometría dental?
+
 ```js
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {subpopKdePlot} from "./components/subpop-kde-plot.js";

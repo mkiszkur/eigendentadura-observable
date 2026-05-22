@@ -4,6 +4,8 @@ title: Individuo vs Población
 
 # Individuo vs Población
 
+> **Contexto**: Una vez seleccionada una pantomografía en el [Explorador](/explorador-metricas), esta vista permite **analizar en profundidad** ese caso individual — comparar su posición en la eigendentadura, su forma de arco, sus ángulos, y sus métricas morfométricas contra las distribuciones poblacionales.
+
 ```js
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {pantoSchematic} from "./components/panto-schematic.js";

@@ -4,6 +4,8 @@ title: Explorador de Pantomografías
 
 # Explorador de Pantomografías
 
+> **Contexto**: Complemento visual al explorador de métricas — permite **navegar las pantomografías originales** con sus anotaciones, filtrarlas por categoría y metadatos, y acceder al modal de detalle.
+
 ```js
 import {pantoSchematic} from "./components/panto-schematic.js";
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";

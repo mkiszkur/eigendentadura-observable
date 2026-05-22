@@ -4,6 +4,8 @@ title: Geometría × Patología
 
 # ¿La posición atípica predice patología?
 
+> **Contexto**: En las páginas previas caracterizamos la [geometría dental](/geometria-dental) y el [perfil epidemiológico](/patologias) por separado. Ahora cruzamos ambas dimensiones: ¿las dentaduras geométricamente atípicas tienen mayor carga patológica? **Hallazgo P4** (negativo).
+
 ```js
 const geoPath = await FileAttachment("data/geo_patologia.json").json();
 import * as d3 from "d3";

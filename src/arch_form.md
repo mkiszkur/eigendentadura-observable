@@ -4,6 +4,8 @@ title: Forma del arco
 
 # Forma del arco dental
 
+> **Contexto**: Tras analizar métricas bilaterales (simetría, Bolton, oclusión), pasamos a la **forma global del arco dental** — describimos cada arcada con descriptores geométricos (profundidad, anchura, asimetría L/R) y exploramos si revelan subgrupos discretos.
+
 ¿Qué tan profundo, simétrico y regular es el arco dental en cada panto? Esta vista materializa el experimento **exp30** ("clustering sobre la curva del arco dental"): ajusta polinomios sobre los centroides de las piezas permanentes en cada arcada y reporta un conjunto interpretable de descriptores —profundidad, anchura, asimetría L/R, R² de fit— por panto.
 
 ```js

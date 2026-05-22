@@ -5,6 +5,8 @@ title: Geometría Dental
 
 # Geometría Dental
 
+> **Contexto**: En [Universo de datos](/dataset) definimos el conjunto de pantomografías disponibles y los criterios de filtrado. Ahora caracterizamos la **eigendentadura** — la dentadura media de la población — que funciona como referencia para todos los análisis posteriores.
+
 ```js
 import {odontograma} from "./components/odontograma.js";
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";

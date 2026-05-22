@@ -4,6 +4,8 @@ title: Análisis de casos atípicos
 
 # Análisis de casos atípicos
 
+> **Contexto**: En [Geometría Dental](/geometria-dental) definimos la eigendentadura poblacional. Ahora usamos esa referencia para identificar **casos atípicos** — dentaduras que se desvían significativamente del promedio en posición y/o ángulo.
+
 ```js
 import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import {openPantoModal} from "./components/panto-modal.js";

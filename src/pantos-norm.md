@@ -4,6 +4,8 @@ title: Explorador Normalizado
 
 # Explorador Normalizado por Landmarks
 
+> **Contexto**: Variante del [explorador de pantomografías](/pantos) que muestra las imágenes en **espacio normalizado** por landmarks condíleos — todas comparten el mismo sistema de coordenadas, permitiendo superposición y comparación directa.
+
 Visualización de pantomografías en el **espacio normalizado** por landmarks condíleos.
 Todas las pantos comparten el mismo sistema de coordenadas (origen = midpoint intercondíleo, eje X = intercondíleo, escala = distancia intercondílea), permitiendo **comparación directa**.
 

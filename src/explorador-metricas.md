@@ -4,6 +4,8 @@ title: Explorador de muestras
 
 # Explorador de muestras
 
+> **Contexto**: Hasta aquí exploramos la población y sus subgrupos. Ahora la herramienta permite **navegar el dataset caso por caso** — buscar, filtrar y comparar cada pantomografía individual contra las distribuciones poblacionales.
+
 Tabla completa de todas las pantomografías con sus métricas geométricas, morfométricas y de patología. Usá los controles para filtrar y ordenar. Clic en una fila para ver el detalle del individuo.
 
 ```js

@@ -4,6 +4,8 @@ title: Conclusiones y síntesis
 
 # Conclusiones
 
+> **Contexto**: Esta página sintetiza los hallazgos principales del análisis completo — desde la construcción de la eigendentadura hasta las herramientas de comparación individual — y presenta las direcciones de trabajo futuro.
+
 ```js
 const ds = await FileAttachment("data/dataset_stats.json").json();
 const prevalenceData = await FileAttachment("data/prevalence_by_tooth.json").json();

@@ -4,6 +4,8 @@ title: ¿Existen subtipos de dentadura?
 
 # ¿Existen subtipos de dentadura?
 
+> **Contexto**: Habiendo explorado la variabilidad geométrica, las métricas clínicas, la forma del arco y el perfil patológico, ahora preguntamos: ¿existen **subtipos discretos** de dentadura en la población? **Hallazgo P3** (negativo) — la distribución es continua, no clustereada.
+
 ```js
 const clustering = FileAttachment("data/clustering.json").json();
 const toothStatsCl = await FileAttachment("data/tooth_stats.json").json();

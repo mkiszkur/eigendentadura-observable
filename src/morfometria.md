@@ -4,6 +4,8 @@ title: Morfometría clínica
 
 # Morfometría clínica
 
+> **Contexto**: Habiendo caracterizado la eigendentadura y su variabilidad posicional, ahora exploramos **métricas ortodónticas clásicas**: índice de Bolton, simetría bilateral, overjet y overbite — que complementan el análisis geométrico con criterios clínicos estandarizados.
+
 ```js
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {archForm, computeArchMetrics} from "./components/arch-form.js";

@@ -5,6 +5,8 @@ title: Subpoblación — Origen clínico
 
 # Subpoblación — Origen clínico
 
+> **Contexto**: Hasta aquí analizamos la población como un todo. Ahora exploramos si existen **diferencias sistemáticas entre subpoblaciones** — empezando por los dos centros clínicos que aportaron las imágenes.
+
 ```js
 import {teethSelector, ALL_FDI} from "./components/teeth-selector.js";
 import {subpopKdePlot} from "./components/subpop-kde-plot.js";

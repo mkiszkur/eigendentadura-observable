@@ -4,6 +4,8 @@ title: Patologías — Análisis epidemiológico
 
 # Patologías — Análisis epidemiológico
 
+> **Contexto**: Habiendo caracterizado la geometría dental de la población, ahora exploramos el **perfil epidemiológico** — prevalencia, co-ocurrencia y multimorbilidad de hallazgos clínicos — para luego cruzarlo con la atipicidad geométrica.
+
 ```js
 import {upsetPlot} from "./components/upset-plot.js";
 import {fdiPathologyHeatmap, prevalenceByToothType} from "./components/pathology-heatmap.js";
