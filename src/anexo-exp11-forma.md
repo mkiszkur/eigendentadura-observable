@@ -5,6 +5,7 @@ title: exp11 — Forma del diente como clasificador de tipo (Uso B)
 # exp11 — Forma del diente como clasificador de tipo (Uso B)
 
 ```js
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 import * as d3 from "d3";
 ```
 
@@ -191,20 +192,41 @@ sobre val, idéntica al baseline.
 
 ```js
 {
-  function card(label, value, sub, color) {
-    return html`<div style="background:${color}12;border-left:4px solid ${color};padding:1rem 1.2rem;border-radius:6px;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${label}</div>
-      <div style="font-size:2rem;font-weight:700;color:${color};line-height:1;">${value}</div>
-      <div style="font-size:0.78rem;color:#666;margin-top:4px;">${sub}</div>
-    </div>`;
-  }
   const cb = exp11.catboost_holdout;
-  display(html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem;margin:0.8rem 0 1.2rem;">
-    ${card("Top-1 (8 tipos)",       (cb.acc_top1_8*100).toFixed(2) + " %", `holdout n=${cb.n.toLocaleString("es-AR")}`, "#c0392b")}
-    ${card("Top-2 (8 tipos)",       "95,96 %", "≥95 % ✓ — H1″ cumplida", "#54a24b")}
-    ${card("Accuracy por grupo",    (cb.acc_group_4*100).toFixed(2) + " %", "4 grupos anatómicos · H1′ ✓", "#4c78a8")}
-    ${card("Errores intra-grupo",   cb.pct_intra_of_errors.toFixed(1) + " %", `de ${cb.errors_total} errores totales`, "#7b52ab")}
-  </div>`);
+  display(kpiGrid([
+    {
+      label: "Top-1 (8 tipos)",
+      value: (cb.acc_top1_8*100).toFixed(2) + " %",
+      sub: `holdout n=${cb.n.toLocaleString("es-AR")}`,
+      color: "#c0392b",
+      source: "exp11 Uso B Tier 2",
+      tooltip: "CatBoost v2 sobre 43 features de forma rotación-invariantes"
+    },
+    {
+      label: "Top-2 (8 tipos)",
+      value: "95,96 %",
+      sub: "≥95 % ✓ — H1″ cumplida",
+      color: "#54a24b",
+      source: "exp11 Uso B Tier 2",
+      tooltip: "Accuracy top-2 sobre holdout — cumple hipótesis H1″ reformulada"
+    },
+    {
+      label: "Accuracy por grupo",
+      value: (cb.acc_group_4*100).toFixed(2) + " %",
+      sub: "4 grupos anatómicos · H1′ ✓",
+      color: "#4c78a8",
+      source: "exp11 Uso B Tier 2",
+      tooltip: "Accuracy sobre 4 grupos anatómicos (incisivos, caninos, premolares, molares)"
+    },
+    {
+      label: "Errores intra-grupo",
+      value: cb.pct_intra_of_errors.toFixed(1) + " %",
+      sub: `de ${cb.errors_total} errores totales`,
+      color: "#7b52ab",
+      source: "exp11 Uso B Tier 2",
+      tooltip: "Porcentaje de errores que confunden piezas del mismo grupo anatómico"
+    }
+  ], {minWidth: "220px"}));
 }
 ```
 

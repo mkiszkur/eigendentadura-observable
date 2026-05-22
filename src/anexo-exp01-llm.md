@@ -5,6 +5,7 @@ title: exp01 — LLM visual vs prior geométrico
 # exp01 — LLM visual vs prior geométrico
 
 ```js
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 import * as d3 from "d3";
 ```
 
@@ -120,13 +121,14 @@ Naranja = LLM v2.</p>`);
 ```js
 {
   const COLORS = {"Prior geométrico":"#54a24b","LLM v1 (overview)":"#e15759","LLM v2 (crops + self-check)":"#f58518"};
-  display(html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;margin:0.8rem 0;">
-    ${metrics.map(m => html`<div style="background:${COLORS[m.method] ?? "#888"}12;border-left:4px solid ${COLORS[m.method] ?? "#888"};padding:1rem 1.2rem;border-radius:6px;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${m.method}</div>
-      <div style="font-size:2rem;font-weight:700;color:${COLORS[m.method] ?? "#444"};line-height:1;">${m.median.toFixed(2)} %</div>
-      <div style="font-size:0.78rem;color:#666;margin-top:4px;">mediana err_rel · n=${m.n} · max ${m.max.toFixed(2)} %</div>
-    </div>`)}
-  </div>`);
+  display(kpiGrid(metrics.map(m => ({
+    label: m.method,
+    value: `${m.median.toFixed(2)} %`,
+    sub: `mediana err_rel · n=${m.n} · max ${m.max.toFixed(2)} %`,
+    color: COLORS[m.method] ?? "#888",
+    source: "exp01 Uso A",
+    tooltip: "Error relativo mediano de predicción de landmarks sobre eval_set_v3 (5 pantos × 7 landmarks)"
+  })), {minWidth: "260px"}));
 }
 ```
 

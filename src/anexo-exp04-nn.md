@@ -5,6 +5,7 @@ title: exp04 — Detector aprendido (SmallUNet)
 # exp04 — Detector aprendido por heatmap regression
 
 ```js
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 import * as d3 from "d3";
 ```
 
@@ -124,23 +125,44 @@ había sobrevivido a exp01, exp02 y exp03.
 
 ```js
 {
-  function card(label, value, sub, color) {
-    return html`<div style="background:${color}12;border-left:4px solid ${color};padding:1rem 1.2rem;border-radius:6px;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${label}</div>
-      <div style="font-size:2rem;font-weight:700;color:${color};line-height:1;">${value}</div>
-      <div style="font-size:0.78rem;color:#666;margin-top:4px;">${sub}</div>
-    </div>`;
-  }
   const meds = holdout.map(d => d.nn_median);
   const minMed = d3.min(meds), maxMed = d3.max(meds);
   const meanDelta = d3.mean(holdout, d => d.delta_pp_median);
   const ratio = d3.mean(holdout, d => d.geom_median / d.nn_median);
-  display(html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem;margin:0.8rem 0 1.2rem;">
-    ${card("Mediana NN — rango", `${minMed.toFixed(2)}–${maxMed.toFixed(2)} %`, "por landmark (vs 1.6–3.6 % Geom)", "#4c78a8")}
-    ${card("Mejora vs Geom",     `${meanDelta.toFixed(2)} pp`, "promedio de la mejora en mediana", "#54a24b")}
-    ${card("Ratio Geom / NN",    `${ratio.toFixed(1)}×`,      "el detector NN es así de mejor en mediana", "#7b52ab")}
-    ${card("Tasa de fallo > 3 %", `${d3.mean(holdout, d => d.fail_rate_pct).toFixed(2)} %`, "promedio entre los 7 landmarks", "#f58518")}
-  </div>`);
+  display(kpiGrid([
+    {
+      label: "Mediana NN — rango",
+      value: `${minMed.toFixed(2)}–${maxMed.toFixed(2)} %`,
+      sub: "por landmark (vs 1.6–3.6 % Geom)",
+      color: "#4c78a8",
+      source: "exp04 holdout (n=140)",
+      tooltip: "Rango del error relativo mediano del detector NN v2 sobre holdout"
+    },
+    {
+      label: "Mejora vs Geom",
+      value: `${meanDelta.toFixed(2)} pp`,
+      sub: "promedio de la mejora en mediana",
+      color: "#54a24b",
+      source: "exp04 holdout",
+      tooltip: "Puntos porcentuales de mejora del NN sobre el prior geométrico"
+    },
+    {
+      label: "Ratio Geom / NN",
+      value: `${ratio.toFixed(1)}×`,
+      sub: "el detector NN es así de mejor en mediana",
+      color: "#7b52ab",
+      source: "exp04 holdout",
+      tooltip: "Factor de mejora del detector NN sobre el prior geométrico"
+    },
+    {
+      label: "Tasa de fallo > 3 %",
+      value: `${d3.mean(holdout, d => d.fail_rate_pct).toFixed(2)} %`,
+      sub: "promedio entre los 7 landmarks",
+      color: "#f58518",
+      source: "exp04 holdout",
+      tooltip: "Porcentaje de casos con error relativo > 3 % en cada landmark"
+    }
+  ], {minWidth: "220px"}));
 }
 ```
 

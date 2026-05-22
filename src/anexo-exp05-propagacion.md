@@ -7,6 +7,7 @@ title: exp05 — Propagación del error a eigendentadura e imputación FDI
 ```js
 import { paginatedTable } from "./components/paginated-table.js";
 import { openPantoModal } from "./components/panto-modal.js";
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 import * as d3 from "d3";
 ```
 
@@ -56,21 +57,40 @@ Se evalúa por separado en cuatro "usos":
 ## Por qué importa
 
 ```js
-{
-  function card(label, value, sub, color) {
-    return html`<div style="background:${color}12;border-left:4px solid ${color};padding:1rem 1.2rem;border-radius:6px;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${label}</div>
-      <div style="font-size:2rem;font-weight:700;color:${color};line-height:1;">${value}</div>
-      <div style="font-size:0.78rem;color:#666;margin-top:4px;">${sub}</div>
-    </div>`;
+display(kpiGrid([
+  {
+    label: "Pantos sin landmarks GT",
+    value: coverage.n_landmarks_missing.toLocaleString("es-AR"),
+    sub: `${coverage.pct_missing} % del corpus`,
+    color: "#e15759",
+    source: "stage_02_pantos_processed.py",
+    tooltip: "Pantomografías sin landmarks condíleos completos que requieren predicción NN"
+  },
+  {
+    label: "Predicciones NN persistidas",
+    value: coverage.n_corpus_predicted.toLocaleString("es-AR"),
+    sub: "todos los pantos del corpus (5114)",
+    color: "#7b52ab",
+    source: "exp05 v2",
+    tooltip: "Predicciones del detector NN v2 sobre todo el corpus (con y sin GT)"
+  },
+  {
+    label: "Val (con GT, evaluado)",
+    value: `${splits.exp05_universe.n_val_pantos} / ${splits.exp05_universe.n_val_dientes.toLocaleString("es-AR")} dientes`,
+    sub: "métricas vs GT",
+    color: "#4c78a8",
+    source: "exp05 split",
+    tooltip: "Split de validación con GT para evaluar propagación de error"
+  },
+  {
+    label: "Holdout (T_completa)",
+    value: `${splits.exp05_universe.n_holdout_pantos} / ${splits.exp05_universe.n_holdout_dientes.toLocaleString("es-AR")} dientes`,
+    sub: "métricas vs GT",
+    color: "#54a24b",
+    source: "exp05 split",
+    tooltip: "Split de holdout con dentaduras completas para evaluar propagación"
   }
-  display(html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.2rem;margin:0.8rem 0 1.2rem;">
-    ${card("Pantos sin landmarks GT", coverage.n_landmarks_missing.toLocaleString("es-AR"), `${coverage.pct_missing} % del corpus`, "#e15759")}
-    ${card("Predicciones NN persistidas", coverage.n_corpus_predicted.toLocaleString("es-AR"), "todos los pantos del corpus (5114)", "#7b52ab")}
-    ${card("Val (con GT, evaluado)", `${splits.exp05_universe.n_val_pantos} / ${splits.exp05_universe.n_val_dientes.toLocaleString("es-AR")} dientes`, "métricas vs GT", "#4c78a8")}
-    ${card("Holdout (T_completa)",    `${splits.exp05_universe.n_holdout_pantos} / ${splits.exp05_universe.n_holdout_dientes.toLocaleString("es-AR")} dientes`, "métricas vs GT", "#54a24b")}
-  </div>`);
-}
+], {minWidth: "230px"}));
 ```
 
 ```js
