@@ -87,7 +87,13 @@ export async function openPantoModal({
     "max-width:min(980px,95vw);max-height:92vh;overflow-y:auto;" +
     "position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.35);";
 
-  const close = () => { overlay.remove(); onClose?.(); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  const close = () => {
+    document.removeEventListener("keydown", onKey);
+    overlay.remove();
+    onClose?.();
+  };
+  document.addEventListener("keydown", onKey);
 
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "×";
@@ -256,10 +262,10 @@ export async function openPantoModal({
     hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:8px;";
     tabContent.appendChild(hint);
     
-    const schContainerClone = schContainer.cloneNode(false);
-    tabContent.appendChild(schContainerClone);
-    schContainer.parentElement?.replaceChild(schContainerClone, schContainer);
-    Object.assign(schContainer, schContainerClone);
+    // Compartir el mismo schContainer entre Geometría y Visualización:
+    // tabs.js limpia tabsContent.innerHTML al cambiar de tab, así que
+    // schContainer queda desligado y se re-adjunta en cada render.
+    tabContent.appendChild(schContainer);
     
     if (geomData) {
       renderSchematic();
@@ -462,13 +468,10 @@ export async function openPantoModal({
     
     tabContent.appendChild(togglesDiv);
     
-    const hint = document.createElement("div");
-    hint.textContent = "Los controles de visualización afectan al schematic del tab Geometría.";
-    hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:8px;padding:8px;background:#f9f9f9;border-radius:4px;";
-    tabContent.appendChild(hint);
-    
-    const schContainerClone = schContainer.cloneNode(true);
-    tabContent.appendChild(schContainerClone);
+    // Mismo schContainer que Geometría: al cambiar de tab, tabs.js lo
+    // desliga del contenido anterior y este append lo re-inserta acá.
+    tabContent.appendChild(schContainer);
+    if (geomData) renderSchematic();
     
     return tabContent;
   }
@@ -518,49 +521,36 @@ export async function openPantoModal({
       nextBtn.style.cssText += "hover:background:#f5f5f5;hover:border-color:#4c78a8;";
     }
     
-    // Navegación prev/next
+    // Navegación prev/next.
+    // Importante: NO llamar a close() (que dispara onClose → limpia el
+    // mutable → re-corre la celda reactiva → la `invalidation` original
+    // dispara overlay.remove() sobre el nuevo modal). Removemos el
+    // overlay manualmente y dejamos el mutable intacto.
+    const navigateTo = (newIndex) => {
+      const item = allItems[newIndex];
+      document.removeEventListener("keydown", onKey);
+      overlay.remove();
+      openPantoModal({
+        id: item.id,
+        pantoMeta: item.pantoMeta,
+        toothStats: item.toothStats,
+        zScores: item.zScores,
+        rankInfo: item.rankInfo,
+        iqrThreshold: item.iqrThreshold,
+        iqrExtreme: item.iqrExtreme,
+        extraBadges: item.extraBadges,
+        morphoData: item.morphoData,
+        invalidation,
+        onClose,
+        allItems,
+        currentIndex: newIndex,
+      });
+    };
     prevBtn.addEventListener("click", () => {
-      if (currentIndex > 0) {
-        close();
-        const prevItem = allItems[currentIndex - 1];
-        openPantoModal({
-          id: prevItem.id,
-          pantoMeta: prevItem.pantoMeta,
-          toothStats: prevItem.toothStats,
-          zScores: prevItem.zScores,
-          rankInfo: prevItem.rankInfo,
-          iqrThreshold: prevItem.iqrThreshold,
-          iqrExtreme: prevItem.iqrExtreme,
-          extraBadges: prevItem.extraBadges,
-          morphoData: prevItem.morphoData,
-          invalidation,
-          onClose,
-          allItems,
-          currentIndex: currentIndex - 1,
-        });
-      }
+      if (currentIndex > 0) navigateTo(currentIndex - 1);
     });
-    
     nextBtn.addEventListener("click", () => {
-      if (currentIndex < allItems.length - 1) {
-        close();
-        const nextItem = allItems[currentIndex + 1];
-        openPantoModal({
-          id: nextItem.id,
-          pantoMeta: nextItem.pantoMeta,
-          toothStats: nextItem.toothStats,
-          zScores: nextItem.zScores,
-          rankInfo: nextItem.rankInfo,
-          iqrThreshold: nextItem.iqrThreshold,
-          iqrExtreme: nextItem.iqrExtreme,
-          extraBadges: nextItem.extraBadges,
-          morphoData: nextItem.morphoData,
-          invalidation,
-          onClose,
-          allItems,
-          currentIndex: currentIndex + 1,
-        });
-      }
+      if (currentIndex < allItems.length - 1) navigateTo(currentIndex + 1);
     });
     
     navFooter.append(prevBtn, indicator, nextBtn);
