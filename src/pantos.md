@@ -51,21 +51,82 @@ const archClusterFilter = Generators.input(archClusterInput);
 ```
 
 ```js
-display(html`<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: end;">
-  ${searchInput}${catInput}${dentInput}${flagInput}${archClusterInput}
-</div>`);
+// ── Display filters ──
+{
+  // Capturar valores iniciales para reset
+  const initialValues = {
+    searchTerm: "",
+    catFilter: "Todas",
+    dentFilter: "Todas",
+    flagFilter: "Ninguna",
+    archClusterFilter: "Todas",
+    fdiFilter: false,
+    lmFilter: false,
+    metalRequired: false,
+    cariesRequired: false,
+    sinFdiFilter: false,
+  };
+  
+  const filtersDiv = document.createElement("details");
+  filtersDiv.setAttribute("open", "");
+  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.5rem;";
+  
+  // Summary con botón reset inline
+  const sum = document.createElement("summary");
+  sum.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
+  
+  const sumText = document.createElement("span");
+  sumText.textContent = "Filtros";
+  
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Limpiar filtros";
+  resetBtn.style.cssText = "font-size:0.7rem;padding:4px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#666;cursor:pointer;font-weight:600;";
+  resetBtn.onclick = (e) => {
+    e.stopPropagation();
+    searchInput.value = initialValues.searchTerm;
+    catInput.value = initialValues.catFilter;
+    dentInput.value = initialValues.dentFilter;
+    flagInput.value = initialValues.flagFilter;
+    archClusterInput.value = initialValues.archClusterFilter;
+    fdiInput.value = initialValues.fdiFilter;
+    lmInput.value = initialValues.lmFilter;
+    metalFilterInput.value = initialValues.metalRequired;
+    cariesFilterInput.value = initialValues.cariesRequired;
+    sinFdiInput.value = initialValues.sinFdiFilter;
+    // Disparar evento input
+    [searchInput, catInput, dentInput, flagInput, archClusterInput, fdiInput, lmInput, metalFilterInput, cariesFilterInput, sinFdiInput].forEach(inp => {
+      inp.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+  };
+  
+  sum.appendChild(sumText);
+  sum.appendChild(resetBtn);
+  filtersDiv.appendChild(sum);
+  
+  const inner = document.createElement("div");
+  inner.style.cssText = "padding:0.8rem 1rem;border-top:1px solid #e5e5ec;display:flex;flex-direction:column;gap:10px;";
+  
+  const row1 = document.createElement("div");
+  row1.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;";
+  row1.append(searchInput, catInput, dentInput, flagInput, archClusterInput);
+  inner.appendChild(row1);
+  
+  const row2 = document.createElement("div");
+  row2.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;align-items:center;";
+  row2.append(fdiInput, lmInput, metalFilterInput, cariesFilterInput, sinFdiInput);
+  inner.appendChild(row2);
+  
+  filtersDiv.appendChild(inner);
+  display(filtersDiv);
+}
 ```
-
-<details>
-<summary style="cursor: pointer; font-size: 13px; color: #666;">Más filtros…</summary>
 
 ```js
-display(html`<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 6px 0;">
-  ${fdiInput}${lmInput}${metalFilterInput}${cariesFilterInput}${sinFdiInput}
+// ── Feedback de filtrado ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  Mostrando <strong>${pantos.length.toLocaleString("es-AR")} pantomografías</strong> de ${allPantos.length.toLocaleString("es-AR")}${pantos.length < allPantos.length ? ` (${(allPantos.length - pantos.length).toLocaleString("es-AR")} filtradas)` : ""}
 </div>`);
 ```
-
-</details>
 
 ```js
 const pantos = allPantos.filter(p => {
