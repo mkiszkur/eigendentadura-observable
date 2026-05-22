@@ -280,7 +280,7 @@ Los resultados negativos son parte central del aporte de esta investigación: de
 
 ```js
 display(html`<div style="background:#f5f5f5; border-left:4px solid #e45756; padding:1.2rem 1.5rem; border-radius:6px; margin:1.5rem 0;">
-  <h3 style="margin-top:0; margin-bottom:0.8rem; font-size:1.1rem; color:#e45756;">⚠️ Resultados negativos verificados</h3>
+  <h3 style="margin-top:0; margin-bottom:var(--spacing-subsection); font-size:1.1rem; color:#e45756;">⚠️ Resultados negativos verificados</h3>
   <ul style="margin:0; padding-left:1.5rem; line-height:1.7;">
     <li><strong>Distribución continua, no discreta (P3):</strong> Los cinco algoritmos de clustering evaluados (k-means, jerárquico, DBSCAN, Gaussian Mixture, HDBSCAN) arrojan silhouette &lt; 0,25 sobre z-scores normalizados. <strong>No existen subtipos dentales discretos</strong> en esta población — la variación geométrica es gradual y continua.</li>
     <li><strong>Ausencia de asociación geometría × patología global (P4):</strong> El scatter z_pos vs. z_ang coloreado por número de patologías (n_pathologies) no muestra gradiente espacial significativo. La atipicidad geométrica <strong>no predice la carga patológica</strong> a nivel poblacional (análisis por pieza individual queda para estudios futuros).</li>

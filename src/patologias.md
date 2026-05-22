@@ -69,7 +69,7 @@ Barras horizontales agrupadas por patología. Dentro de cada grupo, una barra po
 {
   const filtersDiv = document.createElement("details");
   filtersDiv.setAttribute("open", "");
-  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:var(--spacing-subsection);";
   
   // Summary con botón reset
   const sum = document.createElement("summary");

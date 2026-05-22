@@ -26,6 +26,12 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --spacing-card: 0.85rem 1.1rem;
+  
+  /* ── Espaciado vertical entre secciones (escala modular 8px) ── */
+  /* U-017: normalizar margin-bottom según contexto jerárquico */
+  --spacing-subsection: 1rem;     /* 16px: entre subsecciones dentro de una página */
+  --spacing-section: 1.5rem;      /* 24px: entre secciones principales (H2) */
+  --spacing-section-top: 2rem;    /* 32px: antes de H1 si hay contenido previo */
 }
 
 /* Dejar que párrafos, tablas, figuras y listas ocupen todo el ancho del main */
