@@ -130,12 +130,69 @@ const pageSize   = Generators.input(pageSizeInput);
 ```js
 // ── Display filters ──
 {
+  // Capturar valores iniciales para reset
+  const initialValues = {
+    zmRange: zmSlider ? [zmSlider.min, zmSlider.max] : null,
+    zxRange: zxSlider ? [zxSlider.min, zxSlider.max] : null,
+    ntRange: ntSlider ? [ntSlider.min, ntSlider.max] : null,
+    symRange: symSlider ? [symSlider.min, symSlider.max] : null,
+    ojRange: ojSlider ? [ojSlider.min, ojSlider.max] : null,
+    obRange: obSlider ? [obSlider.min, obSlider.max] : null,
+    baRange: baSlider ? [baSlider.min, baSlider.max] : null,
+    boRange: boSlider ? [boSlider.min, boSlider.max] : null,
+    sex: "Todos",
+    origin: "Todos",
+    dent: "Todos",
+    fdi: false,
+    lm: false,
+    caries: false,
+    endo: false,
+  };
+
   const wrap = document.createElement("details");
-  wrap.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  wrap.setAttribute("open", "");
+  wrap.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.5rem;";
+  
+  // Summary con botón reset inline
   const sum = document.createElement("summary");
-  sum.style.cssText = "padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
-  sum.textContent = "Filtros";
+  sum.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
+  
+  const sumText = document.createElement("span");
+  sumText.textContent = "Filtros";
+  
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Limpiar filtros";
+  resetBtn.style.cssText = "font-size:0.7rem;padding:4px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#666;cursor:pointer;font-weight:600;";
+  resetBtn.onclick = (e) => {
+    e.stopPropagation(); // Evitar que cierre el details
+    if (zmSlider) zmSlider.value = initialValues.zmRange;
+    if (zxSlider) zxSlider.value = initialValues.zxRange;
+    if (ntSlider) ntSlider.value = initialValues.ntRange;
+    if (symSlider) symSlider.value = initialValues.symRange;
+    if (ojSlider) ojSlider.value = initialValues.ojRange;
+    if (obSlider) obSlider.value = initialValues.obRange;
+    if (baSlider) baSlider.value = initialValues.baRange;
+    if (boSlider) boSlider.value = initialValues.boRange;
+    sexInput.value = initialValues.sex;
+    origInput.value = initialValues.origin;
+    dentInput.value = initialValues.dent;
+    fdiOnlyInput.value = initialValues.fdi;
+    lmOnlyInput.value = initialValues.lm;
+    cariesOnlyInput.value = initialValues.caries;
+    endoOnlyInput.value = initialValues.endo;
+    // Disparar evento input para que los Generators se enteren
+    [zmSlider, zxSlider, ntSlider, symSlider, ojSlider, obSlider, baSlider, boSlider].forEach(sl => {
+      if (sl) sl.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+    [sexInput, origInput, dentInput, fdiOnlyInput, lmOnlyInput, cariesOnlyInput, endoOnlyInput].forEach(inp => {
+      inp.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+  };
+  
+  sum.appendChild(sumText);
+  sum.appendChild(resetBtn);
   wrap.appendChild(sum);
+  
   const inner = document.createElement("div");
   inner.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.6rem 1.2rem;padding:0.9rem 1rem;border-top:1px solid #e5e5ec;";
   for (const sl of [zmSlider, zxSlider, ntSlider, symSlider, ojSlider, obSlider, baSlider, boSlider]) {
@@ -152,6 +209,12 @@ const pageSize   = Generators.input(pageSizeInput);
   display(wrap);
 }
 ```
+
+```js
+// ── Feedback de filtrado ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  Mostrando <strong>${filtered.length.toLocaleString("es-AR")} pantomografías</strong> de ${joined.length.toLocaleString("es-AR")}${filtered.length < joined.length ? ` (${(joined.length - filtered.length).toLocaleString("es-AR")} filtradas)` : ""}
+</div>`);
 
 ```js
 // ── Filter (lo/hi used as local vars, not exported) ──
