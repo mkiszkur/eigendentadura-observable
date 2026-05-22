@@ -319,88 +319,115 @@ export async function openPantoModal({
         `Datos morfométricos no disponibles para esta pantomografía.</p>`;
       return tabContent;
     }
-    
-    // Forma de arcada
+
+    const sectionStyle = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
+    const titleStyle = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+    const infoStyle = "font-size:0.82rem;color:#555;line-height:1.6;";
+
+    const fmt = (v, digits = 2) =>
+      v == null || !Number.isFinite(v) ? "–" : v.toFixed(digits);
+    const zFlag = (z) => {
+      if (z == null || !Number.isFinite(z)) return "";
+      const abs = Math.abs(z);
+      const color = abs > 2 ? "#e15759" : abs > 1 ? "#f28e2b" : "#999";
+      return ` <span style="color:${color};font-size:0.75rem;">(z=${z >= 0 ? "+" : ""}${z.toFixed(2)})</span>`;
+    };
+
+    let renderedAny = false;
+
+    // ── Forma de arcada (per-individual, unidades intercondilares) ────────
     if (morphoData.archForm) {
+      const a = morphoData.archForm;
       const archSection = document.createElement("div");
-      archSection.style.cssText = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
-      
+      archSection.style.cssText = sectionStyle;
       const archTitle = document.createElement("h4");
       archTitle.textContent = "Forma de arcada";
-      archTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      archTitle.style.cssText = titleStyle;
       archSection.appendChild(archTitle);
-      
+
       const archInfo = document.createElement("div");
-      archInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      archInfo.style.cssText = infoStyle;
+      const clusterLabels = ["plana", "intermedia", "profunda"];
+      const clusterLabel = (a.depthCluster != null)
+        ? clusterLabels[a.depthCluster] ?? `cluster ${a.depthCluster}`
+        : null;
       archInfo.innerHTML =
-        `<div><strong>Clasificación:</strong> <span style="color:#4c78a8;font-weight:600;">${morphoData.archForm.classification || "–"}</span>` +
-        ` (ratio ${(morphoData.archForm.ratio ?? 0).toFixed(2)})</div>` +
-        `<div><strong>Intercanino superior:</strong> ${(morphoData.archForm.intercanine ?? 0).toFixed(1)} mm</div>` +
-        `<div><strong>Intermolar superior:</strong> ${(morphoData.archForm.intermolar ?? 0).toFixed(1)} mm</div>` +
-        `<div><strong>Profundidad:</strong> ${(morphoData.archForm.depth ?? 0).toFixed(1)} mm</div>`;
+        (clusterLabel
+          ? `<div><strong>Profundidad de arcada:</strong> <span style="color:#4c78a8;font-weight:600;">${clusterLabel}</span>` +
+            ` <span style="color:#888;font-size:0.78rem;">(arch_depth_cluster=${a.depthCluster})</span></div>`
+          : "") +
+        `<div><strong>Score profundidad:</strong> ${fmt(a.depthScore, 3)}` +
+        ` <span style="color:#888;font-size:0.78rem;">(unidades intercondilares)</span></div>` +
+        `<div style="margin-top:6px;color:#666;font-size:0.78rem;">Maxilar</div>` +
+        `<div style="padding-left:0.6rem;">` +
+          `Profundidad: ${fmt(a.maxDepth, 3)} · Anchura: ${fmt(a.maxWidth, 3)}` +
+        `</div>` +
+        `<div style="margin-top:4px;color:#666;font-size:0.78rem;">Mandibular</div>` +
+        `<div style="padding-left:0.6rem;">` +
+          `Profundidad: ${fmt(a.manDepth, 3)} · Anchura: ${fmt(a.manWidth, 3)}` +
+        `</div>`;
       archSection.appendChild(archInfo);
       tabContent.appendChild(archSection);
+      renderedAny = true;
     }
-    
-    // Oclusión
+
+    // ── Oclusión ──────────────────────────────────────────────────────────
     if (morphoData.occlusion) {
+      const o = morphoData.occlusion;
       const occSection = document.createElement("div");
-      occSection.style.cssText = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
-      
+      occSection.style.cssText = sectionStyle;
       const occTitle = document.createElement("h4");
-      occTitle.textContent = "Oclusión (proxy poblacional)";
-      occTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      occTitle.textContent = "Oclusión";
+      occTitle.style.cssText = titleStyle;
       occSection.appendChild(occTitle);
-      
       const occInfo = document.createElement("div");
-      occInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      occInfo.style.cssText = infoStyle;
       occInfo.innerHTML =
-        `<div><strong>Overjet:</strong> ${(morphoData.occlusion.overjet ?? 0).toFixed(1)} mm</div>` +
-        `<div><strong>Overbite:</strong> ${(morphoData.occlusion.overbite ?? 0).toFixed(1)} mm</div>`;
+        `<div><strong>Overjet:</strong> ${fmt(o.overjet, 4)}` +
+        ` <span style="color:#888;font-size:0.78rem;">(unidades intercondilares)</span></div>` +
+        `<div><strong>Overbite:</strong> ${fmt(o.overbite, 4)}` +
+        ` <span style="color:#888;font-size:0.78rem;">(unidades intercondilares)</span></div>`;
       occSection.appendChild(occInfo);
       tabContent.appendChild(occSection);
+      renderedAny = true;
     }
-    
-    // Bolton
+
+    // ── Bolton ────────────────────────────────────────────────────────────
     if (morphoData.bolton) {
+      const b = morphoData.bolton;
       const boltonSection = document.createElement("div");
-      boltonSection.style.cssText = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
-      
+      boltonSection.style.cssText = sectionStyle;
       const boltonTitle = document.createElement("h4");
       boltonTitle.textContent = "Índice de Bolton";
-      boltonTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      boltonTitle.style.cssText = titleStyle;
       boltonSection.appendChild(boltonTitle);
-      
       const boltonInfo = document.createElement("div");
-      boltonInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      boltonInfo.style.cssText = infoStyle;
+      const anteriorAvail = b.anteriorComplete !== false && b.anteriorRatio != null;
+      const overallAvail  = b.overallComplete !== false && b.overallRatio != null;
       boltonInfo.innerHTML =
-        `<div><strong>Anterior:</strong> ${(morphoData.bolton.anterior ?? 0).toFixed(1)} %` +
-        ` <span style="color:#888;">(normal 77,2 ± 1,6)</span></div>` +
-        `<div><strong>Total:</strong> ${(morphoData.bolton.overall ?? 0).toFixed(1)} %` +
-        ` <span style="color:#888;">(normal 91,3 ± 1,9)</span></div>`;
+        (anteriorAvail
+          ? `<div><strong>Anterior:</strong> ${fmt(b.anteriorRatio, 2)} %${zFlag(b.anteriorZ)}` +
+            ` <span style="color:#888;font-size:0.78rem;">(norma 77,2 ± 1,65 %)</span></div>`
+          : `<div><strong>Anterior:</strong> <span style="color:#aaa;">no calculable (faltan dientes)</span></div>`) +
+        (overallAvail
+          ? `<div><strong>Total:</strong> ${fmt(b.overallRatio, 2)} %${zFlag(b.overallZ)}` +
+            ` <span style="color:#888;font-size:0.78rem;">(norma 91,3 ± 1,91 %)</span></div>`
+          : `<div><strong>Total:</strong> <span style="color:#aaa;">no calculable (faltan dientes)</span></div>`) +
+        `<div style="margin-top:6px;color:#888;font-size:0.75rem;">` +
+          `Aproximación 2D (lado corto de minbbox).` +
+        `</div>`;
       boltonSection.appendChild(boltonInfo);
       tabContent.appendChild(boltonSection);
+      renderedAny = true;
     }
-    
-    // Simetría
-    if (morphoData.symmetry) {
-      const symSection = document.createElement("div");
-      symSection.style.cssText = "margin-bottom:0.5rem;";
-      
-      const symTitle = document.createElement("h4");
-      symTitle.textContent = "Simetría bilateral";
-      symTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
-      symSection.appendChild(symTitle);
-      
-      const symInfo = document.createElement("div");
-      symInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
-      symInfo.innerHTML =
-        `<div><strong>Score:</strong> ${(morphoData.symmetry.score ?? 0).toFixed(2)} mm` +
-        ` <span style="color:#888;">(desplazamiento lateral medio)</span></div>`;
-      symSection.appendChild(symInfo);
-      tabContent.appendChild(symSection);
+
+    if (!renderedAny) {
+      tabContent.innerHTML =
+        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">` +
+        `Datos morfométricos no disponibles para esta pantomografía.</p>`;
     }
-    
+
     return tabContent;
   }
 

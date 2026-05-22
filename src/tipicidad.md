@@ -9,6 +9,7 @@ title: Análisis de casos atípicos
 ```js
 import {atipicalityScatter} from "./components/atipicality-scatter.js";
 import {openPantoModal} from "./components/panto-modal.js";
+import {buildMorphoMap} from "./components/morpho-data.js";
 import {collapsible} from "./components/collapsible.js";
 import {rangeSlider} from "./components/range-slider.js";
 import {paginatedTable} from "./components/paginated-table.js";
@@ -22,6 +23,10 @@ const individuals        = await FileAttachment("data/individual_scores.json").j
 const geoPathData        = await FileAttachment("data/geo_patologia.json").json();
 const pantosRaw          = await FileAttachment("data/pantos_browser.json").json();
 const superCounts        = await FileAttachment("data/supernumerary_counts.json").json();
+const boltonJson         = await FileAttachment("data/bolton.json").json();
+const occlusionJson      = await FileAttachment("data/occlusion_individuals.json").json();
+const archCurveJson      = await FileAttachment("data/arch_curve_corpus.json").json();
+const morphoMap          = buildMorphoMap({bolton: boltonJson, occlusion: occlusionJson, archCurve: archCurveJson});
 ```
 
 ```js
@@ -255,6 +260,7 @@ const allItems = filteredScatterData.map(d => {
     iqrThreshold,
     iqrExtreme,
     extraBadges: [],
+    morphoData: geoId ? morphoMap.get(geoId) : null,
   };
 });
 ```
@@ -274,6 +280,7 @@ const allItems = filteredScatterData.map(d => {
         rankInfo: rankAtypMap.get(clicked.json_filename),
         iqrThreshold,
         iqrExtreme,
+        morphoData: morphoMap.get(id),
         invalidation,
         onClose: clearClickedIndividual,
         allItems,

@@ -10,9 +10,14 @@ title: Geometría × Patología
 const geoPath = await FileAttachment("data/geo_patologia.json").json();
 import * as d3 from "d3";
 import {openPantoModal} from "./components/panto-modal.js";
+import {buildMorphoMap} from "./components/morpho-data.js";
 const toothStatsGeo = await FileAttachment("data/tooth_stats.json").json();
 const pantosRawGeo = await FileAttachment("data/pantos_browser.json").json();
 const pantosMapGeo = new Map(pantosRawGeo.pantos.map(p => [p.archivo, p]));
+const boltonGeo    = await FileAttachment("data/bolton.json").json();
+const occlusionGeo = await FileAttachment("data/occlusion_individuals.json").json();
+const archCurveGeo = await FileAttachment("data/arch_curve_corpus.json").json();
+const morphoMapGeo = buildMorphoMap({bolton: boltonGeo, occlusion: occlusionGeo, archCurve: archCurveGeo});
 ```
 
 ```js
@@ -63,6 +68,7 @@ const allItemsGeo = visGeoPath.map(d => {
     iqrExtreme: null,
     extraBadges: pathoBadges,
     rankInfo: null,
+    morphoData: morphoMapGeo.get(d.id),
   };
 });
 ```
@@ -80,6 +86,7 @@ const allItemsGeo = visGeoPath.map(d => {
       id: d.id, pantoMeta: pb, toothStats: toothStatsGeo,
       zScores: {z_mean: d.z_mean, z_pos: d.z_pos, z_ang: d.z_ang},
       extraBadges: pathoBadges, onClose: clearClickedGeo, invalidation,
+      morphoData: morphoMapGeo.get(d.id),
       allItems: allItemsGeo,
       currentIndex: currentIndex >= 0 ? currentIndex : null,
     });
