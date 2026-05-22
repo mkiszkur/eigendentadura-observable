@@ -1,5 +1,18 @@
 /* Custom wide layout: aprovecha más ancho útil de la página.
    El tema default limita body a 1440px y p/table/figure a 640px. */
+
+/* U-024: Soporte para prefers-reduced-motion (WCAG AAA, accesibilidad) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 :root {
   --observablehq-max-width: 1600px;
 

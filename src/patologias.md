@@ -312,3 +312,11 @@ Un paciente con caries en 5 dientes, 2 restauraciones y 1 endodoncia se cuenta c
 <div style="border-left: 4px solid #e45756; background: #fff7f7; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
 <strong>Hallazgo principal</strong> — La patología más prevalente es la <strong>restauración</strong>, concentrada en primeros y segundos molares (36, 46, 37, 47), consistente con el mayor esfuerzo masticatorio de esas piezas y con la epidemiología dental argentina y latinoamericana (Petersen et al., 2005; OPS, 2022). La <strong>retención dentaria</strong> afecta casi exclusivamente a los terceros molares (18, 28, 38, 48), en línea con la literatura clínica mundial. La mayoría de las dentaduras presentan <strong>0 ó 1 tipo de patología simultánea</strong>; una fracción pequeña pero clínicamente relevante concentra múltiples hallazgos (alta multimorbilidad).
 </div>
+
+---
+
+## Síntesis
+
+Los **molares son el foco de intervención** en esta cohorte: acumulan el mayor número de restauraciones, caries avanzadas y extracciones. La baja prevalencia de multimorbilidad sugiere que la mayoría de las dentaduras están relativamente sanas o presentan hallazgos aislados.
+
+**Próximo paso**: explorar si existe asociación entre carga patológica y atipicidad geométrica a nivel individual ([Geometría × Patología](/geo-patologia)), o si las patologías ocurren independientemente de la configuración espacial del arco.

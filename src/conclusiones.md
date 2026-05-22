@@ -98,4 +98,37 @@ import * as d3 from "d3";
 
 </div>
 
+---
+
+## Próximos pasos
+
+Esta herramienta está diseñada para **exploración y contextualización**, no para diagnóstico automatizado. Te invitamos a:
+
+**1. Buscar casos de referencia**
+
+Usá el [Explorador de muestras](/explorador-metricas) para filtrar pantomografías por métricas específicas (z-scores, Bolton, overjet/overbite, asimetría) y encontrar casos comparables a tus pacientes. La tabla permite ordenar por cualquier columna y filtrar por rangos.
+
+**2. Contextualizar un individuo contra la población**
+
+En [Individuo vs Población](/individuo), seleccioná una pantomografía del dropdown y visualizá:
+- Su posición relativa en el espacio de z-scores poblacional.
+- La comparación de sus centroides contra la eigendentadura (dentadura media).
+- Su schematic dental interactivo con métricas morfométricas.
+
+**3. Consultar prevalencias epidemiológicas**
+
+Revisá [Patologías](/patologias) para saber qué hallazgos son comunes vs. raros en esta cohorte (n = 4.956 dentaduras permanentes). El heatmap FDI × patología te permite identificar piezas de mayor riesgo.
+
+**4. Explorar subpoblaciones**
+
+Comparás distribuciones geométricas por [sexo biológico](/subpoblacion-genero) y [origen clínico](/subpoblacion-origen). Aunque el solapamiento es alto (>90%), podés verificar si tu caso cae dentro de las regiones de alta densidad de cada subgrupo.
+
+---
+
+<div style="background: #f0f4ff; border: 1px solid #d0d9f0; border-radius: 6px; padding: 1rem 1.2rem; margin: 1.5rem 0;">
+  <div style="font-size: 0.88rem; line-height: 1.6; color: #444;">
+    <strong>Nota metodológica:</strong> Esta herramienta implementa análisis <strong>descriptivo y exploratorio</strong>, no modelos predictivos ni sistemas de diagnóstico asistido. Los resultados deben interpretarse en contexto clínico y complementarse con evaluación profesional. Para detalles metodológicos completos, consultá el <a href="/anexo-experimentos">Anexo de experimentos</a> y la documentación del <a href="https://github.com/mkiszkur/Tesis">repositorio del proyecto</a>.
+  </div>
+</div>
+
 

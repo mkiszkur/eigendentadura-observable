@@ -147,6 +147,14 @@ A diferencia de los anteriores, HDBSCAN determina el número de clusters automá
 <strong>Hallazgo principal</strong> — <strong>No se detectaron clusters naturales</strong> en el espacio geométrico dental: los cinco algoritmos evaluados (KMeans, Ward, GMM, Spectral, HDBSCAN) arrojan silhouette scores &lt; 0.25, por debajo del umbral convencional para clustering significativo. La variabilidad dental en esta población es un <strong>continuo</strong>, no un conjunto de fenotipos discretos.
 </div>
 
+---
+
+## Síntesis
+
+Este **resultado negativo** (pregunta P3 de la tesis) es parte del aporte: descarta la hipótesis de subgrupos dentales discretos en esta población y orienta futuros estudios hacia **análisis por pieza individual** y factores de confusión (edad, patología acumulada, historia de extracciones).
+
+**Próximo paso**: explorar si existen diferencias geométricas al estratificar por [sexo biológico](/subpoblacion-genero) o [origen clínico](/subpoblacion-origen), aunque sin expectativa de separación discreta (el solapamiento esperado es alto >90 %).
+
 ## Anexos
 
 ### Comparación de Silhouette

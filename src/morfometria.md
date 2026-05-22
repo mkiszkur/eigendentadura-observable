@@ -1140,3 +1140,11 @@ Para cada individuo con datos completos, se calcula cuántos desvíos estándar 
 <div style="border-left: 4px solid #72b7b2; background: #f7fdfd; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
 <strong>Hallazgo principal</strong> — La arcada de esta población es predominantemente <strong>cuadrada</strong> (ratio profundidad/ancho intermolar < 0.70 en ambas arcadas) — primer cálculo de este tipo para esta cohorte. Los índices de Bolton medianos se mantienen dentro del rango normativo, con variabilidad individual considerable. La asimetría bilateral es baja a nivel poblacional; los pares anteriores (13↔23) presentan la mayor desviación respecto al plano sagital.
 </div>
+
+---
+
+## Síntesis
+
+Esta población muestra **arcadas cuadradas, overjet/overbite en rango normal, y alta simetría bilateral**. El análisis de Bolton revela desbalances en ~15 % de casos, consistente con la prevalencia reportada en la literatura para poblaciones latinoamericanas.
+
+**Próximo paso**: cruzar estas métricas morfométricas con la atipicidad geométrica global para verificar si existe asociación entre forma de arcada y z-scores poblacionales ([Geometría × Patología](/geo-patologia)).

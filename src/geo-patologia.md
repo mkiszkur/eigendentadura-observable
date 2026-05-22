@@ -335,3 +335,10 @@ Gráfico de mancuernas (_dumbbell chart_): cada fila es una patología y compara
 <div style="border-left: 4px solid #76b7b2; background: #f7fdfd; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
 <strong>Hallazgo principal</strong> — <strong>No se detecta una asociación clínicamente relevante</strong> entre la atipicidad geométrica individual (posición/ángulo) y la carga patológica en esta cohorte: las diferencias de z_mean mediano entre grupos con y sin cada patología son &lt; 0.10 unidades (menos del 7% del valor mediano global). La excepción más marcada es <strong>Raíz remanente</strong> (Δ = +0.07): individuos con raíces residuales presentan mayor atipicidad posicional, probablemente porque la ausencia del diente completo altera la distribución espacial del arco. La variabilidad geométrica dental en esta población es esencialmente independiente de la presencia de patologías observadas en pantomografía.
 </div>
+---
+
+## Síntesis
+
+Este **resultado negativo** (pregunta P4 de la tesis) confirma que la geometría dental y la patología son **variables independientes a nivel poblacional**. La herramienta **no predice diagnóstico** a partir de la geometría, sino que permite **contextualizar un caso individual** contra la variabilidad poblacional normal.
+
+**Próximo paso**: explorar la geometría de un [individuo específico](/individuo) comparado con la eigendentadura y verificar si su atipicidad se explica por extracciones, rotaciones o desplazamientos de piezas particulares.
