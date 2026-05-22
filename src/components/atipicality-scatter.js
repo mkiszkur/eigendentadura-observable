@@ -134,7 +134,7 @@ export function atipicalityScatter(scores, {
       .style("pointer-events", "none");
   }
 
-  // Puntos
+  // Puntos con hover states (U-018: feedback interactivo consistente)
   g.selectAll("circle.dot").data(data).join("circle")
     .attr("class", "dot")
     .attr("cx", d => xScale(d.z_pos))
@@ -145,6 +145,16 @@ export function atipicalityScatter(scores, {
     .attr("stroke", d => selectedPanto === d.json_filename ? "#222" : "none")
     .attr("stroke-width", 1.5)
     .style("cursor", onClickPanto ? "pointer" : "default")
+    .on("mouseover", function(event, d) {
+      if (selectedPanto !== d.json_filename) {
+        d3.select(this).transition().duration(120).attr("r", 4.5).attr("opacity", 1);
+      }
+    })
+    .on("mouseout", function(event, d) {
+      if (selectedPanto !== d.json_filename) {
+        d3.select(this).transition().duration(120).attr("r", 1.5).attr("opacity", 0.55);
+      }
+    })
     .on("click", onClickPanto ? (event, d) => { event.stopPropagation(); onClickPanto(d); } : null)
     .append("title").text(d =>
       `${d.json_filename}\n${d.data_origin ?? "–"} · ${d.sex ?? "–"} · ${d.n_teeth} dientes\nz_pos=${d.z_pos} · z_ang=${d.z_ang}` +

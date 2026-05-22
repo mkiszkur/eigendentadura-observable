@@ -34,14 +34,23 @@ function histogramSvg({hist, stats, norm, label, width = 420, height = 220, colo
     .attr("height", innerH)
     .attr("fill", "#2ca02c").attr("opacity", 0.10);
 
-  // Barras
+  // Barras con hover states (U-018: feedback interactivo consistente)
   for (const b of hist) {
     g.append("rect")
       .attr("x", x(b.x_min) + 0.5)
       .attr("y", y(b.count))
       .attr("width", Math.max(0, x(b.x_max) - x(b.x_min) - 1))
       .attr("height", innerH - y(b.count))
-      .attr("fill", color).attr("opacity", 0.78);
+      .attr("fill", color).attr("opacity", 0.78)
+      .style("cursor", "pointer")
+      .on("mouseover", function() {
+        d3.select(this).transition().duration(120).attr("opacity", 1);
+      })
+      .on("mouseout", function() {
+        d3.select(this).transition().duration(120).attr("opacity", 0.78);
+      })
+      .append("title")
+      .text(`Bolton ${b.x_min.toFixed(1)} – ${b.x_max.toFixed(1)}: ${b.count} dentaduras`);
   }
 
   // Mediana de la población observada

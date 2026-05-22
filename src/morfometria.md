@@ -1119,6 +1119,17 @@ Para cada individuo con datos completos, se calcula cuántos desvíos estándar 
         Plot.ruleX([0], {stroke: "#888", strokeDasharray: "4,3"}),
       ],
     });
+    
+    // U-018: Agregar hover states a las barras del histograma (feedback interactivo)
+    d3.select(p).selectAll("rect[fill='#4e79a7']")
+      .style("cursor", "pointer")
+      .on("mouseover", function() {
+        d3.select(this).transition().duration(120).attr("fill-opacity", 1);
+      })
+      .on("mouseout", function() {
+        d3.select(this).transition().duration(120).attr("fill-opacity", 0.7);
+      });
+    
     gridDiv.appendChild(p);
   }
   display(gridDiv);
