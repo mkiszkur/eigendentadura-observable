@@ -24,19 +24,27 @@ más amplio que el de la eigendentadura (${ds.universe_kde.toLocaleString("es-AR
 ```
 
 ```js
+// Valores iniciales de los filtros
+const initialPathValues = {
+  caries: ["Caries", "Caries avanzada"],
+  restaur: ["Restauración"],
+  tratam: ["Tratamiento de conducto"],
+  otras: ["Pieza retenida", "Radiolucidez"],
+};
+
 const pathGroupInputs = {
   caries:  Inputs.checkbox(
     ["Caries", "Caries incipiente", "Caries moderada", "Caries avanzada"],
-    {label: "Caries", value: ["Caries", "Caries avanzada"]}),
+    {label: "Caries", value: initialPathValues.caries}),
   restaur: Inputs.checkbox(
     ["Restauración", "Corona sobre implante", "Poste/Implante", "Implante dental", "Pilar de puente"],
-    {label: "Restauraciones y prótesis", value: ["Restauración"]}),
+    {label: "Restauraciones y prótesis", value: initialPathValues.restaur}),
   tratam:  Inputs.checkbox(
     ["Tratamiento de conducto"],
-    {label: "Tratamientos", value: ["Tratamiento de conducto"]}),
+    {label: "Tratamientos", value: initialPathValues.tratam}),
   otras:   Inputs.checkbox(
     ["Restos radiculares", "Pieza retenida", "Radiolucidez", "Neoplasia", "Agenesia"],
-    {label: "Otras patologías", value: ["Pieza retenida", "Radiolucidez"]}),
+    {label: "Otras patologías", value: initialPathValues.otras}),
 };
 ```
 
@@ -54,14 +62,55 @@ Barras horizontales agrupadas por patología. Dentro de cada grupo, una barra po
 
 </details>
 
-<details>
-<summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtros</summary>
+```js
+// ── Display de filtros de patologías ──
+{
+  const filtersDiv = document.createElement("details");
+  filtersDiv.setAttribute("open", "");
+  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  
+  // Summary con botón reset
+  const sum = document.createElement("summary");
+  sum.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
+  
+  const sumText = document.createElement("span");
+  sumText.textContent = "Filtros de patologías";
+  
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Limpiar filtros";
+  resetBtn.style.cssText = "font-size:0.7rem;padding:4px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#666;cursor:pointer;font-weight:600;";
+  resetBtn.onclick = (e) => {
+    e.stopPropagation();
+    pathGroupInputs.caries.value = initialPathValues.caries;
+    pathGroupInputs.restaur.value = initialPathValues.restaur;
+    pathGroupInputs.tratam.value = initialPathValues.tratam;
+    pathGroupInputs.otras.value = initialPathValues.otras;
+    [pathGroupInputs.caries, pathGroupInputs.restaur, pathGroupInputs.tratam, pathGroupInputs.otras].forEach(inp => {
+      inp.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+  };
+  
+  sum.appendChild(sumText);
+  sum.appendChild(resetBtn);
+  filtersDiv.appendChild(sum);
+  
+  const formEl = Inputs.form(pathGroupInputs);
+  formEl.style.cssText = "border-top:1px solid #e5e5ec;padding:0.8rem 1rem;";
+  filtersDiv.appendChild(formEl);
+  display(filtersDiv);
+}
+```
 
 ```js
 const pathForm = view(Inputs.form(pathGroupInputs));
 ```
 
-</details>
+```js
+// ── Feedback de patologías seleccionadas ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  <strong>${selectedPaths.length} patologías</strong> seleccionadas
+</div>`);
+```
 
 ```js
 const selectedPaths = [
