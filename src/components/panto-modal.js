@@ -1,31 +1,34 @@
 /**
  * PantoModal — modal estándar para visualizar pantomografías.
+ * SUG-007: modal con tabs (Geometría / Morfometría / Visualización).
  *
  * Uso:
  *   import { openPantoModal } from "./components/panto-modal.js";
  *
  *   openPantoModal({
- *     id,           // string — ID corto de la panto (sin prefijo/sufijo)
- *     pantoMeta,    // object — entrada de pantos_browser.json
- *     toothStats,   // array  — tooth_stats.json (para eigendentadura)
- *     zScores,      // object — { z_mean, z_pos, z_ang, z_max, teeth }  (opcional)
- *     rankInfo,     // object — { rank_atypical, rank_typical, total }   (opcional)
- *     iqrThreshold, // number — umbral moderado (opcional)
- *     iqrExtreme,   // number — umbral extremo  (opcional)
- *     extraBadges,  // array  — [{ label, value, color }] badges adicionales (opcional)
- *     invalidation, // Promise — Observable invalidation para auto-cierre (opcional)
- *     allItems,     // array  — lista completa de items para navegación prev/next (opcional)
- *     currentIndex, // number — índice del item actual en allItems (opcional)
+ *     id,             // string — ID corto de la panto (sin prefijo/sufijo)
+ *     pantoMeta,      // object — entrada de pantos_browser.json
+ *     toothStats,     // array  — tooth_stats.json (para eigendentadura)
+ *     zScores,        // object — { z_mean, z_pos, z_ang, z_max, teeth }  (opcional)
+ *     rankInfo,       // object — { rank_atypical, rank_typical, total }   (opcional)
+ *     iqrThreshold,   // number — umbral moderado (opcional)
+ *     iqrExtreme,     // number — umbral extremo  (opcional)
+ *     extraBadges,    // array  — [{ label, value, color }] badges adicionales (opcional)
+ *     morphoData,     // object — { bolton, archForm, occlusion, symmetry } (opcional)
+ *     invalidation,   // Promise — Observable invalidation para auto-cierre (opcional)
+ *     allItems,       // array  — lista completa de items para navegación prev/next (opcional)
+ *     currentIndex,   // number — índice del item actual en allItems (opcional)
  *   });
  *
  * Navegación: si se pasan `allItems` y `currentIndex`, el modal muestra un footer con
  * botones "← Anterior" / "Siguiente →" y un indicador "X de Y". Los items en `allItems`
  * deben tener la estructura:
- *   { id, pantoMeta, toothStats, zScores, rankInfo, iqrThreshold, iqrExtreme, extraBadges }
+ *   { id, pantoMeta, toothStats, zScores, rankInfo, iqrThreshold, iqrExtreme, extraBadges, morphoData }
  */
 import * as d3 from "d3";
 import { pantoSchematic } from "./panto-schematic.js";
 import { miniOdontograma } from "./mini-odontograma.js";
+import { createTabs } from "./tabs.js";
 
 const ALL_FDI = [
   ...Array.from({length: 8}, (_, i) => 11 + i),
@@ -57,6 +60,7 @@ export async function openPantoModal({
   iqrThreshold = null,
   iqrExtreme = null,
   extraBadges = [],
+  morphoData = null,
   invalidation = null,
   onClose = null,
   allItems = null,
@@ -185,7 +189,9 @@ export async function openPantoModal({
     modal.appendChild(flagsDiv);
   }
 
-  // ── Toggles de visualización ────────────────────────────────────────────
+  // ── Sistema de tabs (SUG-007) ───────────────────────────────────────────
+  
+  // Estado de visualización compartido entre tabs
   const vizState = {
     showPolygon:         false,
     showCentroids:       true,
@@ -196,11 +202,6 @@ export async function openPantoModal({
     showPopEllipses:     false,
     showLabels:          false,
   };
-
-  const togglesDiv = document.createElement("div");
-  togglesDiv.style.cssText =
-    "display:flex;flex-wrap:wrap;gap:6px;align-items:center;" +
-    "padding:6px 0 8px;border-top:1px solid #f0f0f0;margin-bottom:6px;";
 
   const schContainer = document.createElement("div");
 
@@ -246,11 +247,184 @@ export async function openPantoModal({
     return btn;
   }
 
-  if (geomData) {
+  // ── Tab 1: Geometría ────────────────────────────────────────────────────
+  function createGeometryTab() {
+    const tabContent = document.createElement("div");
+    
+    const hint = document.createElement("div");
+    hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear";
+    hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:8px;";
+    tabContent.appendChild(hint);
+    
+    const schContainerClone = schContainer.cloneNode(false);
+    tabContent.appendChild(schContainerClone);
+    schContainer.parentElement?.replaceChild(schContainerClone, schContainer);
+    Object.assign(schContainer, schContainerClone);
+    
+    if (geomData) {
+      renderSchematic();
+    } else {
+      schContainer.innerHTML =
+        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">Sin datos de geometría disponibles.</p>`;
+    }
+    
+    // Z-scores por diente (colapsable)
+    const teeth = zScores?.teeth ?? [];
+    if (teeth.length > 0) {
+      const teethSorted = [...teeth].sort((a, b) => b.z_total - a.z_total);
+      const det = document.createElement("details");
+      det.style.marginTop = "0.8rem";
+      const sum = document.createElement("summary");
+      sum.style.cssText = "cursor:pointer;font-size:12px;color:#555;font-weight:600;";
+      sum.textContent = `Z-scores por diente (${teethSorted.length} dientes)`;
+      det.appendChild(sum);
+
+      const tableWrap = document.createElement("div");
+      tableWrap.style.cssText = "overflow-x:auto;margin-top:6px;";
+      tableWrap.innerHTML =
+        `<table style="border-collapse:collapse;font-size:11px;width:100%;">` +
+        `<thead><tr style="border-bottom:1px solid #eee;">` +
+          `<th style="text-align:left;padding:3px 8px;color:#888;">FDI</th>` +
+          `<th style="text-align:right;padding:3px 8px;color:#888;">z_total</th>` +
+          `<th style="text-align:right;padding:3px 8px;color:#888;">z_cx</th>` +
+          `<th style="text-align:right;padding:3px 8px;color:#888;">z_cy</th>` +
+          `<th style="text-align:right;padding:3px 8px;color:#888;">z_angle</th>` +
+        `</tr></thead><tbody>` +
+        teethSorted.map(t => {
+          const bg = t.z_total > 3 ? "#fff5f5" : t.z_total > 2 ? "#fffbf0" : "transparent";
+          return `<tr style="border-bottom:1px solid #f5f5f5;background:${bg};">` +
+            `<td style="padding:3px 8px;font-weight:600;color:#4c78a8;">${t.fdi}</td>` +
+            `<td style="text-align:right;padding:3px 8px;font-weight:600;color:${t.z_total > 2 ? "#e15759" : "#333"};">${t.z_total.toFixed(3)}</td>` +
+            `<td style="text-align:right;padding:3px 8px;color:#555;">${t.z_cx?.toFixed(3) ?? "–"}</td>` +
+            `<td style="text-align:right;padding:3px 8px;color:#555;">${t.z_cy?.toFixed(3) ?? "–"}</td>` +
+            `<td style="text-align:right;padding:3px 8px;color:#555;">${t.z_angle?.toFixed(3) ?? "–"}</td>` +
+          `</tr>`;
+        }).join("") +
+        `</tbody></table>`;
+      det.appendChild(tableWrap);
+      tabContent.appendChild(det);
+    }
+    
+    return tabContent;
+  }
+
+  // ── Tab 2: Morfometría ──────────────────────────────────────────────────
+  function createMorphometryTab() {
+    const tabContent = document.createElement("div");
+    tabContent.style.cssText = "padding:0.5rem 0;";
+    
+    if (!morphoData || Object.keys(morphoData).length === 0) {
+      tabContent.innerHTML =
+        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">` +
+        `Datos morfométricos no disponibles para esta pantomografía.</p>`;
+      return tabContent;
+    }
+    
+    // Forma de arcada
+    if (morphoData.archForm) {
+      const archSection = document.createElement("div");
+      archSection.style.cssText = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
+      
+      const archTitle = document.createElement("h4");
+      archTitle.textContent = "Forma de arcada";
+      archTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      archSection.appendChild(archTitle);
+      
+      const archInfo = document.createElement("div");
+      archInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      archInfo.innerHTML =
+        `<div><strong>Clasificación:</strong> <span style="color:#4c78a8;font-weight:600;">${morphoData.archForm.classification || "–"}</span>` +
+        ` (ratio ${(morphoData.archForm.ratio ?? 0).toFixed(2)})</div>` +
+        `<div><strong>Intercanino superior:</strong> ${(morphoData.archForm.intercanine ?? 0).toFixed(1)} mm</div>` +
+        `<div><strong>Intermolar superior:</strong> ${(morphoData.archForm.intermolar ?? 0).toFixed(1)} mm</div>` +
+        `<div><strong>Profundidad:</strong> ${(morphoData.archForm.depth ?? 0).toFixed(1)} mm</div>`;
+      archSection.appendChild(archInfo);
+      tabContent.appendChild(archSection);
+    }
+    
+    // Oclusión
+    if (morphoData.occlusion) {
+      const occSection = document.createElement("div");
+      occSection.style.cssText = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
+      
+      const occTitle = document.createElement("h4");
+      occTitle.textContent = "Oclusión (proxy poblacional)";
+      occTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      occSection.appendChild(occTitle);
+      
+      const occInfo = document.createElement("div");
+      occInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      occInfo.innerHTML =
+        `<div><strong>Overjet:</strong> ${(morphoData.occlusion.overjet ?? 0).toFixed(1)} mm</div>` +
+        `<div><strong>Overbite:</strong> ${(morphoData.occlusion.overbite ?? 0).toFixed(1)} mm</div>`;
+      occSection.appendChild(occInfo);
+      tabContent.appendChild(occSection);
+    }
+    
+    // Bolton
+    if (morphoData.bolton) {
+      const boltonSection = document.createElement("div");
+      boltonSection.style.cssText = "margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;";
+      
+      const boltonTitle = document.createElement("h4");
+      boltonTitle.textContent = "Índice de Bolton";
+      boltonTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      boltonSection.appendChild(boltonTitle);
+      
+      const boltonInfo = document.createElement("div");
+      boltonInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      boltonInfo.innerHTML =
+        `<div><strong>Anterior:</strong> ${(morphoData.bolton.anterior ?? 0).toFixed(1)} %` +
+        ` <span style="color:#888;">(normal 77,2 ± 1,6)</span></div>` +
+        `<div><strong>Total:</strong> ${(morphoData.bolton.overall ?? 0).toFixed(1)} %` +
+        ` <span style="color:#888;">(normal 91,3 ± 1,9)</span></div>`;
+      boltonSection.appendChild(boltonInfo);
+      tabContent.appendChild(boltonSection);
+    }
+    
+    // Simetría
+    if (morphoData.symmetry) {
+      const symSection = document.createElement("div");
+      symSection.style.cssText = "margin-bottom:0.5rem;";
+      
+      const symTitle = document.createElement("h4");
+      symTitle.textContent = "Simetría bilateral";
+      symTitle.style.cssText = "margin:0 0 0.5rem;font-size:0.9rem;color:#333;font-weight:600;";
+      symSection.appendChild(symTitle);
+      
+      const symInfo = document.createElement("div");
+      symInfo.style.cssText = "font-size:0.82rem;color:#555;line-height:1.6;";
+      symInfo.innerHTML =
+        `<div><strong>Score:</strong> ${(morphoData.symmetry.score ?? 0).toFixed(2)} mm` +
+        ` <span style="color:#888;">(desplazamiento lateral medio)</span></div>`;
+      symSection.appendChild(symInfo);
+      tabContent.appendChild(symSection);
+    }
+    
+    return tabContent;
+  }
+
+  // ── Tab 3: Visualización ────────────────────────────────────────────────
+  function createVisualizationTab() {
+    const tabContent = document.createElement("div");
+    tabContent.style.cssText = "padding:0.5rem 0;";
+    
+    if (!geomData) {
+      tabContent.innerHTML =
+        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">Sin datos de geometría disponibles.</p>`;
+      return tabContent;
+    }
+    
+    const togglesDiv = document.createElement("div");
+    togglesDiv.style.cssText =
+      "display:flex;flex-wrap:wrap;gap:6px;align-items:center;" +
+      "padding:0 0 8px;margin-bottom:8px;";
+    
     const lbl = document.createElement("span");
     lbl.style.cssText = "font-size:11px;color:#888;margin-right:2px;";
-    lbl.textContent = "Mostrar:";
+    lbl.textContent = "Capas:";
     togglesDiv.appendChild(lbl);
+    
     togglesDiv.appendChild(makeToggle("Contornos",             "showPolygon"));
     togglesDiv.appendChild(makeToggle("Centroides",            "showCentroids"));
     togglesDiv.appendChild(makeToggle("Etiquetas FDI",         "showLabels"));
@@ -258,61 +432,29 @@ export async function openPantoModal({
     togglesDiv.appendChild(makeToggle("Supernumerarios",       "showSupernumeraries"));
     togglesDiv.appendChild(makeToggle("Centroides eigendent.", "showEigendentadura"));
     togglesDiv.appendChild(makeToggle("Elipses población",     "showPopEllipses"));
-    modal.appendChild(togglesDiv);
+    
+    tabContent.appendChild(togglesDiv);
+    
+    const hint = document.createElement("div");
+    hint.textContent = "Los controles de visualización afectan al schematic del tab Geometría.";
+    hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:8px;padding:8px;background:#f9f9f9;border-radius:4px;";
+    tabContent.appendChild(hint);
+    
+    const schContainerClone = schContainer.cloneNode(true);
+    tabContent.appendChild(schContainerClone);
+    
+    return tabContent;
   }
 
-  // ── Hint ────────────────────────────────────────────────────────────────
-  const hint = document.createElement("div");
-  hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear";
-  hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:6px;";
-  modal.appendChild(hint);
-
-  // ── Schematic ───────────────────────────────────────────────────────────
-  modal.appendChild(schContainer);
-
-  if (geomData) {
-    renderSchematic();
-  } else {
-    schContainer.innerHTML =
-      `<p style="color:#aaa;font-style:italic;padding:1rem 0;">Sin datos de geometría disponibles.</p>`;
-  }
-
-  // ── Z-scores por diente (colapsable) ────────────────────────────────────
-  const teeth = zScores?.teeth ?? [];
-  if (teeth.length > 0) {
-    const teethSorted = [...teeth].sort((a, b) => b.z_total - a.z_total);
-    const det = document.createElement("details");
-    det.style.marginTop = "0.8rem";
-    const sum = document.createElement("summary");
-    sum.style.cssText = "cursor:pointer;font-size:12px;color:#555;font-weight:600;";
-    sum.textContent = `Z-scores por diente (${teethSorted.length} dientes)`;
-    det.appendChild(sum);
-
-    const tableWrap = document.createElement("div");
-    tableWrap.style.cssText = "overflow-x:auto;margin-top:6px;";
-    tableWrap.innerHTML =
-      `<table style="border-collapse:collapse;font-size:11px;width:100%;">` +
-      `<thead><tr style="border-bottom:1px solid #eee;">` +
-        `<th style="text-align:left;padding:3px 8px;color:#888;">FDI</th>` +
-        `<th style="text-align:right;padding:3px 8px;color:#888;">z_total</th>` +
-        `<th style="text-align:right;padding:3px 8px;color:#888;">z_cx</th>` +
-        `<th style="text-align:right;padding:3px 8px;color:#888;">z_cy</th>` +
-        `<th style="text-align:right;padding:3px 8px;color:#888;">z_angle</th>` +
-      `</tr></thead><tbody>` +
-      teethSorted.map(t => {
-        const bg = t.z_total > 3 ? "#fff5f5" : t.z_total > 2 ? "#fffbf0" : "transparent";
-        return `<tr style="border-bottom:1px solid #f5f5f5;background:${bg};">` +
-          `<td style="padding:3px 8px;font-weight:600;color:#4c78a8;">${t.fdi}</td>` +
-          `<td style="text-align:right;padding:3px 8px;font-weight:600;color:${t.z_total > 2 ? "#e15759" : "#333"};">${t.z_total.toFixed(3)}</td>` +
-          `<td style="text-align:right;padding:3px 8px;color:#555;">${t.z_cx?.toFixed(3) ?? "–"}</td>` +
-          `<td style="text-align:right;padding:3px 8px;color:#555;">${t.z_cy?.toFixed(3) ?? "–"}</td>` +
-          `<td style="text-align:right;padding:3px 8px;color:#555;">${t.z_angle?.toFixed(3) ?? "–"}</td>` +
-        `</tr>`;
-      }).join("") +
-      `</tbody></table>`;
-    det.appendChild(tableWrap);
-    modal.appendChild(det);
-  }
+  // Crear tabs
+  const tabs = [
+    { id: "geometry", label: "Geometría", icon: "📊", content: createGeometryTab },
+    { id: "morphometry", label: "Morfometría", icon: "🦷", content: createMorphometryTab },
+    { id: "visualization", label: "Visualización", icon: "🔬", content: createVisualizationTab },
+  ];
+  
+  const tabsContainer = createTabs(tabs, "geometry");
+  modal.appendChild(tabsContainer);
 
   // ── Footer de navegación ────────────────────────────────────────────────
   if (allItems && currentIndex != null) {
@@ -363,6 +505,7 @@ export async function openPantoModal({
           iqrThreshold: prevItem.iqrThreshold,
           iqrExtreme: prevItem.iqrExtreme,
           extraBadges: prevItem.extraBadges,
+          morphoData: prevItem.morphoData,
           invalidation,
           onClose,
           allItems,
@@ -384,6 +527,7 @@ export async function openPantoModal({
           iqrThreshold: nextItem.iqrThreshold,
           iqrExtreme: nextItem.iqrExtreme,
           extraBadges: nextItem.extraBadges,
+          morphoData: nextItem.morphoData,
           invalidation,
           onClose,
           allItems,

@@ -22,9 +22,33 @@ export function kpiCard(config) {
     <div style="font-size:0.75rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
       <span>${label}</span>
       ${hasTooltip ? html`<span 
-        title="${tooltipText}"
-        style="cursor:help; color:#999; font-size:0.85rem; font-weight:normal; user-select:none;"
-      >ⓘ</span>` : ""}
+        class="kpi-tooltip-trigger"
+        style="position:relative; cursor:help; color:#999; font-size:0.85rem; font-weight:normal; user-select:none;"
+      >ⓘ<span class="kpi-tooltip-content" style="
+        position:absolute;
+        bottom:calc(100% + 8px);
+        right:0;
+        background:#2a2a2a;
+        color:#fff;
+        padding:0.5rem 0.75rem;
+        border-radius:4px;
+        font-size:0.75rem;
+        white-space:nowrap;
+        opacity:0;
+        pointer-events:none;
+        transition:opacity 0.2s ease;
+        z-index:1000;
+        box-shadow:0 2px 8px rgba(0,0,0,0.15);
+      ">${tooltipText}<span style="
+        position:absolute;
+        top:100%;
+        right:8px;
+        width:0;
+        height:0;
+        border-left:5px solid transparent;
+        border-right:5px solid transparent;
+        border-top:5px solid #2a2a2a;
+      "></span></span></span>` : ""}
     </div>
     <div style="font-size:2rem; font-weight:700; color:${color}; line-height:1;">${value}</div>
     <div style="font-size:0.78rem; color:#666; margin-top:4px;">${sub}</div>
