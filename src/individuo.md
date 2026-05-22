@@ -237,12 +237,83 @@ const boLo  = boRange  ? boRange[0]  : -Infinity, boHi  = boRange  ? boRange[1] 
 
 ```js
 {
+  // Capturar valores iniciales para reset
+  const initialValues = {
+    searchTerm: "",
+    catFilter: "Todas",
+    dentFilter: "Todas",
+    flagFilter: "Ninguna",
+    fdiFilter: false,
+    fdiComplFilter: false,
+    lmFilter: false,
+    archShapeFilter: "Todas",
+    multimorbFilter: false,
+    sinmorbFilter: false,
+    superFilter: false,
+    zpRange: [zpSlider.min, zpSlider.max],
+    zaRange: [zaSlider.min, zaSlider.max],
+    azRange: [azSlider.min, azSlider.max],
+    rankRange: rankSlider ? [rankSlider.min, rankSlider.max] : null,
+    symRange: symSlider ? [symSlider.min, symSlider.max] : null,
+    zmRange: zmSlider ? [zmSlider.min, zmSlider.max] : null,
+    zmxRange: zmxSlider ? [zmxSlider.min, zmxSlider.max] : null,
+    ojRange: ojSlider ? [ojSlider.min, ojSlider.max] : null,
+    obRange: obSlider ? [obSlider.min, obSlider.max] : null,
+    baRange: baSlider ? [baSlider.min, baSlider.max] : null,
+    boRange: boSlider ? [boSlider.min, boSlider.max] : null,
+  };
+  
   const filtersDiv = document.createElement("details");
-  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.8rem;";
+  filtersDiv.setAttribute("open", "");
+  filtersDiv.style.cssText = "border:1px solid #e5e5ec;border-radius:8px;background:#f9f9fb;margin-bottom:0.5rem;";
+  
+  // Summary con botón reset inline
   const sum = document.createElement("summary");
-  sum.style.cssText = "padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
-  sum.textContent = "Filtros";
+  sum.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#555;cursor:pointer;user-select:none;";
+  
+  const sumText = document.createElement("span");
+  sumText.textContent = "Filtros";
+  
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Limpiar filtros";
+  resetBtn.style.cssText = "font-size:0.7rem;padding:4px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#666;cursor:pointer;font-weight:600;";
+  resetBtn.onclick = (e) => {
+    e.stopPropagation();
+    searchInput.value = initialValues.searchTerm;
+    catInput.value = initialValues.catFilter;
+    dentInput.value = initialValues.dentFilter;
+    flagInput.value = initialValues.flagFilter;
+    fdiInput.value = initialValues.fdiFilter;
+    fdiComplInput.value = initialValues.fdiComplFilter;
+    lmInput.value = initialValues.lmFilter;
+    archShapeInput.value = initialValues.archShapeFilter;
+    multimorbInput.value = initialValues.multimorbFilter;
+    sinmorbInput.value = initialValues.sinmorbFilter;
+    superInput.value = initialValues.superFilter;
+    zpSlider.value = initialValues.zpRange;
+    zaSlider.value = initialValues.zaRange;
+    azSlider.value = initialValues.azRange;
+    if (rankSlider) rankSlider.value = initialValues.rankRange;
+    if (symSlider) symSlider.value = initialValues.symRange;
+    if (zmSlider) zmSlider.value = initialValues.zmRange;
+    if (zmxSlider) zmxSlider.value = initialValues.zmxRange;
+    if (ojSlider) ojSlider.value = initialValues.ojRange;
+    if (obSlider) obSlider.value = initialValues.obRange;
+    if (baSlider) baSlider.value = initialValues.baRange;
+    if (boSlider) boSlider.value = initialValues.boRange;
+    // Disparar evento input
+    [searchInput, catInput, dentInput, flagInput, fdiInput, fdiComplInput, lmInput, archShapeInput, multimorbInput, sinmorbInput, superInput].forEach(inp => {
+      inp.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+    [zpSlider, zaSlider, azSlider, rankSlider, symSlider, zmSlider, zmxSlider, ojSlider, obSlider, baSlider, boSlider].forEach(sl => {
+      if (sl) sl.dispatchEvent(new Event("input", {bubbles: true}));
+    });
+  };
+  
+  sum.appendChild(sumText);
+  sum.appendChild(resetBtn);
   filtersDiv.appendChild(sum);
+  
   const inner = document.createElement("div");
   inner.style.cssText = "padding:0.8rem 1rem;border-top:1px solid #e5e5ec;display:flex;flex-direction:column;gap:10px;";
 
@@ -279,6 +350,12 @@ const boLo  = boRange  ? boRange[0]  : -Infinity, boHi  = boRange  ? boRange[1] 
   display(filtersDiv);
 }
 ```
+
+```js
+// ── Feedback de filtrado ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  Mostrando <strong>${_filtered.length.toLocaleString("es-AR")} pantomografías</strong> de ${allPantosEnriched.length.toLocaleString("es-AR")}${_filtered.length < allPantosEnriched.length ? ` (${(allPantosEnriched.length - _filtered.length).toLocaleString("es-AR")} filtradas)` : ""}
+</div>`);
 
 ```js
 goToPage(0);
