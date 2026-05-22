@@ -32,6 +32,11 @@ jobs:
           OBSERVABLE_BASE: /eigendentadura-observable/
         run: npx observable build
 
+      - name: Copy pantos_geometry to dist
+        run: |
+          mkdir -p dist/_file/data
+          cp -r src/data/pantos_geometry dist/_file/data/
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
