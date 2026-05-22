@@ -6,6 +6,7 @@ title: Resumen ejecutivo
 
 ```js
 import * as d3 from "d3";
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 ```
 
 ```js
@@ -25,19 +26,6 @@ const totalFlags = d3.sum(ds.pantos, p => d3.sum(ds.flag_labels, k => p[k] ?? 0)
 const totalRestauraciones = d3.sum(prevalenceData.teeth, t => t["Restauración"]?.count ?? 0);
 const symMedian = d3.median(symmetryData.pairs, p => p.stats.distance.median);
 const worstPair = symmetryData.pairs.reduce((a, b) => b.stats.distance.median > a.stats.distance.median ? b : a);
-
-function kpiCard(it) {
-  return html`<div style="background:${it.color}12; border-left:4px solid ${it.color}; padding:1rem 1.2rem; border-radius:6px;">
-    <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">${it.label}</div>
-    <div style="font-size:2rem; font-weight:700; color:${it.color}; line-height:1;">${it.value}</div>
-    <div style="font-size:0.78rem; color:#666; margin-top:4px;">${it.sub}</div>
-  </div>`;
-}
-function kpiGrid(items) {
-  return html`<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:1.2rem; margin-top:0.8rem; margin-bottom:1.5rem;">
-    ${items.map(kpiCard)}
-  </div>`;
-}
 ```
 
 ## Universo de análisis
@@ -71,11 +59,45 @@ Cómo se construye el dataset a partir de los JSONs crudos hasta los universos u
 {
   const f = ds.funnel;
   display(kpiGrid([
-    { label: "JSONs en la base",        value: f[0].n.toLocaleString("es-AR"), sub: "archivos de pantomografía",          color: "#4c78a8" },
-    { label: "Con anotaciones",         value: f[1].n.toLocaleString("es-AR"), sub: "al menos un hallazgo registrado",    color: "#4e8c9e" },
-    { label: "Con FDI permanente",      value: f[2].n.toLocaleString("es-AR"), sub: "universo epidemiológico",            color: "#54a24b" },
-    { label: "Con landmarks condíleos", value: f[3].n.toLocaleString("es-AR"), sub: "universo eigendentadura/geometría",  color: "#7b52ab" },
-    { label: "Centros clínicos",        value: "2",                            sub: "Centro A y Centro B",                color: "#f58518" },
+    { 
+      label: "JSONs en la base", 
+      value: f[0].n.toLocaleString("es-AR"), 
+      sub: "archivos de pantomografía", 
+      color: "#4c78a8",
+      source: "stage_00_fix_jsons.py",
+      tooltip: "Todos los archivos JSON en data/json/"
+    },
+    { 
+      label: "Con anotaciones", 
+      value: f[1].n.toLocaleString("es-AR"), 
+      sub: "al menos un hallazgo registrado", 
+      color: "#4e8c9e",
+      source: "stage_01_pantos_raw.py",
+      tooltip: "Pantos con al menos un shape anotado"
+    },
+    { 
+      label: "Con FDI permanente", 
+      value: f[2].n.toLocaleString("es-AR"), 
+      sub: "universo epidemiológico", 
+      color: "#54a24b",
+      source: "stage_02_pantos_processed.py",
+      tooltip: "Universo epidemiológico (prevalencias de patologías)"
+    },
+    { 
+      label: "Con landmarks condíleos", 
+      value: f[3].n.toLocaleString("es-AR"), 
+      sub: "universo eigendentadura/geometría", 
+      color: "#7b52ab",
+      source: "stage_02_pantos_processed.py",
+      tooltip: "Universo geométrico (7 landmarks L1-L7 completos)"
+    },
+    { 
+      label: "Centros clínicos", 
+      value: "2", 
+      sub: "Centro A y Centro B", 
+      color: "#f58518",
+      tooltip: "Dos centros de anotación independientes"
+    },
   ]));
 }
 ```
@@ -84,9 +106,30 @@ Cómo se construye el dataset a partir de los JSONs crudos hasta los universos u
 
 ```js
 display(kpiGrid([
-  { label: "Anotaciones totales", value: "~476k",                                    sub: "shapes, landmarks y entidades clínicas",       color: "#f58518" },
-  { label: "Dientes anotados",    value: totalDientes.toLocaleString("es-AR"),        sub: "presencias FDI en pantomografías",             color: "#7b52ab" },
-  { label: "Con geometría",       value: metadata.total_teeth.toLocaleString("es-AR"), sub: "centroides normalizados por landmarks",       color: "#b07aa1" },
+  { 
+    label: "Anotaciones totales", 
+    value: "~476k", 
+    sub: "shapes, landmarks y entidades clínicas", 
+    color: "#f58518",
+    source: "stage_03_shapes_processed.py",
+    tooltip: "Shapes totales en data/csv/shapes.csv"
+  },
+  { 
+    label: "Dientes anotados", 
+    value: totalDientes.toLocaleString("es-AR"), 
+    sub: "presencias FDI en pantomografías", 
+    color: "#7b52ab",
+    source: "stage_04_prevalence.py",
+    tooltip: "Presencias FDI permanentes anotadas por revisores"
+  },
+  { 
+    label: "Con geometría", 
+    value: metadata.total_teeth.toLocaleString("es-AR"), 
+    sub: "centroides normalizados por landmarks", 
+    color: "#b07aa1",
+    source: "stage_21_tooth_stats_lm.py",
+    tooltip: "Dientes con coordenadas landmark-normalized"
+  },
 ]));
 ```
 
@@ -94,11 +137,46 @@ display(kpiGrid([
 
 ```js
 display(kpiGrid([
-  { label: "Flags totales",        value: totalFlags.toLocaleString("es-AR"),         sub: "hallazgos registrados a nivel diente",                      color: "#e45756" },
-  { label: "Tipos de hallazgo",    value: ds.flag_labels.length.toString(),           sub: "patologías y tratamientos distintos",                       color: "#e45756" },
-  { label: "Con patología activa", value: nWithPath.toLocaleString("es-AR"),          sub: `de ${nTotal.toLocaleString("es-AR")} pantos con geometría`, color: "#c0392b" },
-  { label: "Con tratamiento",      value: nWithTreat.toLocaleString("es-AR"),         sub: "restauraciones, endodoncias, implantes",                    color: "#f58518" },
-  { label: "Restauraciones",       value: totalRestauraciones.toLocaleString("es-AR"), sub: "el hallazgo más prevalente",                              color: "#59a14f" },
+  { 
+    label: "Flags totales", 
+    value: totalFlags.toLocaleString("es-AR"), 
+    sub: "hallazgos registrados a nivel diente", 
+    color: "#e45756",
+    source: "stage_04_prevalence.py",
+    tooltip: "Suma de hallazgos clínicos a nivel diente en el dataset"
+  },
+  { 
+    label: "Tipos de hallazgo", 
+    value: ds.flag_labels.length.toString(), 
+    sub: "patologías y tratamientos distintos", 
+    color: "#e45756",
+    source: "stage_04_prevalence.py",
+    tooltip: "Patologías y tratamientos distintos anotados"
+  },
+  { 
+    label: "Con patología activa", 
+    value: nWithPath.toLocaleString("es-AR"), 
+    sub: `de ${nTotal.toLocaleString("es-AR")} pantos con geometría`, 
+    color: "#c0392b",
+    source: "stage_04_prevalence.py",
+    tooltip: "Pantos con al menos una patología activa registrada"
+  },
+  { 
+    label: "Con tratamiento", 
+    value: nWithTreat.toLocaleString("es-AR"), 
+    sub: "restauraciones, endodoncias, implantes", 
+    color: "#f58518",
+    source: "stage_04_prevalence.py",
+    tooltip: "Pantos con restauraciones, endodoncias o implantes"
+  },
+  { 
+    label: "Restauraciones", 
+    value: totalRestauraciones.toLocaleString("es-AR"), 
+    sub: "el hallazgo más prevalente", 
+    color: "#59a14f",
+    source: "stage_04_prevalence.py",
+    tooltip: "Hallazgo más prevalente en el dataset"
+  },
 ]));
 ```
 
@@ -106,10 +184,38 @@ display(kpiGrid([
 
 ```js
 display(kpiGrid([
-  { label: "Eigendentadura",    value: metadata.unique_pantos.toLocaleString("es-AR"),        sub: "pantos con forma media calculada",       color: "#7b52ab" },
-  { label: "Forma de arcada",   value: "Cuadrada",                                             sub: "ratio profundidad/ancho < 0.70",         color: "#54a24b" },
-  { label: "Simetría bilateral", value: symMedian.toFixed(3),                                  sub: "distancia mediana entre pares homólogos", color: "#f58518" },
-  { label: "Par menos simétrico", value: `${worstPair.fdi_r}↔${worstPair.fdi_l}`,             sub: `mediana: ${worstPair.stats.distance.median.toFixed(3)}`, color: "#e45756" },
+  { 
+    label: "Eigendentadura", 
+    value: metadata.unique_pantos.toLocaleString("es-AR"), 
+    sub: "pantos con forma media calculada", 
+    color: "#7b52ab",
+    source: "stage_21_tooth_stats_lm.py",
+    tooltip: "Dentadura media con landmarks condíleos completos"
+  },
+  { 
+    label: "Forma de arcada", 
+    value: "Cuadrada", 
+    sub: "ratio profundidad/ancho < 0.70", 
+    color: "#54a24b",
+    source: "exp30_clustering_curva_maxilar",
+    tooltip: "Ratio profundidad/ancho < 0,70 según ajuste de arcada"
+  },
+  { 
+    label: "Simetría bilateral", 
+    value: symMedian.toFixed(3), 
+    sub: "distancia mediana entre pares homólogos", 
+    color: "#f58518",
+    source: "stage_22_symmetry_pairs.py",
+    tooltip: "Distancia mediana entre pares homólogos en coordenadas LM"
+  },
+  { 
+    label: "Par menos simétrico", 
+    value: `${worstPair.fdi_r}↔${worstPair.fdi_l}`, 
+    sub: `mediana: ${worstPair.stats.distance.median.toFixed(3)}`, 
+    color: "#e45756",
+    source: "stage_22_symmetry_pairs.py",
+    tooltip: "Par con mayor distancia mediana entre homólogos"
+  },
 ]));
 ```
 
@@ -119,9 +225,30 @@ display(kpiGrid([
 
 ```js
 display(kpiGrid([
-  { label: "Overjet (mediana)",        value: occlusionData.stats.overjet.median.toFixed(3),  sub: `IQR [${occlusionData.stats.overjet.q1.toFixed(3)}, ${occlusionData.stats.overjet.q3.toFixed(3)}]`,   color: "#4c78a8" },
-  { label: "Overbite (mediana)",       value: occlusionData.stats.overbite.median.toFixed(3), sub: `IQR [${occlusionData.stats.overbite.q1.toFixed(3)}, ${occlusionData.stats.overbite.q3.toFixed(3)}]`, color: "#54a24b" },
-  { label: "Dentaduras analizadas",    value: occlusionData.n_dentitions.toLocaleString("es-AR"), sub: "con los 4 incisivos centrales presentes",                                                          color: "#7b52ab" },
+  { 
+    label: "Overjet (mediana)", 
+    value: occlusionData.stats.overjet.median.toFixed(3), 
+    sub: `IQR [${occlusionData.stats.overjet.q1.toFixed(3)}, ${occlusionData.stats.overjet.q3.toFixed(3)}]`, 
+    color: "#4c78a8",
+    source: "stage_23_occlusion.py",
+    tooltip: "Proxy poblacional desde centroides de incisivos centrales"
+  },
+  { 
+    label: "Overbite (mediana)", 
+    value: occlusionData.stats.overbite.median.toFixed(3), 
+    sub: `IQR [${occlusionData.stats.overbite.q1.toFixed(3)}, ${occlusionData.stats.overbite.q3.toFixed(3)}]`, 
+    color: "#54a24b",
+    source: "stage_23_occlusion.py",
+    tooltip: "Proxy poblacional desde centroides de incisivos centrales"
+  },
+  { 
+    label: "Dentaduras analizadas", 
+    value: occlusionData.n_dentitions.toLocaleString("es-AR"), 
+    sub: "con los 4 incisivos centrales presentes", 
+    color: "#7b52ab",
+    source: "stage_23_occlusion.py",
+    tooltip: "Pantos con los 4 incisivos centrales presentes (FDI 11, 21, 31, 41)"
+  },
 ]));
 ```
 

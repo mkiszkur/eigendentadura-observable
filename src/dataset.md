@@ -9,6 +9,7 @@ Descripción del proceso de filtrado y la composición del universo de análisis
 ```js
 import {funnelChart, teethDistChart} from "./components/funnel-chart.js";
 import {zoomableChart} from "./components/zoomable-chart.js";
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 import * as d3 from "d3";
 ```
 
@@ -28,18 +29,24 @@ display(funnelChart(ds.funnel, {width: Math.min(width, 700)}));
 ```
 
 ```js
-display(htl.html`<div style="margin-top: 1rem; display: flex; gap: 2rem; flex-wrap: wrap;">
-<div style="background: #e8f0fb; border-left: 4px solid #2171b5; padding: 0.8rem 1.2rem; border-radius: 4px; min-width: 220px;">
-  <div style="font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em;">Universo prevalencias</div>
-  <div style="font-size: 2rem; font-weight: bold; color: #2171b5;">${ds.universe_prevalencia.toLocaleString("es-AR")}</div>
-  <div style="font-size: 0.8rem; color: #555;">pantomografías con FDI permanente</div>
-</div>
-<div style="background: #e3eaf5; border-left: 4px solid #08306b; padding: 0.8rem 1.2rem; border-radius: 4px; min-width: 220px;">
-  <div style="font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em;">Universo eigendentadura / KDE</div>
-  <div style="font-size: 2rem; font-weight: bold; color: #08306b;">${ds.universe_kde.toLocaleString("es-AR")}</div>
-  <div style="font-size: 0.8rem; color: #555;">pantomografías con landmarks condíleos</div>
-</div>
-</div>`);
+display(kpiGrid([
+  {
+    label: "Universo prevalencias",
+    value: ds.universe_prevalencia.toLocaleString("es-AR"),
+    sub: "pantomografías con FDI permanente",
+    color: "#2171b5",
+    source: "stage_02_pantos_processed.py",
+    tooltip: "Universo epidemiológico para análisis de prevalencias"
+  },
+  {
+    label: "Universo eigendentadura / KDE",
+    value: ds.universe_kde.toLocaleString("es-AR"),
+    sub: "pantomografías con landmarks condíleos",
+    color: "#08306b",
+    source: "stage_02_pantos_processed.py",
+    tooltip: "Universo geométrico con 7 landmarks condíleos completos (L1-L7)"
+  }
+], {minWidth: "220px"}));
 ```
 
 <details style="margin-top: 1rem;">

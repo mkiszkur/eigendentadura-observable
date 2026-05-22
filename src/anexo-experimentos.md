@@ -5,6 +5,7 @@ title: Anexo · Experimentos metodológicos
 # Anexo · Experimentos metodológicos
 
 ```js
+import {kpiCard, kpiGrid} from "./components/kpi-card.js";
 import * as d3 from "d3";
 ```
 
@@ -94,21 +95,39 @@ las tres herramientas analíticas principales de la tesis. Las KPI de
 abajo cuantifican la magnitud del problema:
 
 ```js
-{
-  function card(label, value, sub, color) {
-    return html`<div style="background:${color}12;border-left:4px solid ${color};padding:1rem 1.2rem;border-radius:6px;">
-      <div style="font-size:0.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${label}</div>
-      <div style="font-size:2rem;font-weight:700;color:${color};line-height:1;">${value}</div>
-      <div style="font-size:0.78rem;color:#666;margin-top:4px;">${sub}</div>
-    </div>`;
+display(kpiGrid([
+  {
+    label: "Pantos en el corpus",
+    value: coverage.n_pantos_total.toLocaleString("es-AR"),
+    sub: "JSONs anotados (universo total)",
+    color: "#4c78a8",
+    source: "stage_02_pantos_processed.py",
+    tooltip: "Universo total de pantomografías anotadas"
+  },
+  {
+    label: "Con landmarks completos",
+    value: coverage.n_landmarks_complete.toLocaleString("es-AR"),
+    sub: "pantos con GT humano de L1–L7",
+    color: "#54a24b",
+    source: "stage_02_pantos_processed.py",
+    tooltip: "Pantomografías con 7 landmarks condíleos anotados manualmente"
+  },
+  {
+    label: "Sin landmarks completos",
+    value: coverage.n_landmarks_missing.toLocaleString("es-AR"),
+    sub: `${coverage.pct_missing} % del corpus — necesitan imputación`,
+    color: "#e15759",
+    tooltip: "Pantos sin landmarks completos que requieren predicción NN"
+  },
+  {
+    label: "Predicciones NN persistidas",
+    value: coverage.n_corpus_predicted.toLocaleString("es-AR"),
+    sub: "exp05 ckpt v2 sobre todos los pantos",
+    color: "#7b52ab",
+    source: "exp05 v2",
+    tooltip: "Predicciones del detector NN v2 sobre todo el corpus"
   }
-  display(html`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem;margin:0.8rem 0 1.2rem;">
-    ${card("Pantos en el corpus",        coverage.n_pantos_total.toLocaleString("es-AR"),     "JSONs anotados (universo total)", "#4c78a8")}
-    ${card("Con landmarks completos",    coverage.n_landmarks_complete.toLocaleString("es-AR"), "pantos con GT humano de L1–L7", "#54a24b")}
-    ${card("Sin landmarks completos",    coverage.n_landmarks_missing.toLocaleString("es-AR"),  `${coverage.pct_missing} % del corpus — necesitan imputación`, "#e15759")}
-    ${card("Predicciones NN persistidas", coverage.n_corpus_predicted.toLocaleString("es-AR"),  "exp05 ckpt v2 sobre todos los pantos", "#7b52ab")}
-  </div>`);
-}
+], {minWidth: "220px"}));
 ```
 
 ```js
