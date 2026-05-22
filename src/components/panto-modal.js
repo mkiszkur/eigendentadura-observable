@@ -14,7 +14,14 @@
  *     iqrExtreme,   // number — umbral extremo  (opcional)
  *     extraBadges,  // array  — [{ label, value, color }] badges adicionales (opcional)
  *     invalidation, // Promise — Observable invalidation para auto-cierre (opcional)
+ *     allItems,     // array  — lista completa de items para navegación prev/next (opcional)
+ *     currentIndex, // number — índice del item actual en allItems (opcional)
  *   });
+ *
+ * Navegación: si se pasan `allItems` y `currentIndex`, el modal muestra un footer con
+ * botones "← Anterior" / "Siguiente →" y un indicador "X de Y". Los items en `allItems`
+ * deben tener la estructura:
+ *   { id, pantoMeta, toothStats, zScores, rankInfo, iqrThreshold, iqrExtreme, extraBadges }
  */
 import * as d3 from "d3";
 import { pantoSchematic } from "./panto-schematic.js";
@@ -52,6 +59,8 @@ export async function openPantoModal({
   extraBadges = [],
   invalidation = null,
   onClose = null,
+  allItems = null,
+  currentIndex = null,
 } = {}) {
   if (!id) return;
 
@@ -283,6 +292,88 @@ export async function openPantoModal({
       `</tbody></table>`;
     det.appendChild(tableWrap);
     modal.appendChild(det);
+  }
+
+  // ── Footer de navegación ────────────────────────────────────────────────
+  if (allItems && currentIndex != null) {
+    const navFooter = document.createElement("div");
+    navFooter.style.cssText =
+      "display:flex;justify-content:space-between;align-items:center;" +
+      "margin-top:1rem;padding-top:0.8rem;border-top:1px solid #e5e5ec;";
+    
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "← Anterior";
+    prevBtn.disabled = currentIndex === 0;
+    prevBtn.style.cssText =
+      "padding:6px 14px;border:1px solid #ccc;border-radius:5px;" +
+      "background:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;color:#555;" +
+      "transition:all 0.15s;" +
+      (currentIndex === 0 ? "opacity:0.4;cursor:not-allowed;" : "");
+    if (currentIndex > 0) {
+      prevBtn.style.cssText += "hover:background:#f5f5f5;hover:border-color:#4c78a8;";
+    }
+    
+    const indicator = document.createElement("span");
+    indicator.textContent = `${currentIndex + 1} de ${allItems.length}`;
+    indicator.style.cssText = "font-size:0.85rem;color:#666;font-weight:600;";
+    
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "Siguiente →";
+    nextBtn.disabled = currentIndex === allItems.length - 1;
+    nextBtn.style.cssText =
+      "padding:6px 14px;border:1px solid #ccc;border-radius:5px;" +
+      "background:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;color:#555;" +
+      "transition:all 0.15s;" +
+      (currentIndex === allItems.length - 1 ? "opacity:0.4;cursor:not-allowed;" : "");
+    if (currentIndex < allItems.length - 1) {
+      nextBtn.style.cssText += "hover:background:#f5f5f5;hover:border-color:#4c78a8;";
+    }
+    
+    // Navegación prev/next
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        close();
+        const prevItem = allItems[currentIndex - 1];
+        openPantoModal({
+          id: prevItem.id,
+          pantoMeta: prevItem.pantoMeta,
+          toothStats: prevItem.toothStats,
+          zScores: prevItem.zScores,
+          rankInfo: prevItem.rankInfo,
+          iqrThreshold: prevItem.iqrThreshold,
+          iqrExtreme: prevItem.iqrExtreme,
+          extraBadges: prevItem.extraBadges,
+          invalidation,
+          onClose,
+          allItems,
+          currentIndex: currentIndex - 1,
+        });
+      }
+    });
+    
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < allItems.length - 1) {
+        close();
+        const nextItem = allItems[currentIndex + 1];
+        openPantoModal({
+          id: nextItem.id,
+          pantoMeta: nextItem.pantoMeta,
+          toothStats: nextItem.toothStats,
+          zScores: nextItem.zScores,
+          rankInfo: nextItem.rankInfo,
+          iqrThreshold: nextItem.iqrThreshold,
+          iqrExtreme: nextItem.iqrExtreme,
+          extraBadges: nextItem.extraBadges,
+          invalidation,
+          onClose,
+          allItems,
+          currentIndex: currentIndex + 1,
+        });
+      }
+    });
+    
+    navFooter.append(prevBtn, indicator, nextBtn);
+    modal.appendChild(navFooter);
   }
 
   // ── Montar y cleanup ────────────────────────────────────────────────────
