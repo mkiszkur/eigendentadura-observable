@@ -234,19 +234,32 @@ export async function openPantoModal({
     });
   }
 
-  function makeToggle(label, key) {
+  function makeToggle(label, key, {disabled = false, disabledReason = ""} = {}) {
     const btn = document.createElement("button");
     const update = () => {
-      btn.style.background  = vizState[key] ? "#e8f0fe" : "#f5f5f5";
-      btn.style.color       = vizState[key] ? "#2a5db0" : "#666";
-      btn.style.borderColor = vizState[key] ? "#4c78a8" : "#ccc";
+      if (disabled) {
+        btn.style.background  = "#f5f5f5";
+        btn.style.color       = "#bbb";
+        btn.style.borderColor = "#e0e0e0";
+        btn.style.textDecoration = "line-through";
+        btn.style.cursor      = "not-allowed";
+      } else {
+        btn.style.background  = vizState[key] ? "#e8f0fe" : "#f5f5f5";
+        btn.style.color       = vizState[key] ? "#2a5db0" : "#666";
+        btn.style.borderColor = vizState[key] ? "#4c78a8" : "#ccc";
+      }
     };
     btn.textContent = label;
     btn.style.cssText =
       "padding:3px 10px;border:1px solid;border-radius:4px;cursor:pointer;" +
       "font-size:12px;transition:all 0.1s;";
+    if (disabled) {
+      btn.disabled = true;
+      btn.title = disabledReason || "No disponible para esta pantomograf\u00eda";
+    }
     update();
     btn.addEventListener("click", () => {
+      if (disabled) return;
       vizState[key] = !vizState[key];
       update();
       if (geomData) renderSchematic();
@@ -275,7 +288,11 @@ export async function openPantoModal({
       togglesDiv.appendChild(makeToggle("Supernumerarios",       "showSupernumeraries"));
       togglesDiv.appendChild(makeToggle("Centroides eigendent.", "showEigendentadura"));
       togglesDiv.appendChild(makeToggle("Elipses población",     "showPopEllipses"));
-      togglesDiv.appendChild(makeToggle("Curva maxilar",         "showCurve"));
+      const curveAvail = geomData?.curve != null;
+      togglesDiv.appendChild(makeToggle("Curva maxilar", "showCurve", {
+        disabled: !curveAvail,
+        disabledReason: "Curva maxilar no ajustada para esta pantomograf\u00eda",
+      }));
       tabContent.appendChild(togglesDiv);
     }
     
@@ -340,8 +357,10 @@ export async function openPantoModal({
     
     if (!morphoData || Object.keys(morphoData).length === 0) {
       tabContent.innerHTML =
-        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">` +
-        `Datos morfométricos no disponibles para esta pantomografía.</p>`;
+        `<p style="color:#888;font-style:italic;padding:1rem 0;">` +
+        `Datos morfométricos no disponibles para esta pantomografía.<br>` +
+        `<span style="font-size:0.78rem;color:#aaa;">No está incluida en los corpora de Bolton, oclusión ni forma de arcada (suelen requerir dentadura permanente más completa).</span>` +
+        `</p>`;
       return tabContent;
     }
 
@@ -449,8 +468,10 @@ export async function openPantoModal({
 
     if (!renderedAny) {
       tabContent.innerHTML =
-        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">` +
-        `Datos morfométricos no disponibles para esta pantomografía.</p>`;
+        `<p style="color:#888;font-style:italic;padding:1rem 0;">` +
+        `Datos morfométricos no disponibles para esta pantomografía.<br>` +
+        `<span style="font-size:0.78rem;color:#aaa;">No está incluida en los corpora de Bolton, oclusión ni forma de arcada (suelen requerir dentadura permanente más completa).</span>` +
+        `</p>`;
     }
 
     return tabContent;
