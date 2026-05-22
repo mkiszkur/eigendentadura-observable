@@ -207,6 +207,7 @@ export async function openPantoModal({
     showEigendentadura:  true,
     showPopEllipses:     false,
     showLabels:          false,
+    showCurve:           false,
   };
 
   const schContainer = document.createElement("div");
@@ -224,7 +225,7 @@ export async function openPantoModal({
       showTemporary:       vizState.showTemporary,
       showPopEllipses:     vizState.showPopEllipses,
       showDividers:        true,
-      showCurve:           false,
+      showCurve:           vizState.showCurve,
       showLandmarks:       false,
       showEigendentadura:  vizState.showEigendentadura,
       eigendentaduraStats: toothStats,
@@ -257,14 +258,32 @@ export async function openPantoModal({
   function createGeometryTab() {
     const tabContent = document.createElement("div");
     
+    // Toggles de capas (antes en tab Visualización).
+    if (geomData) {
+      const togglesDiv = document.createElement("div");
+      togglesDiv.style.cssText =
+        "display:flex;flex-wrap:wrap;gap:6px;align-items:center;" +
+        "padding:0 0 8px;margin-bottom:8px;";
+      const lbl = document.createElement("span");
+      lbl.style.cssText = "font-size:11px;color:#888;margin-right:2px;";
+      lbl.textContent = "Capas:";
+      togglesDiv.appendChild(lbl);
+      togglesDiv.appendChild(makeToggle("Contornos",             "showPolygon"));
+      togglesDiv.appendChild(makeToggle("Centroides",            "showCentroids"));
+      togglesDiv.appendChild(makeToggle("Etiquetas FDI",         "showLabels"));
+      togglesDiv.appendChild(makeToggle("Temporales",            "showTemporary"));
+      togglesDiv.appendChild(makeToggle("Supernumerarios",       "showSupernumeraries"));
+      togglesDiv.appendChild(makeToggle("Centroides eigendent.", "showEigendentadura"));
+      togglesDiv.appendChild(makeToggle("Elipses población",     "showPopEllipses"));
+      togglesDiv.appendChild(makeToggle("Curva maxilar",         "showCurve"));
+      tabContent.appendChild(togglesDiv);
+    }
+    
     const hint = document.createElement("div");
     hint.textContent = "Scroll para zoom · Drag para mover · Doble-clic para resetear";
     hint.style.cssText = "font-size:11px;color:#aaa;margin-bottom:8px;";
     tabContent.appendChild(hint);
     
-    // Compartir el mismo schContainer entre Geometría y Visualización:
-    // tabs.js limpia tabsContent.innerHTML al cambiar de tab, así que
-    // schContainer queda desligado y se re-adjunta en cada render.
     tabContent.appendChild(schContainer);
     
     if (geomData) {
@@ -437,50 +456,10 @@ export async function openPantoModal({
     return tabContent;
   }
 
-  // ── Tab 3: Visualización ────────────────────────────────────────────────
-  function createVisualizationTab() {
-    const tabContent = document.createElement("div");
-    tabContent.style.cssText = "padding:0.5rem 0;";
-    
-    if (!geomData) {
-      tabContent.innerHTML =
-        `<p style="color:#aaa;font-style:italic;padding:1rem 0;">Sin datos de geometría disponibles.</p>`;
-      return tabContent;
-    }
-    
-    const togglesDiv = document.createElement("div");
-    togglesDiv.style.cssText =
-      "display:flex;flex-wrap:wrap;gap:6px;align-items:center;" +
-      "padding:0 0 8px;margin-bottom:8px;";
-    
-    const lbl = document.createElement("span");
-    lbl.style.cssText = "font-size:11px;color:#888;margin-right:2px;";
-    lbl.textContent = "Capas:";
-    togglesDiv.appendChild(lbl);
-    
-    togglesDiv.appendChild(makeToggle("Contornos",             "showPolygon"));
-    togglesDiv.appendChild(makeToggle("Centroides",            "showCentroids"));
-    togglesDiv.appendChild(makeToggle("Etiquetas FDI",         "showLabels"));
-    togglesDiv.appendChild(makeToggle("Temporales",            "showTemporary"));
-    togglesDiv.appendChild(makeToggle("Supernumerarios",       "showSupernumeraries"));
-    togglesDiv.appendChild(makeToggle("Centroides eigendent.", "showEigendentadura"));
-    togglesDiv.appendChild(makeToggle("Elipses población",     "showPopEllipses"));
-    
-    tabContent.appendChild(togglesDiv);
-    
-    // Mismo schContainer que Geometría: al cambiar de tab, tabs.js lo
-    // desliga del contenido anterior y este append lo re-inserta acá.
-    tabContent.appendChild(schContainer);
-    if (geomData) renderSchematic();
-    
-    return tabContent;
-  }
-
   // Crear tabs
   const tabs = [
     { id: "geometry", label: "Geometría", icon: "📊", content: createGeometryTab },
     { id: "morphometry", label: "Morfometría", icon: "🦷", content: createMorphometryTab },
-    { id: "visualization", label: "Visualización", icon: "🔬", content: createVisualizationTab },
   ];
   
   const tabsContainer = createTabs(tabs, "geometry");
