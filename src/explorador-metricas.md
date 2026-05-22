@@ -11,6 +11,7 @@ Tabla completa de todas las pantomografías con sus métricas geométricas, morf
 ```js
 import {pantoTable, cleanArchivo} from "./components/panto-table.js";
 import {rangeSlider} from "./components/range-slider.js";
+import {collapsible} from "./components/collapsible.js";
 import * as d3 from "d3";
 ```
 
@@ -271,6 +272,28 @@ const sortedFiltered = (() => {
     return dir === "asc" ? (va < vb ? -1 : va > vb ? 1 : 0) : (va > vb ? -1 : va < vb ? 1 : 0);
   });
 })();
+```
+
+```js
+display(collapsible({
+  title: "Cómo leer esta tabla",
+  open: false,
+  content: htl.html`
+    <p>La tabla muestra todas las pantomografías del universo geométrico (con 7 landmarks completos) con sus métricas principales. Usá los filtros arriba para acotar la vista.</p>
+    <ul style="margin-top: 0.5rem; line-height: 1.7;">
+      <li><strong>z̄</strong> (z-score medio): promedio de los z-scores de posición + ángulo de todos los dientes. Valores >3 indican dentadura altamente atípica.</li>
+      <li><strong>z_max</strong>: z-score máximo de todos los dientes (un solo outlier puede elevarlo).</li>
+      <li><strong>z_pos</strong>: z-score medio solo de posición (desplazamiento del centroide).</li>
+      <li><strong>z_ang</strong>: z-score medio solo de ángulo (rotación del diente).</li>
+      <li><strong>Asimetría</strong>: distancia media entre pares homólogos (11↔21, 16↔26, etc.) en espacio normalizado. Valores bajos = dentadura simétrica.</li>
+      <li><strong>Overjet / Overbite</strong>: métricas de oclusión (mm). Overjet = distancia horizontal incisivos superiores/inferiores. Overbite = vertical.</li>
+      <li><strong>Bolton ant / tot</strong>: índice de discrepancia de tamaño entre arcadas (anterior / total). Valores cercanos a 100% indican proporciones ideales.</li>
+      <li><strong>Arc.</strong>: forma del arco (P=profunda/regular, □=plana/irregular), del experimento exp30.</li>
+      <li><strong>Δarc</strong>: z-score del ratio profundidad/ancho maxilar.</li>
+    </ul>
+    <p style="margin-top: 0.8rem;"><strong>Clic en cualquier fila</strong> para ver el detalle completo del individuo con schematic, arch form y rose plots.</p>
+  `
+}));
 ```
 
 ```js

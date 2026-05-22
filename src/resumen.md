@@ -7,6 +7,7 @@ title: Resumen ejecutivo
 ```js
 import * as d3 from "d3";
 import {kpiCard, kpiGrid} from "./components/kpi-card.js";
+import {collapsible} from "./components/collapsible.js";
 ```
 
 ```js
@@ -49,6 +50,27 @@ Cómo se construye el dataset a partir de los JSONs crudos hasta los universos u
     `)}
   </div>`);
 }
+```
+
+```js
+display(collapsible({
+  title: "Cómo leer este embudo",
+  open: false,
+  content: htl.html`
+    <p>El embudo muestra cómo se construye el universo de análisis aplicando sucesivos criterios de inclusión:</p>
+    <ul style="margin-top: 0.5rem; line-height: 1.6;">
+      <li><strong>Base cruda (5.114)</strong>: todos los archivos JSON en <code>data/json/</code>.</li>
+      <li><strong>Con anotaciones (5.113)</strong>: pantos con al menos un shape anotado (se excluye 1 archivo vacío o corrupto).</li>
+      <li><strong>Con FDI permanente (4.956)</strong>: pantos con ≥1 diente permanente (FDI 11–48) anotado. Se usan para análisis de <strong>prevalencias</strong>.</li>
+      <li><strong>Con landmarks (2.782)</strong>: pantos con los 7 landmarks condíleos completos (L1–L7). Se usan para <strong>análisis geométrico</strong> (eigendentadura, KDE, z-scores).</li>
+    </ul>
+    <p style="margin-top: 0.8rem;">Cada etapa filtra registros que no cumplen el criterio. Los números rojos (−N) indican cuántos se excluyeron. Los dos universos principales son:</p>
+    <ul style="margin-top: 0.5rem; line-height: 1.6;">
+      <li><strong>Universo prevalencias (4.956)</strong>: usado en <a href="/patologias">Patologías</a>.</li>
+      <li><strong>Universo geométrico (2.782)</strong>: usado en <a href="/geometria-dental">Geometría Dental</a>, <a href="/tipicidad">Casos atípicos</a>, <a href="/clusters">Subtipos</a>, etc.</li>
+    </ul>
+  `
+}));
 ```
 
 ## El dataset
