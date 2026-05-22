@@ -192,10 +192,51 @@ const contoursLevelInput = Inputs.select(["equi", "sigma12", "sigma123"], {
   format: m => ({equi: "Equiespaciados", sigma12: "1σ, 2σ", sigma123: "1σ, 2σ, 3σ"})[m],
 });
 const contoursLevel = Generators.input(contoursLevelInput);
+
+// Capturar valores iniciales para reset del KDE
+const initialMode = "overlay";
+const initialDisplayMode = "kde_std";
+const initialShowPop = true;
+const initialShowG0 = true;
+const initialShowG1 = true;
+const initialBottomOpacity = 0.6;
+const initialTopOpacity = 0.4;
+const initialContoursLevel = "equi";
+
+function resetKdeControls() {
+  modeInput.value = initialMode;
+  modeInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  displayModeInput.value = initialDisplayMode;
+  displayModeInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  showPopInput.value = initialShowPop;
+  showPopInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  showG0Input.value = initialShowG0;
+  showG0Input.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  showG1Input.value = initialShowG1;
+  showG1Input.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  bottomOpacityInput.value = initialBottomOpacity;
+  bottomOpacityInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  topOpacityInput.value = initialTopOpacity;
+  topOpacityInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  contoursLevelInput.value = initialContoursLevel;
+  contoursLevelInput.dispatchEvent(new Event("input", {bubbles: true}));
+}
 ```
 
-<details>
-<summary>Opciones de visualización</summary>
+<details open style="margin: 1rem 0; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0.8rem;">
+<summary style="cursor: pointer; font-weight: 600; font-size: 0.95rem; color: #333; user-select: none;">
+🎚️ Controles de visualización KDE
+</summary>
+
+<details open style="margin-top: 0.8rem;">
+<summary style="cursor: pointer; font-size: 0.85rem; color: #555; font-weight: 600;">Modo y visualización</summary>
 
 ```js
 display(html`<div style="display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; padding:8px 0 8px;">
@@ -205,13 +246,19 @@ display(html`<div style="display:flex; gap:20px; align-items:flex-end; flex-wrap
 
 </details>
 
-<details>
-<summary>Centroides</summary>
+<details open style="margin-top: 0.8rem;">
+<summary style="cursor: pointer; font-size: 0.85rem; color: #555; font-weight: 600;">Capas de centroides</summary>
 
 ```js
 display(html`<div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap; padding:8px 0 8px;">
   ${showPopInput}${showG0Input}${showG1Input}
 </div>`);
+```
+
+</details>
+
+```js
+display(html`<button onclick=${resetKdeControls} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">🔄 Limpiar filtros</button>`);
 ```
 
 </details>
@@ -371,6 +418,14 @@ const violinQuadInput = Inputs.checkbox(
   {value: [1, 2, 3, 4]}
 );
 const violinQuad = Generators.input(violinQuadInput);
+
+// Capturar valor inicial para reset de violin
+const initialViolinQuad = [1, 2, 3, 4];
+
+function resetViolinControls() {
+  violinQuadInput.value = initialViolinQuad;
+  violinQuadInput.dispatchEvent(new Event("input", {bubbles: true}));
+}
 ```
 
 ```js
@@ -393,8 +448,9 @@ const violinQuad = Generators.input(violinQuadInput);
       return btn;
     })}
   </div>`;
-  display(html`<details style="margin:0.5rem 0;"><summary style="cursor:pointer; font-size:13px; color:#444; font-weight:600;">Filtrar cuadrante</summary>
-    <div style="padding:6px 0;">${btnRow}${violinQuadInput}</div>
+  const resetBtn = html`<button onclick=${resetViolinControls} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">🔄 Limpiar filtros</button>`;
+  display(html`<details open style="margin:0.5rem 0; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0.8rem;"><summary style="cursor:pointer; font-size:13px; color:#333; font-weight:600; user-select:none;">🎚️ Filtrar cuadrante</summary>
+    <div style="padding:6px 0;">${btnRow}${violinQuadInput}${resetBtn}</div>
   </details>`);
 }
 ```
@@ -485,14 +541,43 @@ const showArchLabelsInput = Inputs.toggle({label: "Etiquetas de métricas", valu
 const showArchLabels = Generators.input(showArchLabelsInput);
 const showMeasurePtsInput = Inputs.toggle({label: "Puntos de medición", value: false});
 const showMeasurePts = Generators.input(showMeasurePtsInput);
+
+// Capturar valores iniciales para reset de arch
+const initialArchArcs = ["Maxilar", "Mandibular"];
+const initialArchGroups = groupNames.map(g => labelMap[g] || g);
+const initialShowPopArch = true;
+const initialShowArchLabels = true;
+const initialShowMeasurePts = false;
+
+function resetArchControls() {
+  archArcsInput.value = initialArchArcs;
+  archArcsInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  archGroupsInput.value = initialArchGroups;
+  archGroupsInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  showPopArchInput.value = initialShowPopArch;
+  showPopArchInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  showArchLabelsInput.value = initialShowArchLabels;
+  showArchLabelsInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  showMeasurePtsInput.value = initialShowMeasurePts;
+  showMeasurePtsInput.dispatchEvent(new Event("input", {bubbles: true}));
+}
 ```
 
-<details>
-<summary>Opciones de visualización</summary>
+<details open style="margin: 1rem 0; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0.8rem;">
+<summary style="cursor: pointer; font-weight: 600; font-size: 0.95rem; color: #333; user-select: none;">
+🎚️ Opciones de visualización de curva maxilar
+</summary>
 
 ```js
-display(html`<div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; padding:8px 0 8px;">
-  ${archArcsInput}${archGroupsInput}${showPopArchInput}${showArchLabelsInput}${showMeasurePtsInput}
+display(html`<div>
+  <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; padding:8px 0 8px;">
+    ${archArcsInput}${archGroupsInput}${showPopArchInput}${showArchLabelsInput}${showMeasurePtsInput}
+  </div>
+  <button onclick=${resetArchControls} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">🔄 Limpiar filtros</button>
 </div>`);
 ```
 

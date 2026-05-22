@@ -130,13 +130,56 @@ const zAngSlider  = rangeSlider({label: "z_ang (ángulo)",      min: 0, max: zAn
 const zMeanRange = Generators.input(zMeanSlider);
 const zPosRange  = Generators.input(zPosSlider);
 const zAngRange  = Generators.input(zAngSlider);
+
+// Capturar valores iniciales para reset
+const initialColorBy = "atipicidad";
+const initialTeethRange = [10, 32];
+const initialHighlightOutliers = false;
+const initialExcludeMixta = true;
+const initialHighlightSuper = false;
+const initialZMeanRange = [0, zMeanMax];
+const initialZPosRange = [0, zPosMax];
+const initialZAngRange = [0, zAngMax];
+
+function resetScatterFilters() {
+  colorByInput.value = initialColorBy;
+  colorByInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  teethRangeInput.value = initialTeethRange;
+  teethRangeInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  highlightOutliersInput.value = initialHighlightOutliers;
+  highlightOutliersInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  excludeMixtaInput.value = initialExcludeMixta;
+  excludeMixtaInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  highlightSuperInput.value = initialHighlightSuper;
+  highlightSuperInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  zMeanSlider.value = initialZMeanRange;
+  zMeanSlider.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  zPosSlider.value = initialZPosRange;
+  zPosSlider.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  zAngSlider.value = initialZAngRange;
+  zAngSlider.dispatchEvent(new Event("input", {bubbles: true}));
+}
 ```
 
 ```js
 display(collapsible({
-  title: "Opciones de visualización",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">${colorByInput}${teethRangeInput}${highlightOutliersInput}${excludeMixtaInput}${highlightSuperInput}</div>`,
-  open: false,
+  title: "🎚️ Opciones de visualización",
+  content: html`<div>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">
+      ${colorByInput}${teethRangeInput}${highlightOutliersInput}${excludeMixtaInput}${highlightSuperInput}
+    </div>
+    <button onclick=${resetScatterFilters} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">
+      🔄 Limpiar filtros
+    </button>
+  </div>`,
+  open: true,
 }));
 ```
 
@@ -295,14 +338,55 @@ const rankZMeanRange = Generators.input(rankZMeanSlider);
 const rankZPosRange  = Generators.input(rankZPosSlider);
 const rankZAngRange  = Generators.input(rankZAngSlider);
 
+// Capturar valores iniciales para reset del ranking
+const initialRankOrigin = null;
+const initialRankSex = null;
+const initialRankDent = null;
+const initialRankTeeth = rankTeethExt;
+const initialRankSuper = [0, Math.max(rankMaxSuper, 1)];
+const initialRankZMeanRange = [iqrThreshold, zMeanMax];
+const initialRankZPosRange = [0, zPosMax];
+const initialRankZAngRange = [0, zAngMax];
+
+function resetRankFilters() {
+  rankOriginInput.value = initialRankOrigin;
+  rankOriginInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankSexInput.value = initialRankSex;
+  rankSexInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankDentInput.value = initialRankDent;
+  rankDentInput.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankTeethSlider.value = initialRankTeeth;
+  rankTeethSlider.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankSuperSlider.value = initialRankSuper;
+  rankSuperSlider.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankZMeanSlider.value = initialRankZMeanRange;
+  rankZMeanSlider.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankZPosSlider.value = initialRankZPosRange;
+  rankZPosSlider.dispatchEvent(new Event("input", {bubbles: true}));
+  
+  rankZAngSlider.value = initialRankZAngRange;
+  rankZAngSlider.dispatchEvent(new Event("input", {bubbles: true}));
+}
+
 display(collapsible({
-  title: "Filtros",
-  content: html`<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">
-    ${rankOriginInput}${rankSexInput}${rankDentInput}
-    ${rankTeethSlider}${rankSuperSlider}
-    ${rankZMeanSlider}${rankZPosSlider}${rankZAngSlider}
+  title: "🎚️ Filtros de ranking",
+  content: html`<div>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;">
+      ${rankOriginInput}${rankSexInput}${rankDentInput}
+      ${rankTeethSlider}${rankSuperSlider}
+      ${rankZMeanSlider}${rankZPosSlider}${rankZAngSlider}
+    </div>
+    <button onclick=${resetRankFilters} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">
+      🔄 Limpiar filtros
+    </button>
   </div>`,
-  open: false,
+  open: true,
 }));
 ```
 
@@ -373,22 +457,27 @@ Usar "Zoom en cola" en las opciones de visualización para examinar en detalle l
 ```js
 const zoomOutliersInput = Inputs.toggle({label: "Zoom en cola de outliers", value: false});
 const zoomOutliers = Generators.input(zoomOutliersInput);
+
+// Capturar valor inicial para reset
+const initialZoomOutliers = false;
+
+function resetDistFilters() {
+  zoomOutliersInput.value = initialZoomOutliers;
+  zoomOutliersInput.dispatchEvent(new Event("input", {bubbles: true}));
+}
 ```
 
 ```js
-{
-  const vizDiv = document.createElement("details");
-  vizDiv.style.cssText = "margin-bottom:8px;";
-  const vizSum = document.createElement("summary");
-  vizSum.style.cssText = "cursor:pointer;font-size:0.85rem;color:#555;font-weight:600;";
-  vizSum.textContent = "Opciones de visualización";
-  vizDiv.appendChild(vizSum);
-  const inner = document.createElement("div");
-  inner.style.cssText = "padding:0.5rem 0.3rem 0.2rem;";
-  inner.appendChild(zoomOutliersInput);
-  vizDiv.appendChild(inner);
-  display(vizDiv);
-}
+display(collapsible({
+  title: "🎚️ Opciones de visualización",
+  content: html`<div>
+    ${zoomOutliersInput}
+    <button onclick=${resetDistFilters} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">
+      🔄 Restablecer
+    </button>
+  </div>`,
+  open: true,
+}));
 ```
 
 ```js

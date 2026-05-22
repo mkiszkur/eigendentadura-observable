@@ -67,6 +67,11 @@ Se excluyen de ambos universos:
 
 ## Distribución de dientes anotados por pantomografía
 
+<details open style="margin: 1rem 0; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0.8rem;">
+<summary style="cursor: pointer; font-weight: 600; font-size: 0.95rem; color: #333; user-select: none;">
+🎚️ Controles de visualización
+</summary>
+
 ```js
 const rawMax = d3.max(ds.teeth_dist, d => d.count);
 const yCapInput = Inputs.range([20, rawMax], {
@@ -75,9 +80,23 @@ const yCapInput = Inputs.range([20, rawMax], {
   value: rawMax,
 });
 const yCap = Generators.input(yCapInput);
-display(html`<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-  ${yCapInput}
-  <span style="font-size:11px;color:#aaa;">Bajá para ver las barras pequeñas</span>
+
+// Capturar valores iniciales para reset
+const initialYCap = rawMax;
+
+function resetFilters() {
+  yCapInput.value = initialYCap;
+  yCapInput.dispatchEvent(new Event("input", {bubbles: true}));
+}
+
+display(html`<div style="margin-top: 0.8rem;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+    ${yCapInput}
+    <span style="font-size:11px;color:#aaa;">Bajá para ver las barras pequeñas</span>
+  </div>
+  <button onclick=${resetFilters} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">
+    🔄 Restablecer
+  </button>
 </div>`);
 ```
 
@@ -98,6 +117,8 @@ display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680)
 }
 ```
 
+</details>
+
 <div style="border-left: 4px solid #4c78a8; background: #f0f4ff; padding: 0.8rem 1rem; margin: 2rem 0 0.5rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.6;">
 
 ```js
@@ -110,6 +131,11 @@ display(htl.html`<strong>Composición del universo</strong> — El dataset parte
 
 Para cada valor de N° de dientes anotados por pantomografía, las barras muestran cuántos de esos dientes provienen de cada grupo. En dentaduras completas (32 piezas) la distribución es uniforme; a medida que bajan las piezas se puede ver en qué grupo se concentran las ausencias.
 
+<details open style="margin: 1rem 0; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0.8rem;">
+<summary style="cursor: pointer; font-weight: 600; font-size: 0.95rem; color: #333; user-select: none;">
+🎚️ Controles de desglose
+</summary>
+
 ```js
 const groupSelInput = Inputs.select(
   new Map([
@@ -120,7 +146,21 @@ const groupSelInput = Inputs.select(
   { label: "Desglosar por" }
 );
 const groupSel = Generators.input(groupSelInput);
-display(groupSelInput);
+
+// Capturar valor inicial para reset
+const initialGroupSel = "quadrant";
+
+function resetGrouping() {
+  groupSelInput.value = initialGroupSel;
+  groupSelInput.dispatchEvent(new Event("input", {bubbles: true}));
+}
+
+display(html`<div style="margin-top: 0.8rem;">
+  ${groupSelInput}
+  <button onclick=${resetGrouping} style="margin-top:0.8rem;padding:0.4rem 0.8rem;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:0.85rem;">
+    🔄 Restablecer
+  </button>
+</div>`);
 ```
 
 ```js
@@ -165,4 +205,6 @@ display(groupSelInput);
   }));
 }
 ```
+
+</details>
 
