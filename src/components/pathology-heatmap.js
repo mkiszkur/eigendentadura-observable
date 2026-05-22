@@ -19,7 +19,21 @@ const TOOTH_TYPE = fdi => {
   return "Molar";
 };
 
-// Paleta de calor para el heatmap (blanco → azul oscuro)
+// Paleta secuencial para el heatmap de prevalencias
+// NOTA (U-016 revisión UX 2026-05-21): Usamos paleta **secuencial**
+// (blanco → azul oscuro) para codificar **magnitud** (prevalencia %),
+// no paleta **cualitativa** (un color por patología).
+//
+// Contexto: el heatmap responde a una tarea visual de **magnitude**
+// (¿qué tan frecuente es X patología en Y diente?), no de **identify**
+// (¿qué patología tiene este diente?). La intensidad del azul comunica
+// directamente la prevalencia sin requerir decodificación de leyenda.
+//
+// Esto difiere del modal individual (panto-modal.js), que usa color
+// monocromático (naranja) para badges de patologías porque su contexto
+// es identify/compare por diente. Ambas decisiones son intencionales
+// y responden a tareas visuales distintas. Ver Munzner (2014) cap. 10.
+//
 const heatColor = d3.scaleSequential(d3.interpolateBlues).domain([0, 0.25]);
 
 /**

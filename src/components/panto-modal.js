@@ -152,6 +152,26 @@ export async function openPantoModal({
   }
 
   // ── Patologías ──────────────────────────────────────────────────────────
+  // NOTA (U-016 revisión UX 2026-05-21): La paleta de patologías en el modal
+  // es **monocromática** (naranja genérico #e07020 para todas), no cualitativa
+  // (un color distinto por tipo de patología). Esto es **intencional**:
+  //
+  //   - El contexto del modal es **identify/compare por diente** (el usuario
+  //     está viendo *un* individuo y quiere saber qué patologías tiene cada
+  //     pieza). El color distintivo por patología no aporta: solo importa
+  //     cuántas patologías hay (count) y cuáles son (label).
+  //
+  //   - Una paleta cualitativa (ej. Caries=rojo, Restauración=azul) podría
+  //     confundir al usuario al compararla con el **heatmap de prevalencia**
+  //     en /patologias, que usa paleta **secuencial** (blanco → azul oscuro)
+  //     para codificar magnitud (prevalencia %). Ambas visualizaciones usan
+  //     tareas visuales distintas (identify vs. magnitude), por lo que sus
+  //     paletas no deben coincidir.
+  //
+  //   - Si alguna vez se implementa paleta cualitativa por patología en otra
+  //     vista (ej. comparación lado-a-lado de individuos con/sin patología),
+  //     usar colores de Tableau 10 consistentes + documentar la distinción.
+  //
   if (pantoMeta?.flags && Object.keys(pantoMeta.flags).length > 0) {
     const flagsDiv = document.createElement("div");
     flagsDiv.style.marginBottom = "0.6rem";
