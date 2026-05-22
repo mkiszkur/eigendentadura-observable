@@ -40,6 +40,32 @@ function clearClickedGeo() { clickedGeo.value = null; }
 ```
 
 ```js
+// ── Datos filtrados para navegación en modal ─────────────────────────────
+const visGeoPath = geoPath.records.filter(d => {
+  const p99x = d3.quantile(geoPath.records.map(dd => dd.z_pos).sort(d3.ascending), 0.99);
+  const p99y = d3.quantile(geoPath.records.map(dd => dd.z_ang).sort(d3.ascending), 0.99);
+  return d.z_pos <= p99x && d.z_ang <= p99y;
+});
+
+const allItemsGeo = visGeoPath.map(d => {
+  const pb = pantosMapGeo.get(d.id) ?? null;
+  const pathoBadges = Object.entries(PATHO_LABELS)
+    .filter(([k]) => d[k])
+    .map(([k, label]) => ({label, value: "✓", color: PATHO_COLORS[k]}));
+  return {
+    id: d.id,
+    pantoMeta: pb,
+    toothStats: toothStatsGeo,
+    zScores: {z_mean: d.z_mean, z_pos: d.z_pos, z_ang: d.z_ang},
+    iqrThreshold: null,
+    iqrExtreme: null,
+    extraBadges: pathoBadges,
+    rankInfo: null,
+  };
+});
+```
+
+```js
 {
   const d = clickedGeo;
   if (d != null) {
@@ -47,10 +73,13 @@ function clearClickedGeo() { clickedGeo.value = null; }
     const pathoBadges = Object.entries(PATHO_LABELS)
       .filter(([k]) => d[k])
       .map(([k, label]) => ({label, value: "✓", color: PATHO_COLORS[k]}));
+    const currentIndex = allItemsGeo.findIndex(item => item.id === d.id);
     openPantoModal({
       id: d.id, pantoMeta: pb, toothStats: toothStatsGeo,
       zScores: {z_mean: d.z_mean, z_pos: d.z_pos, z_ang: d.z_ang},
       extraBadges: pathoBadges, onClose: clearClickedGeo, invalidation,
+      allItems: allItemsGeo,
+      currentIndex: currentIndex >= 0 ? currentIndex : null,
     });
   }
 }
