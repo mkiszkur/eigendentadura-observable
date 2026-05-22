@@ -190,11 +190,37 @@ display(atipicalityScatter(scatterData, {
 ```
 
 ```js
+// ── Datos filtrados para navegación en modal ─────────────────────────────
+const filteredScatterData = scatterData.filter(d =>
+  d.n_teeth >= teethRange[0] && d.n_teeth <= teethRange[1] &&
+  d.z_pos != null && d.z_ang != null &&
+  d.z_mean >= zMeanRange[0] && d.z_mean <= zMeanRange[1] &&
+  d.z_pos  >= zPosRange[0]  && d.z_pos  <= zPosRange[1] &&
+  d.z_ang  >= zAngRange[0]  && d.z_ang  <= zAngRange[1]
+);
+
+const allItems = filteredScatterData.map(d => {
+  const geoId = extractGeoId(d.json_filename);
+  return {
+    id: geoId,
+    pantoMeta: pantosMap.get(geoId),
+    toothStats,
+    zScores: d,
+    rankInfo: rankAtypMap.get(d.json_filename),
+    iqrThreshold,
+    iqrExtreme,
+    extraBadges: [],
+  };
+});
+```
+
+```js
 {
   const clicked = clickedIndividual;
   if (clicked) {
     const id = extractGeoId(clicked.json_filename);
     if (id) {
+      const currentIndex = allItems.findIndex(item => item.id === id);
       await openPantoModal({
         id,
         pantoMeta: pantosMap.get(id),
@@ -205,6 +231,8 @@ display(atipicalityScatter(scatterData, {
         iqrExtreme,
         invalidation,
         onClose: clearClickedIndividual,
+        allItems,
+        currentIndex: currentIndex >= 0 ? currentIndex : null,
       });
     }
   }
