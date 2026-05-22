@@ -19,7 +19,7 @@ export function kpiCard(config) {
   const tooltipText = [source, tooltip].filter(Boolean).join(" · ");
   
   return html`<div style="background:${color}12; border-left:4px solid ${color}; padding:1rem 1.2rem; border-radius:6px; position:relative;">
-    <div style="font-size:0.7rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+    <div style="font-size:0.75rem; color:#666; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
       <span>${label}</span>
       ${hasTooltip ? html`<span 
         title="${tooltipText}"
