@@ -214,12 +214,6 @@ const pageSize   = Generators.input(pageSizeInput);
 ```
 
 ```js
-// ── Feedback de filtrado ──
-display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
-  Mostrando <strong>${filtered.length.toLocaleString("es-AR")} pantomografías</strong> de ${joined.length.toLocaleString("es-AR")}${filtered.length < joined.length ? ` (${(joined.length - filtered.length).toLocaleString("es-AR")} filtradas)` : ""}
-</div>`);
-
-```js
 // ── Filter (lo/hi used as local vars, not exported) ──
 const filtered = joined.filter(d => {
   const [zmLo, zmHi] = zmRange;
@@ -242,6 +236,13 @@ const filtered = joined.filter(d => {
   if (endoOnly   && d.n_endo   === 0) return false;
   return true;
 });
+```
+
+```js
+// ── Feedback de filtrado ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  Mostrando <strong>${filtered.length.toLocaleString("es-AR")} pantomografías</strong> de ${joined.length.toLocaleString("es-AR")}${filtered.length < joined.length ? ` (${(joined.length - filtered.length).toLocaleString("es-AR")} filtradas)` : ""}
+</div>`);
 ```
 
 ```js

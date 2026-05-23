@@ -124,13 +124,6 @@ const archClusterFilter = Generators.input(archClusterInput);
 ```
 
 ```js
-// ── Feedback de filtrado ──
-display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
-  Mostrando <strong>${pantos.length.toLocaleString("es-AR")} pantomografías</strong> de ${allPantos.length.toLocaleString("es-AR")}${pantos.length < allPantos.length ? ` (${(allPantos.length - pantos.length).toLocaleString("es-AR")} filtradas)` : ""}
-</div>`);
-```
-
-```js
 const pantos = allPantos.filter(p => {
   if (searchTerm && !cleanArchivo(p.archivo).toLowerCase().includes(searchTerm.toLowerCase())) return false;
   if (catFilter !== "Todas" && p.categoria !== catFilter) return false;
@@ -148,6 +141,13 @@ const pantos = allPantos.filter(p => {
   }
   return true;
 });
+```
+
+```js
+// ── Feedback de filtrado ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  Mostrando <strong>${pantos.length.toLocaleString("es-AR")} pantomografías</strong> de ${allPantos.length.toLocaleString("es-AR")}${pantos.length < allPantos.length ? ` (${(allPantos.length - pantos.length).toLocaleString("es-AR")} filtradas)` : ""}
+</div>`);
 ```
 
 <!-- ═══════ TABLA PAGINADA ═══════ -->

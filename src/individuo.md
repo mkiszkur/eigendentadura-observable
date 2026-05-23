@@ -354,12 +354,6 @@ const boLo  = boRange  ? boRange[0]  : -Infinity, boHi  = boRange  ? boRange[1] 
 ```
 
 ```js
-// ── Feedback de filtrado ──
-display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
-  Mostrando <strong>${_filtered.length.toLocaleString("es-AR")} pantomografías</strong> de ${allPantosEnriched.length.toLocaleString("es-AR")}${_filtered.length < allPantosEnriched.length ? ` (${(allPantosEnriched.length - _filtered.length).toLocaleString("es-AR")} filtradas)` : ""}
-</div>`);
-
-```js
 goToPage(0);
 const _filtered = allPantosEnriched.filter(p => {
   if (searchTerm && !cleanArchivo(p.archivo).toLowerCase().includes(searchTerm.toLowerCase())) return false;
@@ -397,6 +391,13 @@ const pantos = sk
       return sd === "asc" ? (av > bv ? 1 : av < bv ? -1 : 0) : (bv > av ? 1 : bv < av ? -1 : 0);
     })
   : _filtered;
+```
+
+```js
+// ── Feedback de filtrado ──
+display(htl.html`<div style="font-size:0.85rem;color:#666;padding:6px 0 10px;margin-bottom:0.5rem;">
+  Mostrando <strong>${_filtered.length.toLocaleString("es-AR")} pantomografías</strong> de ${allPantosEnriched.length.toLocaleString("es-AR")}${_filtered.length < allPantosEnriched.length ? ` (${(allPantosEnriched.length - _filtered.length).toLocaleString("es-AR")} filtradas)` : ""}
+</div>`);
 ```
 
 ## Selección de individuo
