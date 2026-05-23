@@ -6,7 +6,6 @@ head: '<meta name="robots" content="noindex,nofollow">'
 
 ```js
 import {slideNav} from "../components/slide-nav.js";
-import {slideEmphasis} from "../components/slide-layout.js";
 display(slideNav(8));
 ```
 
@@ -60,10 +59,12 @@ display(slideNav(8));
   - **Validación prospectiva**: aplicar eigendentadura a cohorte nueva (argentina o internacional).
 </div>
 
-${slideEmphasis(html`
-  <strong style="font-size: 1.2rem;">Impacto esperado</strong><br><br>
-  Herramienta de <strong>exploración morfométrica</strong> (no diagnóstico automatizado) para odontólogos e investigadores. Metodología reproducible y extensible a otros contextos anatómicos (cefalometría, ortodoncia).
-`, {color: "#7b52ab", background: "#f3f0ff"})}
+<div style="background: #f3f0ff; border-left: 4px solid #7b52ab; padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 4px;">
+  <strong style="font-size: 1.2rem; color: #7b52ab;">Impacto esperado</strong><br><br>
+  <span style="font-size: 1rem; color: #555; line-height: 1.7;">
+    Herramienta de <strong>exploración morfométrica</strong> (no diagnóstico automatizado) para odontólogos e investigadores. Metodología reproducible y extensible a otros contextos anatómicos (cefalometría, ortodoncia).
+  </span>
+</div>
 
 <div style="
   margin-top: 3rem; 

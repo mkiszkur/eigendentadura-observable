@@ -7,10 +7,8 @@
  * - Altura: tipo (imputación FDI, landmarks, clustering, etc.)
  * - Hover: tooltip con métrica clave
  * - Click: link al cierre del experimento
- * - Filtro: por veredicto y tipo
  */
 
-import * as d3 from "d3";
 import * as Plot from "@observablehq/plot";
 
 export function experimentsTimeline(data, {width = 900, height = 300, verdictoFilter = null, tipoFilter = null} = {}) {
@@ -82,51 +80,4 @@ export function experimentsTimeline(data, {width = 900, height = 300, verdictoFi
       }),
     ],
   });
-}
-
-
-/**
- * Componente de filtros interactivos para el timeline.
- */
-export function experimentsTimelineWithFilters(data, {width = 900} = {}) {
-  const experiments = data.experiments;
-  
-  // Obtener valores únicos
-  const veredictos = ["todos", ...new Set(experiments.map(d => d.veredicto))].sort();
-  const tipos = ["todos", ...new Set(experiments.map(d => d.tipo))].sort();
-  
-  // Estados reactivos
-  const verdictoSelect = Inputs.select(veredictos, {
-    label: "Filtrar por veredicto",
-    value: "todos",
-  });
-  
-  const tipoSelect = Inputs.select(tipos, {
-    label: "Filtrar por tipo",
-    value: "todos",
-  });
-  
-  const verdicto = Generators.input(verdictoSelect);
-  const tipo = Generators.input(tipoSelect);
-  
-  // Timeline reactivo
-  const timeline = experimentsTimeline(data, {
-    width,
-    verdictoFilter: verdicto === "todos" ? null : verdicto,
-    tipoFilter: tipo === "todos" ? null : tipo,
-  });
-  
-  return htl.html`
-    <div style="margin-bottom: 1rem;">
-      <div style="display: flex; gap: 1rem;">
-        ${verdictoSelect}
-        ${tipoSelect}
-      </div>
-    </div>
-    ${timeline}
-    <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
-      <strong>Nota:</strong> Click en un punto para ir al cierre del experimento (próximamente).
-      Fechas extraídas de 99_cierre.md; algunas aproximadas.
-    </div>
-  `;
 }

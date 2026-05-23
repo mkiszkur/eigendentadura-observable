@@ -6,11 +6,12 @@
  * 
  * - Nodos: color por categoría (dominio/método/dato/pregunta/infraestructura)
  * - Aristas: relaciones semánticas
- * - Hover: tooltip con definición del glosario
+ * - Hover: tooltip con definición del glosario (tip integrado en nodos)
  * - Drag: reorganizar nodos
  */
 
 import * as d3 from "d3";
+import {html} from "htl";
 
 export function conceptMap(data, {width = 800, height = 600} = {}) {
   const nodes = data.nodes.map(d => ({...d}));
@@ -25,8 +26,10 @@ export function conceptMap(data, {width = 800, height = 600} = {}) {
     "infraestructura": "#888",
   };
   
-  // Tooltip
-  const tooltip = d3.select(document.body).append("div")
+  const container = html`<div style="position: relative; width: ${width}px; height: ${height}px;"></div>`;
+  
+  // Tooltip dentro del container
+  const tooltip = d3.select(container).append("div")
     .attr("class", "concept-tooltip")
     .style("position", "absolute")
     .style("visibility", "hidden")
@@ -38,9 +41,10 @@ export function conceptMap(data, {width = 800, height = 600} = {}) {
     .style("pointer-events", "none")
     .style("z-index", "1000")
     .style("max-width", "320px")
-    .style("line-height", "1.5");
+    .style("line-height", "1.5")
+    .style("box-shadow", "0 2px 8px rgba(0,0,0,0.3)");
   
-  const svg = d3.create("svg")
+  const svg = d3.select(container).append("svg")
     .attr("viewBox", [0, 0, width, height])
     .attr("style", "max-width: 100%; height: auto; font-family: sans-serif; border: 1px solid #ddd; border-radius: 4px;");
   
@@ -94,6 +98,8 @@ export function conceptMap(data, {width = 800, height = 600} = {}) {
       .attr("stroke", "#000")
       .attr("stroke-width", 3);
     
+    const containerRect = container.getBoundingClientRect();
+    
     tooltip
       .html(`
         <strong style="color:#fff;">${d.label}</strong>
@@ -101,13 +107,14 @@ export function conceptMap(data, {width = 800, height = 600} = {}) {
         <br><br>${d.def}
       `)
       .style("visibility", "visible")
-      .style("top", (event.pageY + 10) + "px")
-      .style("left", (event.pageX + 10) + "px");
+      .style("top", (event.clientY - containerRect.top + 10) + "px")
+      .style("left", (event.clientX - containerRect.left + 10) + "px");
   })
   .on("mousemove", function(event) {
+    const containerRect = container.getBoundingClientRect();
     tooltip
-      .style("top", (event.pageY + 10) + "px")
-      .style("left", (event.pageX + 10) + "px");
+      .style("top", (event.clientY - containerRect.top + 10) + "px")
+      .style("left", (event.clientX - containerRect.left + 10) + "px");
   })
   .on("mouseout", function() {
     d3.select(this).select("circle")
@@ -174,8 +181,5 @@ export function conceptMap(data, {width = 800, height = 600} = {}) {
         .text(d => d.label);
     });
   
-  // Cleanup
-  svg.node().addEventListener("remove", () => tooltip.remove());
-  
-  return svg.node();
+  return container;
 }
