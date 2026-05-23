@@ -1,0 +1,585 @@
+{
+  "stages": [
+    {
+      "stage": 0,
+      "name": "Fix Jsons",
+      "filename": "stage_00_fix_jsons.py",
+      "description": "Stage 00 — Análisis de archivos JSON de entrada + corrección de ``group_id``. Política de aplicación (ver ``lib/json_corrections.py``): - **``group_id == \"null\"``** (string) → ``null`` real. Es la única corrección que **escribe el JSON en disco**, porque LabelMe falla al visualizarlos cuando ese valor queda como string. Opt-in mediante ``config.dataset_generation.corregir_jsons``. - **Landmarks condíleos** (swap L6↔L7 / L1↔L2) y **mentón** (swap L3↔L4): este stage **solo los reporta**. La corrección efectiva se aplica en memoria al generar ``shapes.csv`` (``lib/shapes_processor.py::ShapesProcessor.process_shapes_data``), dejando los JSONs originales intactos.",
+      "inputs": [
+        {
+          "path": "data/json/<version>/*.json",
+          "note": ""
+        },
+        {
+          "path": "config.json",
+          "note": "flag ``corregir_jsons``, solo afecta a group_id"
+        },
+        {
+          "path": "archivos_corregidos.csv         — filas con (archivo, shape_index, label,",
+          "note": ""
+        },
+        {
+          "path": "landmarks_corregidos.csv        — filas con (archivo, tipo_swap,",
+          "note": ""
+        },
+        {
+          "path": "menton_corregidos.csv           — filas con (archivo, tipo, gap_l4_l3_x,",
+          "note": ""
+        }
+      ],
+      "outputs": [],
+      "loc": 124
+    },
+    {
+      "stage": 1,
+      "name": "Etl Raw",
+      "filename": "stage_01_etl_raw.py",
+      "description": "Stage 01 — ETL raw: JSON → pantos_raw.csv + shapes_raw.csv Lee `data/json/...` (path desde `config.json`) y produce los CSV \"raw\" sin procesamiento adicional, usando `PantoRaw`.",
+      "inputs": [
+        {
+          "path": "data/json/<version>/*.json",
+          "note": "vía Config"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "data/csv/pantos_raw.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/shapes_raw.csv",
+          "note": ""
+        }
+      ],
+      "loc": 48
+    },
+    {
+      "stage": 2,
+      "name": "Etl Full",
+      "filename": "stage_02_etl_full.py",
+      "description": "Stage 02 — ETL full: JSON → pantos.csv + shapes.csv Procesa los JSONs vía `PantosProcessor` (enfoque OO sobre `Panto/Shape`) y produce los CSV con todas las columnas derivadas y normalizadas.",
+      "inputs": [
+        {
+          "path": "data/json/<version>/*.json",
+          "note": ""
+        }
+      ],
+      "outputs": [
+        {
+          "path": "data/csv/pantos.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        }
+      ],
+      "loc": 39
+    },
+    {
+      "stage": 3,
+      "name": "Impute Landmarks Nn",
+      "filename": "stage_03_impute_landmarks_nn.py",
+      "description": "Stage 03 — Imputación de landmarks por red neuronal (exp04 v2 + BplusD_10). Corre el detector de landmarks sobre **todos** los pantos del corpus y materializa columnas paralelas a la normalización GT: Salidas: - `data/landmarks/predictions_nn_v2.parquet` (sidecar idempotente). - `shapes.csv`: `centroid_x_lm_nn`, `centroid_y_lm_nn`, `angle_normalized_lm_nn`, `landmarks_source`. - `pantos.csv`: `landmarks_source`, `landmarks_conf_min`. Idempotencia: si el parquet existe, sólo se infieren los pantos faltantes. La materialización en CSV se rehace siempre (es barata vs. inferencia). Notas: - No pisa `*_lm` GT: las columnas `*_lm_nn` son paralelas (auditoría). - `landmarks_source` ∈ {gt, nn_v2, nn_v2_refiner}. `partial_gt_nn` no se usa todavía (queda reservado para una futura fase mixta).",
+      "inputs": [],
+      "outputs": [],
+      "loc": 232
+    },
+    {
+      "stage": 4,
+      "name": "Impute Fdi",
+      "filename": "stage_04_impute_fdi.py",
+      "description": "Stage 04 — Imputación FDI: M1 posición + M2 forma + M3 combinado (Fase B.4). Para cada `shape` de tipo `tooth`, computa tres estimadores de la identidad dental y resuelve la asignación canónica por panto. M1 — posición (Fase B.4a): Gaussiana diagonal (cx, cy, ángulo) por FDI ajustada sobre features ``*_lm`` (stats en ``observable/src/data/tooth_stats_lm.json``, 32 FDIs permanentes, fitted en corpus exp05 = 2.348 pantos). Coalescencia: usa ``*_lm`` cuando hay GT, fallback ``*_lm_nn`` (de stage_03). M2 — forma (Fase B.4b): CatBoost v2 sobre 43 features morfológicas (signature radial 16-pt + Hu + EFD 12 armónicos + minbbox + curvatura + cúspides + defects + asimetría). Predice los 8 tipos posicionales {I1,I2,C,P1,P2,M1,M2,M3}. Modelo: ``data/models/exp11/model_catboost_v2.cbm`` (exp11 Uso B Tier 2, top-1 holdout 79.95 %). Calibración isotónica per-clase ajustada sobre val (``data/exp11/shape_features_v2_val.parquet``). M3 — combinado Hungarian (Fase B.4c): Para cada panto con dientes que tienen M1 y M2 simultáneamente, ajusta una asignación 1-a-1 entre dientes y los 32 FDIs permanentes minimizando la suma de costos negativos ``-(λ·log p_M1[fdi] + (1-λ)·log p_M2[pos(fdi)])`` con λ=0.5 (óptimo en exp05 E.A). Usa ``scipy.optimize.linear_sum_assignment`` sobre matrices rectangulares (N_dientes × 32). Para pantos con N>32 dientes (raro), los 32 mejor matcheados reciben asignación; el resto queda con M3 vacío (resuelto vía fallback en la columna canónica). Resolución canónica (`tooth_number_source` / `tooth_number_conf`): 1. ANNOTATED si ``tooth_number`` viene anotado. 2. CONFLICT_LOW_MARGIN si M3 asignó pero ``margin_combinado < τ=0.05``. 3. IMPUTED_COMBINED si M3 produjo un FDI con margen razonable. 4. UNRESOLVED en caso contrario. Auditoría (``fdi_imp_disagrees_with_ann`` / ``tooth_type_disagrees_with_ann``): Banderas booleanas que comparan la anotación contra M3 (FDI) y contra M2_group (tipo anatómico). NA cuando no hay anotación. Alimentan exp19 y ``docs/dataset/errores_datos.md``. Outputs en ``data/csv/shapes.csv`` (24 columnas nuevas, NaN para shapes no-diente o sin features válidas): M1 (8 cols): fdi_imp_pos / _prob / _top3 / _entropy fdi_imp_pos_group / _group_prob fdi_imp_pos_quadrant / _quadrant_prob M2 (6 cols): pos_imp_shape / _prob / _top3 pos_imp_shape_group / _group_prob / _group_top2 M3 (6 cols): fdi_imp_combined / _cost / _margin / _top3 fdi_imp_combined_group_prob / _quadrant_prob Resolución canónica (2 cols): tooth_number_source / tooth_number_conf Auditoría (2 cols): fdi_imp_disagrees_with_ann / tooth_type_disagrees_with_ann Sidecars regenerables (gitignored): data/exp05/fdi_probs_pos.parquet           — probs 32D por shape (M1). data/exp11/shape_features_v2_corpus.parquet — features 43D por shape (M2 cache). data/exp11/fdi_probs_shape.parquet         — probs 8D calibradas (M2). data/exp05/fdi_probs_combined.parquet      — probs 32D combinadas pre-Hungarian (M3).",
+      "inputs": [],
+      "outputs": [],
+      "loc": 747
+    },
+    {
+      "stage": 5,
+      "name": "Super Temp Flags",
+      "filename": "stage_05_super_temp_flags.py",
+      "description": "Stage 05 — Flags por panto: supernumerarios y temporales (Fase B.5). Calcula tres flags binarios a nivel panto a partir del contenido observado en `shapes.csv` (post-stage_04, con tooth_number canónico): * ``has_temporary``: el panto contiene ≥1 shape ``tooth`` con FDI decidua (51-85). * ``has_unknown_dent``: el panto contiene ≥1 shape ``tooth`` con ``dentition_type == 'unknown'``. * ``has_supernumerary_candidate``: el panto tiene > 32 shapes ``tooth`` con FDI permanente (11-48). Es la regla del exp10 para marcar pantos a auditar manualmente (no equivale a ``json_flag_supernumerary``, que viene del JSON original). **No** se reescriben los flags de metadata (``json_flag_temporal`` / ``json_flag_supernumerary``): aquellos son lo declarado por el anotador, estos son lo que se observa al recorrer los shapes. Referencias: - docs/experimentos/10_supernumerarios_temporales/01_cierre.md - docs/experimentos/29_forma_supers_temporales/ Decisión clave (exp10): los flags se publican como columnas de ``pantos.csv`` pero **no** entran en el vector eigendentadura (la dirección de varianza que aportan satura PC5 sin valor morfométrico).",
+      "inputs": [],
+      "outputs": [],
+      "loc": 99
+    },
+    {
+      "stage": 10,
+      "name": "Tooth Stats",
+      "filename": "stage_10_tooth_stats.py",
+      "description": "Stage 10 — KDE + tooth_stats + metadata para Observable. Encapsula la exportación principal de KDE 2D y estadísticas poblacionales por diente (FDI), reutilizando `lib.kde_por_pieza.exportar_para_observable`.",
+      "inputs": [
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/tooth_stats.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/kde_grids.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/metadata.json",
+          "note": ""
+        }
+      ],
+      "loc": 33
+    },
+    {
+      "stage": 11,
+      "name": "Tooth Extras",
+      "filename": "stage_11_tooth_extras.py",
+      "description": "Stage 11 — Boxplot stats e histogramas de ángulo por diente (FDI). Calcula sobre `(centroid_x_lm, centroid_y_lm, angle_normalized_lm)`: * Boxplot por FDI: mediana, Q1, Q3 y whiskers Tukey (1.5 × IQR). * Histograma de `angle_normalized_lm` por FDI con bins de 5°.",
+      "inputs": [
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/tooth_boxplot_stats.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/tooth_angle_histograms.json",
+          "note": ""
+        }
+      ],
+      "loc": 112
+    },
+    {
+      "stage": 12,
+      "name": "Subpop",
+      "filename": "stage_12_subpop.py",
+      "description": "Stage 12 — Tooth stats por landmarks + estadísticas por subpoblación. Calcula media/std por FDI sobre `(centroid_x_lm, centroid_y_lm, angle_normalized_lm)` para toda la población y dividida en subpoblaciones (origin, sexo).",
+      "inputs": [
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/pantos.csv",
+          "note": ""
+        },
+        {
+          "path": "data/pantos-anotadas.csv",
+          "note": "origen"
+        },
+        {
+          "path": "data/output/ocr_names_*.csv",
+          "note": "sexo"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/tooth_stats_lm.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/tooth_stats_subpop.json",
+          "note": ""
+        }
+      ],
+      "loc": 127
+    },
+    {
+      "stage": 13,
+      "name": "Kde Subpop",
+      "filename": "stage_13_kde_subpop.py",
+      "description": "Stage 13 — KDE 2D, bagplot y violines por subpoblación (origen y sexo). Genera grillas KDE pre-evaluadas, mapas de diferencia, outliers de bagplot y grillas de violín 1D para cada (axis, group, FDI).",
+      "inputs": [
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/pantos.csv",
+          "note": ""
+        },
+        {
+          "path": "data/pantos-anotadas.csv",
+          "note": "origen"
+        },
+        {
+          "path": "data/output/ocr_names_*.csv",
+          "note": "sexo"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/kde_grids_origen.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/kde_grids_genero.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/kde_diff_origen.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/kde_diff_genero.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/bagplot_outliers_origen.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/bagplot_outliers_genero.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/violin_grids_origen.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/violin_grids_genero.json",
+          "note": ""
+        }
+      ],
+      "loc": 199
+    },
+    {
+      "stage": 20,
+      "name": "Individual",
+      "filename": "stage_20_individual.py",
+      "description": "Stage 20 — Scores individuales por panto + extremos de tipicidad. Para cada panto, calcula z-scores por diente vs. la población (landmark-normalized) y exporta: * `individual_scores.json` — z_cx, z_cy, z_angle, z_total por diente, ordenados por z_mean descendente (más atípicos primero). * `typicality_extremes.json` — top/bottom N pantos (con ≥ 16 dientes) por z_total.",
+      "inputs": [
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/pantos.csv",
+          "note": ""
+        },
+        {
+          "path": "data/pantos-anotadas.csv",
+          "note": "origen"
+        },
+        {
+          "path": "data/output/ocr_names_*.csv",
+          "note": "sexo"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/individual_scores.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/typicality_extremes.json",
+          "note": ""
+        }
+      ],
+      "loc": 148
+    },
+    {
+      "stage": 21,
+      "name": "Pantos Browser",
+      "filename": "stage_21_pantos_browser.py",
+      "description": "Stage 21 — Pantos browser + geometría por panto. Genera el JSON con el listado/búsqueda de pantos (categorías, flags, dentición) y un archivo de geometría detallada por cada panto (`pantos_geometry/*.json`) usado por las vistas individuales del Observable.",
+      "inputs": [
+        {
+          "path": "data/csv/pantos.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/pantos_browser.json",
+          "note": ""
+        },
+        {
+          "path": "observable/src/data/pantos_geometry/<short_filename>.json",
+          "note": "uno por panto"
+        }
+      ],
+      "loc": 289
+    },
+    {
+      "stage": 30,
+      "name": "Prevalence",
+      "filename": "stage_30_prevalence.py",
+      "description": "Genera prevalencia de patologías por diente (FDI) para Observable. Para cada (json_filename, tooth_number) determina si al menos una shape tiene el flag → el diente sufre esa patología. Luego agrega por FDI. Output: observable/src/data/prevalence_by_tooth.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 82
+    },
+    {
+      "stage": 31,
+      "name": "Symmetry",
+      "filename": "stage_31_symmetry.py",
+      "description": "Genera estadísticas de simetría bilateral basadas en pares pareados: solo se incluyen dentaduras que poseen AMBOS dientes de cada par homólogo (p.ej. 16 y 26). Para cada par se reporta mediana / IQR / percentiles de: - Δ reflejo X = cx_izq + cx_der     (0 si perfectamente simétrico) - ΔY         = cy_izq − cy_der     (0 si misma altura) - distancia  = √(Δreflejo² + ΔY²) También exporta la nube de puntos (cx_izq, cy_izq) y (−cx_der, cy_der) para cada par con un límite superior de observaciones aleatorias por par. Salida: observable/src/data/symmetry_pairs.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 146
+    },
+    {
+      "stage": 32,
+      "name": "Occlusion",
+      "filename": "stage_32_occlusion.py",
+      "description": "Genera datos de overbite/overjet aproximados a partir de centroides landmark-normalized de los incisivos centrales. Para cada dentadura con los 4 incisivos centrales (11, 21, 41, 31) presentes: - upper_x = media(cx_lm de 11, 21) - upper_y = media(cy_lm de 11, 21) - lower_x = media(cx_lm de 41, 31) - lower_y = media(cy_lm de 41, 31) - overjet  = |upper_x - lower_x|        (horizontal mismatch) - overbite_proxy = lower_y - upper_y    (separación vertical media entre incisivos) Notas: con landmarks 2D del panto NO accedemos al borde incisal real, así que estos son **proxies** basados en centroides. Útil para distribución poblacional y comparación entre dentaduras, no para medidas absolutas en milímetros clínicos.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 95
+    },
+    {
+      "stage": 33,
+      "name": "Clustering",
+      "filename": "stage_33_clustering.py",
+      "description": "Genera datos de clustering de dentaduras para Observable. Pipeline: 1. Filtra dentaduras completas (32 FDI) → 853 dentaduras 2. Construye feature matrix (853 × 96: cx, cy, angle × 32 dientes) 3. Estandariza (z-scores por columna) 4. PCA sobre z-scores (para visualización 2D) 5. Clustering: 4 algoritmos × k={3,5} sobre PCs (90% varianza) - KMeans, Agglomerative Ward, GMM, Spectral 6. Exporta JSON con: PC1, PC2, labels por algoritmo/k, cluster summaries Uso: python -m pipeline.stage_33_clustering o como parte del pipeline completo: python -m pipeline.build --only 33",
+      "inputs": [
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        },
+        {
+          "path": "data/csv/pantos.csv",
+          "note": ""
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/clustering.json",
+          "note": ""
+        }
+      ],
+      "loc": 325
+    },
+    {
+      "stage": 34,
+      "name": "Bolton",
+      "filename": "stage_34_bolton.py",
+      "description": "Genera datos del Índice de Bolton a partir de los anchos mesiodistales (MD) aproximados de los dientes presentes en cada dentadura. Bolton (1958, 1962) define dos relaciones entre la suma de anchos MD de maxilar y mandíbula: ratio_anterior = 100 * Σ MD(43..33) / Σ MD(13..23) ratio_overall  = 100 * Σ MD(46..36) / Σ MD(16..26) Normas clínicas de referencia (Bolton 1958/1962): anterior: 77.2 ± 1.65   (rango clínicamente aceptable: ~73.9 – 80.5) overall : 91.3 ± 1.91   (rango clínicamente aceptable: ~87.5 – 95.1) Como **proxy del ancho mesiodistal** se toma el **lado corto** del `json_minbbox` (rectángulo de área mínima) de cada diente. En la vista panorámica el eje mayor del minbbox sigue el eje oclusogingival del diente, por lo que el lado corto aproxima la dimensión mesiodistal. Esto es una aproximación 2D — no reemplaza una medición clínica con calibrador — pero permite estudiar la distribución poblacional de la relación de Bolton en el dataset. Sólo se incluyen dentaduras con todas las piezas requeridas en el grupo correspondiente (anterior y/o total). La elegibilidad se reporta por separado para cada métrica.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 192
+    },
+    {
+      "stage": 35,
+      "name": "Dataset Stats",
+      "filename": "stage_35_dataset_stats.py",
+      "description": "Stage 35 — Estadísticas del dataset para la página Dataset del Observable. Genera el embudo de filtrado y la composición del universo de análisis.",
+      "inputs": [
+        {
+          "path": "data/json/v2/",
+          "note": "conteo de JSONs totales"
+        },
+        {
+          "path": "data/csv/shapes.csv",
+          "note": ""
+        }
+      ],
+      "outputs": [
+        {
+          "path": "observable/src/data/dataset_stats.json",
+          "note": ""
+        }
+      ],
+      "loc": 234
+    },
+    {
+      "stage": 36,
+      "name": "Phenotypes",
+      "filename": "stage_36_phenotypes.py",
+      "description": "Stage 36 — Fenotipos de dentadura (exp25) (Fase C.1). Publica en ``pantos.csv`` las dos columnas adoptadas por el cierre del exp25: * ``phenotype_exp25``     ∈ {A, B, C, D}  — F17 kmeans k=4. * ``loss_pattern_exp25``  ∈ {complete, moderate, severe, na}  — F13 kmeans k=3 (definido solo sobre el subconjunto con FDI permanente; para el resto se publica ``na``). Las etiquetas A/B/C/D y complete/moderate/severe se mapean desde los IDs numéricos canónicos producidos por ``utils/exp25_clustering_dentaduras``: * F17 k=4: 0→A (78,3 % sano), 1→B (16,4 % restaurativo moderado), 3→C (3,8 % rehab metálica + implanto), 2→D (1,5 % ortodoncia activa). * F13 k=3: 1→complete (67,9 %), 0→moderate (24,4 %), 2→severe (7,7 %). El mapping se valida en runtime contra los % esperados; si las proporciones se desvían >2 pp el stage aborta (signal de que los labels de exp25 cambiaron y la convención debe revisarse). Referencias: - docs/experimentos/25_clustering_dentaduras/99_cierre.md - data/exp25/labels_F17_pathology_summary__kmeans__k4.csv - data/exp25/labels_F13_presence_quadrant__kmeans__k3.csv Decisión clave (exp25 + exp28): los fenotipos son **clínicos**, no geométricos. Pendientes de validación odontológica antes de usarlos como subgrupos oficiales en la tesis.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 89
+    },
+    {
+      "stage": 37,
+      "name": "Typicality",
+      "filename": "stage_37_typicality.py",
+      "description": "Stage 37 — Tipicidad geométrica al prototipo (exp24) (Fase C.2). Adopta la métrica D_std de exp24 (distancia al prototipo, 96 features estandarizados) como columna canónica de \"atipicidad geométrica\" en ``pantos.csv``. Es la métrica decidida en el cierre exp24 (``D_std`` adoptable, ρ=0,87 con Mahalanobis(PC1..PC6), correlación modesta pero robusta con flags de neoformación tras FDR-BH). Columnas publicadas: * ``typicality_d_raw``     — distancia euclídea cruda (96 features). * ``typicality_d_std``     — distancia estandarizada (z por feature). **Canónica**. * ``typicality_percentile`` — percentil 0-100 de D_std dentro del subset. * ``typicality_rank``      — ranking ascendente por D_std (1 = más típico). El cálculo se hace solo sobre los **853 pantos** con los 32 FDIs permanentes anotados (universo eigendentadura limpia de exp24). Para el resto de los pantos los valores quedan en NaN; cualquier consumidor debe filtrarlos antes de comparar percentiles o rankings. El stage **no recalcula** D_raw / D_std: lee directamente el artefacto ``data/exp24/dist_prototype.csv`` producido por ``utils/exp24_prototipo/distancia.py``. Si se quiere refrescar el prototipo (e.g. con la eigendentadura *_lm o con el corpus completo de exp09), regenerar primero ese CSV y luego correr este stage. Nota (exp08): el stub original mencionaba ``pca_z_*`` (z-scores sobre PCs principales del exp08). exp08 no produce per-panto PC scores como artefacto, solo intervalos bootstrap de var-explicada. Las PC scores viven en los notebooks de eigendentadura; no se publican como columna canónica hasta tener una decisión explícita sobre qué eigendentadura adoptar (V_norm vs V_lm). Referencias: - docs/experimentos/24_distancia_prototipo/99_cierre.md - data/exp24/dist_prototype.csv",
+      "inputs": [],
+      "outputs": [],
+      "loc": 104
+    },
+    {
+      "stage": 38,
+      "name": "Audit Borda",
+      "filename": "stage_38_audit_borda.py",
+      "description": "Stage 38 — Auditoría Borda de anotaciones sospechosas (exp19) (Fase C.3). Adopta el ranking Borda de exp19 como columna canónica de \"sospecha de error de anotación\" a nivel de panto en ``pantos.csv``. Cuatro señales independientes de outlier (S_pca_mahalanobis, S_recon, S_iso, S_geom) se agregan vía Borda en ``data/exp19/scores_individual.csv``. Este stage **no recalcula**: solo merge. Columnas publicadas: * ``audit_borda_score``  — borda_sum (suma de rangos, menor = más sospechoso). * ``audit_borda_rank``   — ranking ascendente por borda_sum (1 = más sospechoso). * ``audit_flag_suspect`` — bool, True si entra al **top-200** Borda. El cierre exp19 documenta recall_y_A6=83,9% @200 y recall_chin_A7=58,6% @200 como métrica canónica. Cobertura: 831/5114 pantos (subconjunto eigendentadura, 32 FDIs permanentes anotados). Para el resto: * ``audit_borda_score`` y ``audit_borda_rank`` = NaN. * ``audit_flag_suspect`` = False (semántica: \"no auditado, no flageado\"; los consumidores que necesiten distinguir \"no auditado\" de \"auditado y limpio\" deben usar la presencia de rank). Idempotente (md5 estable). Refs: - docs/experimentos/19_deteccion_errores_anotacion/99_cierre.md - data/exp19/scores_individual.csv",
+      "inputs": [],
+      "outputs": [],
+      "loc": 90
+    },
+    {
+      "stage": 39,
+      "name": "Geom Clusters",
+      "filename": "stage_39_geom_clusters.py",
+      "description": "Stage 39 — Clusters geométricos discretos exp26 + exp28 (Fase C.4). Adopta dos clusters geométricos *discretos* identificados en exp26 sobre el universo canónico U_canon (831 pantos con los 32 FDIs permanentes anotados), más los conteos de exp28 (5112 pantos): * ``crowd_cluster_exp26`` ∈ {spaced, crowded, na} — F21 (crowding: gap_mean, gap_std, n_overlap, ...) clustering GMM diag k=2. |Cmin|=10,5% (87 pantos crowded vs 744 spaced), silhouette 0,53, ARI bootstrap 0,71-0,81. * ``asym_cluster_exp26`` ∈ {symmetric, asymmetric, na} — F22 (asymmetry_vec: 16 pares contralaterales en *_lm) clustering KMeans k=2. |Cmin|=23,0% (191 pantos asymmetric vs 640 symmetric), silhouette 0,44, ARI 0,77. Los pantos fuera de U_canon llevan \"na\" en ambas columnas. Además, de exp28 (refinamiento sobre todos los pantos): * ``mixed_dentition``   — bool, True si has_deciduous OR has_supernumerary. * ``n_teeth_total``     — Int64, conteo total de dientes anotados. * ``n_deciduous``       — Int64. * ``n_supernumerary``   — Int64. 2 pantos del corpus (5114) no aparecen en exp28 (sin dientes permanentes anotados); para esos pantos los counts quedan NaN y ``mixed_dentition`` queda False (semántica: \"no caracterizado\"). Notas de scope: * El cierre exp28 propone también una columna refinada ``crowd_cluster_exp26_clean`` sobre U_canon_clean=688 (apiñamiento adulto puro, |Cmin|=4,1% borderline). Los labels específicos no quedaron persistidos como artefacto del run; se deja como trabajo futuro (re-correr exp26 sobre U_canon_clean y agregar la columna). * Stage idempotente: lectura → merge → CSV (md5 estable). Refs: - docs/experimentos/26_clustering_enriquecido/99_cierre.md - docs/experimentos/28_apinamiento_vs_dentadura/99_cierre.md - data/exp26/labels_PLANE_A_canon__F21_crowding__gmm_diag__k2.csv - data/exp26/labels_PLANE_A_canon__F22_asymmetry_vec__kmeans__k2.csv - data/exp28/per_panto_full.csv",
+      "inputs": [],
+      "outputs": [],
+      "loc": 150
+    },
+    {
+      "stage": 40,
+      "name": "Arch Features",
+      "filename": "stage_40_arch_features.py",
+      "description": "Stage 40 — Features de forma del arco (exp30) (Fase C.5). Adopta las features interpretables del polinomio grado 4 sobre los centroides dentales en frame *_lm (G06 del exp30) más el eje continuo emergente del spline natural cúbico (G09). 18 columnas nuevas en ``pantos.csv``: * 16 G06 (8 features × 2 arcadas: max_ y man_): depth, width, apex_x, apex_y, curv_apex, asym_LR, R2_fit, log_arclen. * 2 derivadas de G09: ``arch_depth_score`` (proyección estandarizada sobre el eje μ₀→μ₁ del cluster G09_spline_kmeans_k2, luego z-score corpus → media 0, σ 1) y ``arch_depth_cluster_exp30`` ∈ {0, 1} (dicotomización por el punto medio de las proyecciones de μ₀ y μ₁). Detalle de cálculo: docs/experimentos/30_clustering_curva_maxilar/99_cierre.md sección \"Adopción en pipeline\". Las features G06 / G09 se computan reutilizando ``utils/exp30_clustering_curva_maxilar/features.py`` (funciones ``_interpretable_features_arch`` y ``_spline_features``). Cobertura: pantos con ≥5 piezas permanentes anotadas en CADA arcada. Para arcadas con <5 piezas, las 8 columnas de esa arcada quedan en NaN; si una arcada queda incompleta, ``arch_depth_score`` también es NaN (necesita ambas arcadas para la proyección 10-D). Validación al inicio: las features sobre U_canon (831 pantos del exp30) deben coincidir con ``data/exp30/features_G06_interpretable.parquet`` y ``data/exp30/features_G09_spline.parquet`` con tolerancia 1e-6 (re-fit numpy con la misma semilla determinística). Idempotente (md5 estable). Refs: - docs/experimentos/30_clustering_curva_maxilar/99_cierre.md - utils/exp30_clustering_curva_maxilar/features.py - data/exp30/features_G06_interpretable.parquet - data/exp30/features_G09_spline.parquet - data/exp30/labels_PLANE_A_canon__G09_spline__kmeans__k2.csv",
+      "inputs": [],
+      "outputs": [],
+      "loc": 387
+    },
+    {
+      "stage": 41,
+      "name": "Impute Geometry B2",
+      "filename": "stage_41_impute_geometry_b2.py",
+      "description": "Stage 41 — Imputación geométrica de dientes faltantes (exp31) (Fase C.6). Adopta el baseline B2 (KNN local arco, k=5) como predicción de la geometría de cada diente faltante en pantos con landmarks GT completos (universo geométrico). Para cada FDI faltante en un panto, B2 busca los k pantos más similares del corpus train de exp31 en términos de los centroides ``(cx_lm, cy_lm)`` del contralateral + 2 mesiales + 2 distales, y devuelve la mediana de los 6 features del FDI target (cx, cy, log_w, log_h, sin 2θ, cos 2θ). Resultados de exp31: B2 vence a V3 (KNNImputer global) en los 32 FDIs con MAE_c 0.0069 vs 0.0337 (~5× mejor). Ver ``docs/experimentos/31_imputacion_geometrica_nn/99_cierre.md``. Outputs (purely additive; no toca shapes.csv ni eigendentadura): * ``data/csv/teeth_imputed_exp31.parquet`` — por panto × FDI faltante: json_filename, fdi, cx_lm_imputed, cy_lm_imputed, w_norm_imputed, h_norm_imputed, sin2t_imputed, cos2t_imputed, n_neighbors_used, from_neighbors (bool: ``True`` si vino de B2; ``False`` si fallback a la mediana global B0 por falta de vecinos). * ``observable/src/data/teeth_imputed.json`` — mismos datos en formato liviano para que la app pueda pintar dientes faltantes con opacidad reducida. Idempotente (md5 estable). Refs: - docs/experimentos/31_imputacion_geometrica_nn/99_cierre.md - utils/exp31_imputacion_geometrica/run.py (knn_local_predict, fit_prior) - utils/exp31_imputacion_geometrica/dataset.py (build_tensors)",
+      "inputs": [],
+      "outputs": [],
+      "loc": 156
+    },
+    {
+      "stage": 50,
+      "name": "Eigendentadura Bootstrap",
+      "filename": "stage_50_eigendentadura_bootstrap.py",
+      "description": "Stage 50 — Bootstrap PCA de la eigendentadura (promoción de exp08). Corre `utils.exp08_robustez.bootstrap_pca` (que ya consume `pantos.csv` y `shapes.csv` canónicos) y destila las cifras citadas en la tesis a un JSON canónico para Observable y los tests de cifras de tesis. Inputs ------ - `data/csv/pantos.csv`, `data/csv/shapes.csv` (vía exp08). Outputs ------- - `data/exp08/var_explained_bootstrap.csv` (sidecar de auditoría, exp08). - `data/exp08/loadings_stability.csv`       (sidecar de auditoría, exp08). - `data/exp08/summary.json`                 (sidecar de auditoría, exp08). - `observable/src/data/eigendentadura_bootstrap.json` (canónico tesis). Fuente de cifras del resumen ---------------------------- - PC1 = 29,97 % con IC95 [28,80 ; 31,42] % (B = 1000). - k recomendado: kaiser = 15, horn = 9, stable_loadings (corr ≥ 0,9) = 6.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 88
+    },
+    {
+      "stage": 51,
+      "name": "Normalization Comparison",
+      "filename": "stage_51_normalization_comparison.py",
+      "description": "Stage 51 — Comparacion de normalizaciones (3F-img / 3F-lm / 8F-lm). Materializa las cifras canonicas del capitulo 6 §6.5 sobre la comparacion entre normalizacion por imagen (bbox) y normalizacion por landmarks condileos. Reproduce la logica del notebook 037 (cells 25 y 33) para que las cifras tengan fuente trazable desde el pipeline (no solo desde el notebook). Esquemas comparados ------------------- - 3F-img: (cx_norm, cy_norm, angle_normalized) — todo frame imagen. - 3F-lm:  (cx_lm, cy_lm, angle_normalized_lm) — todo frame intercondileo. - 8F-lm:  3F-lm + 5 features de tamano/forma (area, compactness, bbox_width, bbox_height, minbbox_area). Para cada esquema, sobre cada FDI 11..48 (32 piezas), se computa: 1. **PCA por pieza** sobre los shapes anotados de esa pieza (n suele estar en 100..2400). Reporta var explicada por PC1 y PC1+PC2. 2. **Clustering K-Means k=2..6** con outlier removal |z|>3 y filtro de tamano minimo de cluster (>=10% del n). Selecciona el k con mejor silhouette y reporta silhouette + Calinski-Harabasz. Las cifras promedio sobre los 32 FDIs son las que aparecen en docs/tesis/06_normalizacion.md §6.5 y en observable/src/directores/06-normalizacion.md. Inputs ------ - data/csv/shapes.csv - data/exp16/summary.json (para var_reduction_factor) Outputs ------- - observable/src/data/normalization_comparison.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 211
+    },
+    {
+      "stage": 52,
+      "name": "Fdi Pathology Bh",
+      "filename": "stage_52_fdi_pathology_bh.py",
+      "description": "Stage 52 — Asociaciones locales FDI × patología BH (promoción de exp22). Corre `utils.exp22_asociacion_local.run` (test de permutación con Mahalanobis² entre centroides geométricos de shapes con/sin cada patología, por FDI) y destila: - Totales globales (n_tests, n_significant_BH, expected FP). - Por patología: cuántos FDIs son significativos tras BH, rango de Mahalanobis² entre los significativos, FDI con efecto máximo y su tipo anatómico (incisivo, canino, premolar, molar). Inputs ------ - `data/csv/shapes.csv` (vía exp22). Outputs ------- - `data/exp22/asociaciones.csv`        (sidecar, exp22). - `data/exp22/summary.json`            (sidecar, exp22). - `observable/src/data/fdi_pathology_bh.json` (canónico tesis). Fuente de cifras del resumen ---------------------------- - 250 pares (FDI, patología), 131 significativos BH (q < 0,05). - `neoformation`: significativo en 18 piezas, M² ∈ [1,9 ; 7,4], máximo en canino.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 99
+    },
+    {
+      "stage": 53,
+      "name": "Landmarks Nn Metrics",
+      "filename": "stage_53_landmarks_nn_metrics.py",
+      "description": "Stage 53 — Métricas del detector neuronal de landmarks (cierre de exp04). A diferencia de los stages 50/52/54, este stage **no re-corre** el experimento (inferencia con `SmallUNet` sobre PyTorch, requiere GPU/CPU largo) sino que lee los CSVs frozen producidos por exp04 y commiteados bajo `docs/experimentos/04_landmarks_nn/`. La fuente de verdad sigue siendo el modelo congelado `data/models/exp04/checkpoint_best_v1.pt` (y v2) y los holdouts estables. Este stage extrae las cifras citadas en la tesis para trazabilidad y parity. Inputs ------ - `docs/experimentos/04_landmarks_nn/metrics_holdout_tta-none_coord-softargmax.csv` (config canónica adoptada, v1). - `docs/experimentos/04_landmarks_nn/metrics_holdout_v2_summary.csv` (resumen de 4 configs sobre v2 clean GT). Outputs ------- - `observable/src/data/landmarks_nn_metrics.json` (canónico tesis). Fuente de cifras del resumen ---------------------------- - Config adoptada (cierre 99_cierre.md): `tta=none + softargmax`. - MAE mediano agregado (todos los landmarks) y por landmark L1–L7.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 120
+    },
+    {
+      "stage": 54,
+      "name": "Manifold Intrinsic",
+      "filename": "stage_54_manifold_intrinsic.py",
+      "description": "Stage 54 — Dimensionalidad intrínseca y manifold no-lineal (promoción de exp21). Corre `utils.exp21_manifold.run` (Two-NN, PCA, KernelPCA-RBF, Isomap, UMAP sobre las 96 features `*_lm`) y destila las cifras citadas en la tesis. Inputs ------ - `data/csv/pantos.csv`, `data/csv/shapes.csv` (vía exp21). Outputs ------- - `data/exp21/summary.json`                       (sidecar, exp21). - `observable/src/data/manifold_intrinsic.json`   (canónico tesis). Fuente de cifras del resumen ---------------------------- - `d̂_int ≈ 20` (Two-NN, frac=0,9). - Reconstrucción PCA y preservación de distancias para sustentar \"variación esencialmente continua, de baja curvatura no lineal\".",
+      "inputs": [],
+      "outputs": [],
+      "loc": 64
+    },
+    {
+      "stage": 55,
+      "name": "Exp32 Rotation Sensitivity",
+      "filename": "stage_55_exp32_rotation_sensitivity.py",
+      "description": "Stage 55 — Sensibilidad a la rotacion del angulo al frame landmark (exp32). Destila las cifras canonicas del experimento exp32 a un JSON consumido por `docs/tesis/_figures.yaml` (capitulo 6 §6.5 y capitulo 7). Veredicto del experimento: V_mix (la convencion mixta actual del cap. 6, con cx_lm/cy_lm y angle_normalized) y V_lm (version coherente con el angulo tambien rotado) son indistinguibles. Procrustes² 0,012, ΔPC1 0,06 pp. Inputs ------ - data/exp32/summary.json (commiteado, n=831). Outputs ------- - observable/src/data/eigendentadura_rotation_sensitivity.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 91
+    },
+    {
+      "stage": 56,
+      "name": "Exp33 Minbbox Extension",
+      "filename": "stage_56_exp33_minbbox_extension.py",
+      "description": "Stage 56 — Extension de la eigendentadura con descriptores de tamano (exp33). Destila las cifras canonicas del experimento exp33, donde se agregan tres features de tamano por diente derivadas del minbbox (log_w_norm, log_h_norm, aspect_log). Las cifras alimentan el cap. 7. Hallazgo: el tamano vive en un subespacio ortogonal a posicion+angulo. Procrustes² V_base↔V_size_only = 0,82; aparece un PC dominado por tamano con frac_size cerca de 0,8 que aporta ~15 % de varianza nueva. Inputs ------ - data/exp33/summary.json (commiteado, n=853). Outputs ------- - observable/src/data/eigendentadura_size_extension.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 92
+    },
+    {
+      "stage": 57,
+      "name": "Exp34 Shape Extension",
+      "filename": "stage_57_exp34_shape_extension.py",
+      "description": "Stage 57 — Extension de la eigendentadura con signature radial (exp34). Destila las cifras canonicas del experimento exp34, donde se agregan ocho features de forma por diente (signature radial r0..r7, simetrizada, escala-libre, calculada en exp11). Las cifras alimentan el cap. 7/8. Hallazgo: la forma vive en un subespacio ortogonal a posicion+angulo pero de alta dimension (manifold isotropico). Procrustes² V_base↔ V_shape_only ≈ 1,29; PR sube 5,7 → 12; PC1 cae a ~10 %; no hay eje dominante. Inputs ------ - data/exp34/summary.json (commiteado, n=853). Outputs ------- - observable/src/data/eigendentadura_shape_extension.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 93
+    },
+    {
+      "stage": 58,
+      "name": "Exp35 Tooth Axes",
+      "filename": "stage_58_exp35_tooth_axes.py",
+      "description": "Stage 58 — Desplazamiento dental en los ejes del propio diente (exp35). Destila las cifras canonicas del experimento exp35, donde el desplazamiento centroidal de cada diente (dx, dy) se rota al frame local del diente (ejes mayor/menor del minbbox) en lugar de medirse en x/y de imagen. Propuesta metodologica de Klaus. Hallazgo: la PCA global es invariante a esta rotacion (Procrustes² 0,05; ΔPC1 0,2 pp), pero la descomposicion en eje a-lo-largo (along) y eje a-traves (across) revela que el 85 % de la varianza del desplazamiento inter-paciente vive sobre el eje mesio-distal de cada diente (ratio along/across 5,6 vs 1,5 en frame imagen). Inputs ------ - data/exp35/summary.json (commiteado, n=853). Outputs ------- - observable/src/data/eigendentadura_tooth_axes.json",
+      "inputs": [],
+      "outputs": [],
+      "loc": 108
+    },
+    {
+      "stage": 60,
+      "name": "Morfometria Clasica",
+      "filename": "stage_60_morfometria_clasica.py",
+      "description": "Agregados poblacionales de morfometría clásica para §7.7 de la tesis. Consume los JSON ya producidos por stages 31 (simetría), 32 (oclusión) y 34 (Bolton) y materializa los 8 indicadores resumidos del Capítulo 7: - overbite / overjet medianos (referencia directa a stage 32). - Bolton anterior / overall mediano (referencia directa a stage 34). - Bolton dentro de la norma ±2σ (cómputo nuevo a partir de bolton.individuals). - Mediana del estadístico agregado de simetría por dentadura (cómputo nuevo a partir de symmetry_pairs.pairs[].points: para cada panto se calcula la media de distancias contralaterales disponibles). - FDI con peor simetría mediana poblacional (pairs[0] tras orden descendente por mediana de distancia). Se omite intencionalmente `p7_angle_class_i_pct`: requiere una definición clínica de bandas Angle I/II/III en unidades `*_lm` que todavía no fue fijada, por lo que se mantiene tier P en ``docs/tesis/_figures.yaml``.",
+      "inputs": [],
+      "outputs": [],
+      "loc": 105
+    },
+    {
+      "stage": 95,
+      "name": "Geom By Group",
+      "filename": "stage_95_geom_by_group.py",
+      "description": "Stage 95 — Boxplots de métricas geométricas y angulares por grupo anatómico (cap. 5). Renderiza dos figuras para el Capítulo 5: - §5.6 (métricas geométricas): grilla 2×2 con boxplots de `polygon_area`, `compactness`, aspect ratio y `minbbox_area` segmentados por grupo anatómico (incisivo → canino → premolar → molar). - §5.5 (dispersión angular): boxplots de la desviación absoluta del eje longitudinal respecto a la vertical, $|\\theta - 90°|$, por grupo anatómico. La métrica es robusta a la simetría bilateral (que ya aparece en el radar) y comprime la información de orientación a un único panel interpretable: incisivos cercanos a $0°$, molares con desviación creciente. Convención de orden anatómico (mesial → distal en la arcada): incisor (FDI *1, *2) → canine (*3) → premolar (*4, *5) → molar (*6, *7, *8). Inputs ------ - `data/csv/shapes.csv` Outputs ------- - `docs/tesis/figuras/05_eda/05_f8_geom_metrics_by_group.png` - `docs/tesis/figuras/05_eda/05_f9_angular_by_group.png` - `data/csv/geom_by_group_meta.json`",
+      "inputs": [],
+      "outputs": [],
+      "loc": 171
+    },
+    {
+      "stage": 96,
+      "name": "Upset Figure",
+      "filename": "stage_96_upset_figure.py",
+      "description": "Stage 96 — Figura estática UpSet de co-ocurrencia de patologías a nivel paciente. Renderiza el UpSet plot que se cita en el Capítulo 5 (§5.4.5) del documento de tesis a partir del mismo universo que `stage_35_dataset_stats.py`: pantos con al menos un FDI permanente anotado (n ≈ 2.782). Los siete conjuntos son los mismos del UpSet interactivo de `observable/src/patologias.md`: Caries (cualquier), Restauración, Endodoncia, Pieza retenida, Raíz remanente, Radiolucidez, Agenesia. Inputs ------ - `data/csv/shapes.csv` Outputs ------- - `docs/tesis/figuras/05_eda/05_f6_upset_pantos.png`",
+      "inputs": [],
+      "outputs": [],
+      "loc": 172
+    },
+    {
+      "stage": 97,
+      "name": "Rose Plots",
+      "filename": "stage_97_rose_plots.py",
+      "description": "Stage 97 — Rose plots de orientación angular por FDI (cap. 5 §5.5). Renderiza una grilla 2×2 de histogramas polares (\"rose plots\") con la distribución de `angle_normalized` para los dos FDI más estables y los dos más dispersos de la dentadura permanente. Los FDI elegidos se determinan por el IQR angular sobre todas las shapes con `is_tooth_shape == True` del universo crudo (mismo conteo que usa el radar `05_f5_dispersion_angular`). Convención angular (ver `lib/geometry.minbbox_angle`): - `angle_normalized` ∈ [0°, 180°) — orientación de línea del lado más largo del minbbox respecto al eje X horizontal. - 90° = lado largo vertical (diente erecto). - Por ser un dato axial (línea, no vector), cada observación se duplica en el rose plot reflejando a (θ + 180°) para que el histograma represente un diámetro completo. Inputs ------ - `data/csv/shapes.csv` Outputs ------- - `docs/tesis/figuras/05_eda/05_f7_rose_plots.png`",
+      "inputs": [],
+      "outputs": [],
+      "loc": 122
+    },
+    {
+      "stage": 98,
+      "name": "Eda Figures",
+      "filename": "stage_98_eda_figures.py",
+      "description": "Stage 98 — Cifras del EDA para el registro de tesis (cap. 5). Calcula desde `pantos.csv` y `shapes.csv` las cifras numéricas que el Capítulo 5 (EDA) cita en su texto. El resultado se persiste en `data/csv/eda_figures.json` y es consumido por `pipeline/stage_99_thesis_figures.py` vía `source.kind: json_path` en las entradas de `docs/tesis/_figures.yaml`. Regla rectora: las cifras del EDA viven acá, no en notebooks ni inline en `docs/tesis/05_eda.md`. Cualquier nueva cifra del Cap. 5 debe agregarse a este stage antes de citarse en el texto. Inputs ------ - `data/csv/pantos.csv` - `data/csv/shapes.csv` Outputs ------- - `data/csv/eda_figures.json`",
+      "inputs": [],
+      "outputs": [],
+      "loc": 211
+    },
+    {
+      "stage": 99,
+      "name": "Thesis Figures",
+      "filename": "stage_99_thesis_figures.py",
+      "description": "Stage 99 — Materializa el registro de cifras de tesis. Lee `docs/tesis/_figures.yaml`, resuelve cada entrada desde su fuente canónica (pantos.csv / shapes.csv, JSONs del pipeline, constantes de código), y emite `data/csv/thesis_figures.json` con el valor calculado y el `expected` declarado. Los tests (`tests/test_tesis_figures.py`) y el linter de markdown (`utils/check_md_figures.py`) consumen este artefacto. Regla rectora: **cero cálculos desperdigados**. Si una cifra requiere recalcular algo no trivial, primero se promueve a un stage upstream y luego se consume desde aquí. Inputs ------ - `docs/tesis/_figures.yaml` - Artefactos referenciados por cada entrada (pantos.csv, shapes.csv, JSONs de Observable, módulos `lib.*` / `utils.*`). Outputs ------- - `data/csv/thesis_figures.json` (canónico tesis).",
+      "inputs": [],
+      "outputs": [],
+      "loc": 187
+    }
+  ],
+  "count": 39
+}

@@ -9,6 +9,18 @@ import {directoresNav} from "../components/directores-nav.js";
 display(directoresNav("index"));
 ```
 
+```js
+// Infografías
+import {conceptMap} from "../components/concept-map.js";
+import {experimentsTimelineWithFilters} from "../components/experiments-timeline.js";
+import {dataFlowSankey} from "../components/data-flow-sankey.js";
+import {pipelineInfographic} from "../components/pipeline-infographic.js";
+
+const conceptsData = await FileAttachment("../data/concepts.json").json();
+const experimentsData = await FileAttachment("../data/experiments_metadata.json").json();
+const pipelineData = await FileAttachment("../data/pipeline_metadata.json").json();
+```
+
 <div style="background:#1f2937; color:#e5e7eb; padding:0.45rem 1rem; border-radius:4px; font-size:0.78rem; margin:-0.5rem 0 1.4rem; letter-spacing:0.04em;">
   <strong style="color:#fff;">VISTA INTERNA — DIRECTORES</strong> &nbsp;·&nbsp;
   Resumen iterativo del documento de tesis. Cifras y figuras trazadas al
@@ -17,9 +29,96 @@ display(directoresNav("index"));
 
 # Tesis · Vista para directores
 
-**Autor.** Lic. Eduardo Miguel Kiszkurno
-**Directores.** Dr. Claudio Delrieux · Dra. Débora Pollicelli
+**Autor.** Lic. Eduardo Miguel Kiszkurno  
+**Directores.** Dr. Claudio Delrieux · Dra. Débora Pollicelli  
 **Programa.** Maestría en Explotación de Datos y Descubrimiento del Conocimiento — FCEN, UBA
+
+---
+
+## Visión panorámica
+
+<div style="background:#f5f7fa; border-left:4px solid #4c78a8; padding:1rem 1.2rem; margin:1.5rem 0; border-radius:4px;">
+
+**TL;DR.** Análisis morfométrico y visual de **5.114 pantomografías dentales** anotadas. Define la **eigendentadura** (PCA sobre 96 features), sistema de **normalización por landmarks condíleos**, y herramienta de visualización interactiva (Observable Framework). **Resultados negativos robustos**: no hay subgrupos discretos (P3) ni asociación geometría×patología global (P4).
+
+</div>
+
+### Mapa conceptual
+
+```js
+display(conceptMap(conceptsData, {width: Math.min(width, 900), height: 550}));
+```
+
+<div style="font-size:0.85rem; color:#666; margin:0.5rem 0 2rem;">
+  **Interacción:** Drag para reorganizar nodos. Hover para ver definición del glosario.
+  Colores: 🔵 Dominio · 🟢 Método · 🟠 Dato · 🟣 Pregunta · ⚫ Infraestructura.
+</div>
+
+### Flujo de datos del dataset
+
+```js
+display(dataFlowSankey({width: Math.min(width, 750), height: 380}));
+```
+
+<div style="font-size:0.85rem; color:#666; margin:0.5rem 0 2rem;">
+  **Sankey diagram:** De las 5.114 pantos iniciales, solo 2.704 (universo geométrico) tienen FDI ∧ landmarks; de estas, 853 (corpus eigendentadura) tienen dentición permanente completa.
+</div>
+
+### Timeline de experimentos
+
+```js
+display(experimentsTimelineWithFilters(experimentsData, {width: Math.min(width, 900)}));
+```
+
+<div style="font-size:0.85rem; color:#666; margin:0.5rem 0 2rem;">
+  **exp01–exp42:** 12 adoptados (verde), 8 descartados (rojo), 11 en curso (naranja). Hover para ver métrica clave. Filtros interactivos por veredicto y tipo.
+</div>
+
+### Pipeline ETL (39 stages)
+
+```js
+display(pipelineInfographic(pipelineData, {width: Math.min(width, 900), height: 420}));
+```
+
+<div style="font-size:0.85rem; color:#666; margin:0.5rem 0 2rem;">
+  **Hover:** tooltip con inputs/outputs/LOC. **Click:** abre el archivo en GitHub. Agrupados por familia: ETL (0–9), Features (10–19), Observable (20–29), Análisis (30–49), Eigendentadura (50–59), Morfometría (60–94), Figuras (95–99).
+</div>
+
+---
+
+## Accesos rápidos
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem;">
+  <a href="./00-sintesis" style="
+    display: block; 
+    padding: 1.2rem 1.5rem; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    color: white; 
+    border-radius: 8px; 
+    text-decoration: none; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
+    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+    <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem;">Síntesis ejecutiva</div>
+    <div style="font-size: 0.9rem; opacity: 0.9;">Respuestas P1–P5 en formato tarjeta. Pre-lectura rápida.</div>
+  </a>
+  
+  <a href="../presentacion/index" style="
+    display: block; 
+    padding: 1.2rem 1.5rem; 
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+    color: white; 
+    border-radius: 8px; 
+    text-decoration: none; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
+    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📽️</div>
+    <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem;">Modo Presentación</div>
+    <div style="font-size: 0.9rem; opacity: 0.9;">8 slides para defensa de tesis. Storytelling lineal.</div>
+  </a>
+</div>
 
 ---
 

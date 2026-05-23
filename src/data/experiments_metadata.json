@@ -1,0 +1,284 @@
+{
+  "experiments": [
+    {
+      "exp": 1,
+      "slug": "landmarks_ia",
+      "tipo": "landmarks",
+      "veredicto": "en curso",
+      "fecha": "2025-01-01",
+      "metrica_clave": "- `data/json/v3/*.json`: **anotaciones geométricas** (median 2.93%).",
+      "cierre_file": "docs/experimentos/01_landmarks_ia/99_cierre.md"
+    },
+    {
+      "exp": 2,
+      "slug": "landmarks_cv_hybrid",
+      "tipo": "landmarks",
+      "veredicto": "en curso",
+      "fecha": "2025-01-01",
+      "metrica_clave": "| Métrica | Pipeline mixto (cierre exp02) | Geom (baseline exp01) | LLM v2 (base",
+      "cierre_file": "docs/experimentos/02_landmarks_cv_hybrid/99_cierre.md"
+    },
+    {
+      "exp": 3,
+      "slug": "landmarks_preproc",
+      "tipo": "landmarks",
+      "veredicto": "descartado",
+      "fecha": "2025-01-01",
+      "metrica_clave": "| Test | **eval_set_v3 test split (n=140)**, congelado. Mismas métricas err_rel ",
+      "cierre_file": "docs/experimentos/03_landmarks_preproc/99_cierre.md"
+    },
+    {
+      "exp": 4,
+      "slug": "landmarks_nn",
+      "tipo": "landmarks",
+      "veredicto": "adoptado",
+      "fecha": "2025-01-01",
+      "metrica_clave": "seed=20260516, holdout `eval_set_v3` n=140 reservado).",
+      "cierre_file": "docs/experimentos/04_landmarks_nn/99_cierre.md"
+    },
+    {
+      "exp": 5,
+      "slug": "propagacion_error",
+      "tipo": "imputación FDI",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-17",
+      "metrica_clave": "> val, 99 % en holdout; costo del detector ±0.6 pp; prior bayesiano",
+      "cierre_file": "docs/experimentos/05_propagacion_error/99_cierre.md"
+    },
+    {
+      "exp": 6,
+      "slug": "refinement",
+      "tipo": "landmarks",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-17",
+      "metrica_clave": "- Evaluación end-to-end (centro = predicción stage-1) en holdout",
+      "cierre_file": "docs/experimentos/06_refinement/99_cierre.md"
+    },
+    {
+      "exp": 7,
+      "slug": "ensemble",
+      "tipo": "landmarks",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-17",
+      "metrica_clave": "Holdout `eval_set_v3` (n = 140 pantos, 980 errores). Script:",
+      "cierre_file": "docs/experimentos/07_ensemble/99_cierre.md"
+    },
+    {
+      "exp": 8,
+      "slug": "robustez_eigendentadura",
+      "tipo": "PCA",
+      "veredicto": "en curso",
+      "fecha": "2026-05-17",
+      "metrica_clave": "",
+      "cierre_file": "docs/experimentos/08_robustez_eigendentadura/99_cierre.md"
+    },
+    {
+      "exp": 11,
+      "slug": "forma_dientes",
+      "tipo": "forma",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-17",
+      "metrica_clave": "holdout** sobre 8 tipos dentales; H1 original (≥ 85 %) no se cumple",
+      "cierre_file": "docs/experimentos/11_forma_dientes/99_cierre.md"
+    },
+    {
+      "exp": 17,
+      "slug": "eigendentadura_intersplit",
+      "tipo": "PCA",
+      "veredicto": "en curso",
+      "fecha": "2026-05-17",
+      "metrica_clave": "",
+      "cierre_file": "docs/experimentos/17_eigendentadura_intersplit/99_cierre.md"
+    },
+    {
+      "exp": 18,
+      "slug": "pc1_tamano_vs_forma",
+      "tipo": "landmarks",
+      "veredicto": "en curso",
+      "fecha": "2026-05-17",
+      "metrica_clave": "- R² de PC1 vs cada medida (regresión simple):",
+      "cierre_file": "docs/experimentos/18_pc1_tamano_vs_forma/99_cierre.md"
+    },
+    {
+      "exp": 19,
+      "slug": "deteccion_errores_anotacion",
+      "tipo": "forma",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "",
+      "cierre_file": "docs/experimentos/19_deteccion_errores_anotacion/99_cierre.md"
+    },
+    {
+      "exp": 23,
+      "slug": "auditoria_outliers_pca",
+      "tipo": "forma",
+      "veredicto": "descartado",
+      "fecha": "2026-05-17",
+      "metrica_clave": "- La eigendentadura captura variación **geométrica** pero **no",
+      "cierre_file": "docs/experimentos/23_auditoria_outliers_pca/99_cierre.md"
+    },
+    {
+      "exp": 24,
+      "slug": "distancia_prototipo",
+      "tipo": "landmarks",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-17",
+      "metrica_clave": "- Spearman ρ(D_std, Maha) = **0.870** → métricas casi equivalentes",
+      "cierre_file": "docs/experimentos/24_distancia_prototipo/99_cierre.md"
+    },
+    {
+      "exp": 25,
+      "slug": "clustering_dentaduras",
+      "tipo": "clustering",
+      "veredicto": "descartado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "conjunto silhouette $\\geq 0.35$ + ARI bootstrap $p_{2.5} \\geq 0.7$ +",
+      "cierre_file": "docs/experimentos/25_clustering_dentaduras/99_cierre.md"
+    },
+    {
+      "exp": 26,
+      "slug": "clustering_enriquecido",
+      "tipo": "clustering",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "(silhouette $\\geq 0.35$, ARI bootstrap $p_{2.5} \\geq 0.7$,",
+      "cierre_file": "docs/experimentos/26_clustering_enriquecido/99_cierre.md"
+    },
+    {
+      "exp": 27,
+      "slug": "fallos_forma_vs_apinamiento",
+      "tipo": "clustering",
+      "veredicto": "descartado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "79.95% top-1 holdout) se concentran en pantos apiñados o en dientes con",
+      "cierre_file": "docs/experimentos/27_fallos_forma_vs_apinamiento/99_cierre.md"
+    },
+    {
+      "exp": 28,
+      "slug": "apinamiento_vs_dentadura",
+      "tipo": "clustering",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "con apiñamiento adulto auténtico. Pasa el criterio de silhouette y",
+      "cierre_file": "docs/experimentos/28_apinamiento_vs_dentadura/99_cierre.md"
+    },
+    {
+      "exp": 29,
+      "slug": "forma_supers_temporales",
+      "tipo": "clustering",
+      "veredicto": "descartado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "| $k$ | Silhouette | Sizes |",
+      "cierre_file": "docs/experimentos/29_forma_supers_temporales/99_cierre.md"
+    },
+    {
+      "exp": 30,
+      "slug": "clustering_curva_maxilar",
+      "tipo": "imputación FDI",
+      "veredicto": "en curso",
+      "fecha": "2026-05-18",
+      "metrica_clave": "grado 2 y 4, features geométricas interpretables, spline natural",
+      "cierre_file": "docs/experimentos/30_clustering_curva_maxilar/99_cierre.md"
+    },
+    {
+      "exp": 31,
+      "slug": "imputacion_geometrica_nn",
+      "tipo": "PCA",
+      "veredicto": "descartado",
+      "fecha": "2026-05-18",
+      "metrica_clave": "# exp31 — Imputación geométrica de dientes faltantes con red neuronal — Cierre",
+      "cierre_file": "docs/experimentos/31_imputacion_geometrica_nn/99_cierre.md"
+    },
+    {
+      "exp": 32,
+      "slug": "rotacion_angulo_lm",
+      "tipo": "landmarks",
+      "veredicto": "en curso",
+      "fecha": "2026-05-19",
+      "metrica_clave": "| Variante | PC1 % | IC₉₅           | PC2 % | PC10cum % | PR    | R²comb |",
+      "cierre_file": "docs/experimentos/32_rotacion_angulo_lm/99_cierre.md"
+    },
+    {
+      "exp": 33,
+      "slug": "minbbox_eigendentadura",
+      "tipo": "clustering",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-19",
+      "metrica_clave": "| Variante      | n_feat | PC1 % | IC₉₅      | PC2 % | PC5cum % | PC10cum % | PR",
+      "cierre_file": "docs/experimentos/33_minbbox_eigendentadura/99_cierre.md"
+    },
+    {
+      "exp": 34,
+      "slug": "contornos_eigendentadura",
+      "tipo": "clustering",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-19",
+      "metrica_clave": "| Variante      | n_feat | PC1 % | IC₉₅       | PC2 % | PC10cum % | PC20cum % | ",
+      "cierre_file": "docs/experimentos/34_contornos_eigendentadura/99_cierre.md"
+    },
+    {
+      "exp": 35,
+      "slug": "desplazamiento_ejes_dentales",
+      "tipo": "clustering",
+      "veredicto": "en curso",
+      "fecha": "2026-05-19",
+      "metrica_clave": "| Variante           | PC1 % | IC₉₅           | PC2 % | PR   | PC10cum % | R²com",
+      "cierre_file": "docs/experimentos/35_desplazamiento_ejes_dentales/99_cierre.md"
+    },
+    {
+      "exp": 36,
+      "slug": "imputacion_distancias",
+      "tipo": "landmarks",
+      "veredicto": "adoptado",
+      "fecha": "2026-05-19",
+      "metrica_clave": "Las distancias geométricas inter-dentales + a landmarks bastan para",
+      "cierre_file": "docs/experimentos/36_imputacion_distancias/99_cierre.md"
+    },
+    {
+      "exp": 38,
+      "slug": "sensibilidad_eigendentadura",
+      "tipo": "imputación FDI",
+      "veredicto": "descartado",
+      "fecha": "2026-05-19",
+      "metrica_clave": "holdout de exp05), con landmarks completos y ≥ 28 dientes anotados.",
+      "cierre_file": "docs/experimentos/38_sensibilidad_eigendentadura/99_cierre.md"
+    },
+    {
+      "exp": 39,
+      "slug": "sensibilidad_kde",
+      "tipo": "imputación FDI",
+      "veredicto": "en curso",
+      "fecha": "2026-05-20",
+      "metrica_clave": "- **Universo A**: 304 pantos (val ∪ holdout exp05 con landmarks",
+      "cierre_file": "docs/experimentos/39_sensibilidad_kde/99_cierre.md"
+    },
+    {
+      "exp": 40,
+      "slug": "sensibilidad_patologia",
+      "tipo": "imputación FDI",
+      "veredicto": "en curso",
+      "fecha": "2026-05-20",
+      "metrica_clave": "- **Métricas**:",
+      "cierre_file": "docs/experimentos/40_sensibilidad_patologia/99_cierre.md"
+    },
+    {
+      "exp": 41,
+      "slug": "robustez_cohortes",
+      "tipo": "clustering",
+      "veredicto": "descartado",
+      "fecha": "2026-05-21",
+      "metrica_clave": "| Métrica | Valor | Criterio | Resultado |",
+      "cierre_file": "docs/experimentos/41_robustez_cohortes/99_cierre.md"
+    },
+    {
+      "exp": 42,
+      "slug": "pca_estricto_vs_imputado_vs_ppca",
+      "tipo": "clustering",
+      "veredicto": "en curso",
+      "fecha": "2026-05-21",
+      "metrica_clave": "completas) es geométricamente más homogéneo. Una dentadura completa",
+      "cierre_file": "docs/experimentos/42_pca_estricto_vs_imputado_vs_ppca/99_cierre.md"
+    }
+  ],
+  "count": 31
+}
