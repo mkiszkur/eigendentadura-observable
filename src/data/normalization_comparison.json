@@ -39,7 +39,233 @@
         "centroid_x_norm": 14,
         "centroid_y_norm": 12,
         "angle_normalized": 6
-      }
+      },
+      "per_tooth": [
+        {
+          "fdi": 11,
+          "n": 2664,
+          "pc1": 0.4501806175192455,
+          "pc1pc2": 0.7384287177002475,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 12,
+          "n": 2633,
+          "pc1": 0.44378017312974377,
+          "pc1pc2": 0.733272441443266,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 13,
+          "n": 2677,
+          "pc1": 0.46268854070310106,
+          "pc1pc2": 0.7595419139008104,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 14,
+          "n": 2505,
+          "pc1": 0.41451963217847393,
+          "pc1pc2": 0.7547800793903443,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 15,
+          "n": 2334,
+          "pc1": 0.41641670581426876,
+          "pc1pc2": 0.7526429737962761,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 16,
+          "n": 2357,
+          "pc1": 0.40864332920069807,
+          "pc1pc2": 0.7426032775218144,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 17,
+          "n": 2392,
+          "pc1": 0.4140059946988882,
+          "pc1pc2": 0.738616003254251,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 18,
+          "n": 1700,
+          "pc1": 0.3866974372208471,
+          "pc1pc2": 0.7402206887339398,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 21,
+          "n": 2676,
+          "pc1": 0.38568617308791625,
+          "pc1pc2": 0.7287459249580369,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 22,
+          "n": 2624,
+          "pc1": 0.39713496282768285,
+          "pc1pc2": 0.7446601530825046,
+          "dominant_feature": "angle_normalized"
+        },
+        {
+          "fdi": 23,
+          "n": 2670,
+          "pc1": 0.41920891530367144,
+          "pc1pc2": 0.7434749109766052,
+          "dominant_feature": "angle_normalized"
+        },
+        {
+          "fdi": 24,
+          "n": 2504,
+          "pc1": 0.3592505999354276,
+          "pc1pc2": 0.6983071565180291,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 25,
+          "n": 2342,
+          "pc1": 0.36521095274968857,
+          "pc1pc2": 0.6970205279902073,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 26,
+          "n": 2362,
+          "pc1": 0.3774762516677731,
+          "pc1pc2": 0.7142372890217431,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 27,
+          "n": 2394,
+          "pc1": 0.40150994750123303,
+          "pc1pc2": 0.734491587535566,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 28,
+          "n": 1716,
+          "pc1": 0.3733223479071237,
+          "pc1pc2": 0.728417976536302,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 31,
+          "n": 2664,
+          "pc1": 0.41625647789218506,
+          "pc1pc2": 0.7544285893594865,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 32,
+          "n": 2676,
+          "pc1": 0.4069143799034007,
+          "pc1pc2": 0.7671590060825961,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 33,
+          "n": 2736,
+          "pc1": 0.45405446148911416,
+          "pc1pc2": 0.7711543656068367,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 34,
+          "n": 2653,
+          "pc1": 0.38207991179818657,
+          "pc1pc2": 0.732025913181654,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 35,
+          "n": 2514,
+          "pc1": 0.42301951290981094,
+          "pc1pc2": 0.7344474878764147,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 36,
+          "n": 2196,
+          "pc1": 0.392305161988518,
+          "pc1pc2": 0.7165264601402008,
+          "dominant_feature": "angle_normalized"
+        },
+        {
+          "fdi": 37,
+          "n": 2245,
+          "pc1": 0.35963266234929214,
+          "pc1pc2": 0.686992120286383,
+          "dominant_feature": "angle_normalized"
+        },
+        {
+          "fdi": 38,
+          "n": 1782,
+          "pc1": 0.35475335762011656,
+          "pc1pc2": 0.6987582880918815,
+          "dominant_feature": "centroid_y_norm"
+        },
+        {
+          "fdi": 41,
+          "n": 2666,
+          "pc1": 0.4004065176908659,
+          "pc1pc2": 0.7490620218672384,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 42,
+          "n": 2680,
+          "pc1": 0.411168133926377,
+          "pc1pc2": 0.7468560701894152,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 43,
+          "n": 2725,
+          "pc1": 0.43999071913624777,
+          "pc1pc2": 0.7926767677575068,
+          "dominant_feature": "angle_normalized"
+        },
+        {
+          "fdi": 44,
+          "n": 2649,
+          "pc1": 0.3914005443641133,
+          "pc1pc2": 0.7325232138409186,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 45,
+          "n": 2488,
+          "pc1": 0.40740969362471324,
+          "pc1pc2": 0.7317419609477369,
+          "dominant_feature": "angle_normalized"
+        },
+        {
+          "fdi": 46,
+          "n": 2237,
+          "pc1": 0.37736297359497334,
+          "pc1pc2": 0.7348184980860932,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 47,
+          "n": 2268,
+          "pc1": 0.3830797157118003,
+          "pc1pc2": 0.7114026358601488,
+          "dominant_feature": "centroid_x_norm"
+        },
+        {
+          "fdi": 48,
+          "n": 1802,
+          "pc1": 0.3713206627935464,
+          "pc1pc2": 0.7052795315589812,
+          "dominant_feature": "centroid_y_norm"
+        }
+      ]
     },
     "3F-lm": {
       "scheme": "3F-lm",
@@ -63,7 +289,233 @@
         "angle_normalized_lm": 21,
         "centroid_y_lm": 7,
         "centroid_x_lm": 4
-      }
+      },
+      "per_tooth": [
+        {
+          "fdi": 11,
+          "n": 2589,
+          "pc1": 0.4046833950785486,
+          "pc1pc2": 0.7475567545096529,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 12,
+          "n": 2557,
+          "pc1": 0.40237453295432696,
+          "pc1pc2": 0.7553966321757906,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 13,
+          "n": 2601,
+          "pc1": 0.46527688199386086,
+          "pc1pc2": 0.8035963001077081,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 14,
+          "n": 2430,
+          "pc1": 0.46758837682109156,
+          "pc1pc2": 0.7821285987020326,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 15,
+          "n": 2271,
+          "pc1": 0.4546376963564416,
+          "pc1pc2": 0.7634588930381878,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 16,
+          "n": 2289,
+          "pc1": 0.42441475356536795,
+          "pc1pc2": 0.7425494625672318,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 17,
+          "n": 2327,
+          "pc1": 0.3960026901932355,
+          "pc1pc2": 0.7300356705186446,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 18,
+          "n": 1652,
+          "pc1": 0.3887950263019669,
+          "pc1pc2": 0.7317422928623415,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 21,
+          "n": 2601,
+          "pc1": 0.38396553548571,
+          "pc1pc2": 0.7180120493989243,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 22,
+          "n": 2550,
+          "pc1": 0.40081757794517087,
+          "pc1pc2": 0.7442525409289298,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 23,
+          "n": 2597,
+          "pc1": 0.4615622637146142,
+          "pc1pc2": 0.7998343815408027,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 24,
+          "n": 2437,
+          "pc1": 0.4577758306473555,
+          "pc1pc2": 0.7835935087214275,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 25,
+          "n": 2275,
+          "pc1": 0.45040155763771883,
+          "pc1pc2": 0.7687430933798799,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 26,
+          "n": 2293,
+          "pc1": 0.40366461008298693,
+          "pc1pc2": 0.7491683633030575,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 27,
+          "n": 2326,
+          "pc1": 0.4042905199817837,
+          "pc1pc2": 0.7335637748673018,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 28,
+          "n": 1668,
+          "pc1": 0.3905085906596092,
+          "pc1pc2": 0.7255760214315492,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 31,
+          "n": 2589,
+          "pc1": 0.39427126349143693,
+          "pc1pc2": 0.7201233915320158,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 32,
+          "n": 2603,
+          "pc1": 0.4101546563011696,
+          "pc1pc2": 0.7269642962575276,
+          "dominant_feature": "centroid_x_lm"
+        },
+        {
+          "fdi": 33,
+          "n": 2659,
+          "pc1": 0.5064492205684921,
+          "pc1pc2": 0.7759287162746642,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 34,
+          "n": 2578,
+          "pc1": 0.47996679286992733,
+          "pc1pc2": 0.7483588140318731,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 35,
+          "n": 2440,
+          "pc1": 0.4802471243142195,
+          "pc1pc2": 0.7410818701376515,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 36,
+          "n": 2132,
+          "pc1": 0.4627175905542131,
+          "pc1pc2": 0.7690420482225309,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 37,
+          "n": 2184,
+          "pc1": 0.38971424545961103,
+          "pc1pc2": 0.7145703544774931,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 38,
+          "n": 1735,
+          "pc1": 0.3587313772517526,
+          "pc1pc2": 0.7041708864592964,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 41,
+          "n": 2591,
+          "pc1": 0.3963737911799602,
+          "pc1pc2": 0.7189805657912305,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 42,
+          "n": 2605,
+          "pc1": 0.4243150059567923,
+          "pc1pc2": 0.7329631077544556,
+          "dominant_feature": "centroid_x_lm"
+        },
+        {
+          "fdi": 43,
+          "n": 2648,
+          "pc1": 0.5087411642994945,
+          "pc1pc2": 0.7785144609045187,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 44,
+          "n": 2576,
+          "pc1": 0.4732391075131727,
+          "pc1pc2": 0.7474436301189674,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 45,
+          "n": 2420,
+          "pc1": 0.48649999267736543,
+          "pc1pc2": 0.751367610675317,
+          "dominant_feature": "centroid_y_lm"
+        },
+        {
+          "fdi": 46,
+          "n": 2176,
+          "pc1": 0.4787234281654869,
+          "pc1pc2": 0.7816268836936819,
+          "dominant_feature": "angle_normalized_lm"
+        },
+        {
+          "fdi": 47,
+          "n": 2204,
+          "pc1": 0.43333071921288074,
+          "pc1pc2": 0.7534468534851122,
+          "dominant_feature": "centroid_x_lm"
+        },
+        {
+          "fdi": 48,
+          "n": 1754,
+          "pc1": 0.353339065921031,
+          "pc1pc2": 0.6991882366284468,
+          "dominant_feature": "centroid_x_lm"
+        }
+      ]
     },
     "8F-lm": {
       "scheme": "8F-lm",
@@ -91,7 +543,233 @@
       "dominant_feature_counts": {
         "minbbox_area": 29,
         "polygon_area": 3
-      }
+      },
+      "per_tooth": [
+        {
+          "fdi": 11,
+          "n": 2589,
+          "pc1": 0.4156993897758585,
+          "pc1pc2": 0.5905749835776972,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 12,
+          "n": 2557,
+          "pc1": 0.39372646936167616,
+          "pc1pc2": 0.5516397653099239,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 13,
+          "n": 2601,
+          "pc1": 0.36854243329466774,
+          "pc1pc2": 0.5654959630288353,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 14,
+          "n": 2430,
+          "pc1": 0.3832665077800124,
+          "pc1pc2": 0.5618806510853933,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 15,
+          "n": 2271,
+          "pc1": 0.3855942106991802,
+          "pc1pc2": 0.557489851855002,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 16,
+          "n": 2289,
+          "pc1": 0.41272189218430005,
+          "pc1pc2": 0.5762373792898715,
+          "dominant_feature": "polygon_area"
+        },
+        {
+          "fdi": 17,
+          "n": 2327,
+          "pc1": 0.40112992434406375,
+          "pc1pc2": 0.5708948204332497,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 18,
+          "n": 1652,
+          "pc1": 0.4500665816073583,
+          "pc1pc2": 0.6115523544058861,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 21,
+          "n": 2601,
+          "pc1": 0.40367962269105834,
+          "pc1pc2": 0.5635001767335756,
+          "dominant_feature": "polygon_area"
+        },
+        {
+          "fdi": 22,
+          "n": 2550,
+          "pc1": 0.3879920148290331,
+          "pc1pc2": 0.5446712082328748,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 23,
+          "n": 2597,
+          "pc1": 0.3657242170996043,
+          "pc1pc2": 0.5599000117622366,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 24,
+          "n": 2437,
+          "pc1": 0.3879049499682473,
+          "pc1pc2": 0.5632378299906736,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 25,
+          "n": 2275,
+          "pc1": 0.39135969562247536,
+          "pc1pc2": 0.5674896710077008,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 26,
+          "n": 2293,
+          "pc1": 0.40851075945572357,
+          "pc1pc2": 0.5621508754492355,
+          "dominant_feature": "polygon_area"
+        },
+        {
+          "fdi": 27,
+          "n": 2326,
+          "pc1": 0.4134230136611582,
+          "pc1pc2": 0.5836893120826533,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 28,
+          "n": 1668,
+          "pc1": 0.44248496023879585,
+          "pc1pc2": 0.6076117962163168,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 31,
+          "n": 2589,
+          "pc1": 0.37616892771663185,
+          "pc1pc2": 0.5415001368667816,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 32,
+          "n": 2603,
+          "pc1": 0.3763936981893901,
+          "pc1pc2": 0.5293457377158955,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 33,
+          "n": 2659,
+          "pc1": 0.363503652205734,
+          "pc1pc2": 0.5910798227262776,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 34,
+          "n": 2578,
+          "pc1": 0.3743486778977468,
+          "pc1pc2": 0.576145454055841,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 35,
+          "n": 2440,
+          "pc1": 0.40467295209525744,
+          "pc1pc2": 0.6010177044624746,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 36,
+          "n": 2132,
+          "pc1": 0.4259762919413561,
+          "pc1pc2": 0.6106407220331392,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 37,
+          "n": 2184,
+          "pc1": 0.4313177360585309,
+          "pc1pc2": 0.5958227469413261,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 38,
+          "n": 1735,
+          "pc1": 0.449963999594638,
+          "pc1pc2": 0.605348133031243,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 41,
+          "n": 2591,
+          "pc1": 0.3728704291607085,
+          "pc1pc2": 0.5335962503512444,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 42,
+          "n": 2605,
+          "pc1": 0.38008408831850826,
+          "pc1pc2": 0.5393536019836151,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 43,
+          "n": 2648,
+          "pc1": 0.35777516589244246,
+          "pc1pc2": 0.5857678601791915,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 44,
+          "n": 2576,
+          "pc1": 0.37293714322071086,
+          "pc1pc2": 0.5698094700477021,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 45,
+          "n": 2420,
+          "pc1": 0.3911683060114626,
+          "pc1pc2": 0.589321275696048,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 46,
+          "n": 2176,
+          "pc1": 0.43252009137180647,
+          "pc1pc2": 0.621938172613335,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 47,
+          "n": 2204,
+          "pc1": 0.421461030845372,
+          "pc1pc2": 0.5998779817970223,
+          "dominant_feature": "minbbox_area"
+        },
+        {
+          "fdi": 48,
+          "n": 1754,
+          "pc1": 0.44590765158981743,
+          "pc1pc2": 0.5979847554664347,
+          "dominant_feature": "minbbox_area"
+        }
+      ]
     }
   },
   "summary_metrics": {
@@ -99,6 +777,63 @@
     "pc1_per_tooth_pct_img": 40.2,
     "pc1_per_tooth_pct_lm": 43.1,
     "silhouette_lift_lm_vs_img_pct": 0.39,
-    "ch_lift_lm_vs_img_pct": -0.47
+    "ch_lift_lm_vs_img_pct": -0.47,
+    "n_pieces_dominant_changed_lm_vs_img": 20,
+    "n_pieces_compared": 32,
+    "family_summary_lm": {
+      "inc_centrales": {
+        "label": "Incisivos centrales",
+        "n_teeth": 4,
+        "pc1_mean_pct": 39.5,
+        "dominant_feature_counts": {
+          "angle": 4
+        }
+      },
+      "inc_laterales": {
+        "label": "Incisivos laterales",
+        "n_teeth": 4,
+        "pc1_mean_pct": 40.9,
+        "dominant_feature_counts": {
+          "angle": 2,
+          "cx": 2
+        }
+      },
+      "caninos": {
+        "label": "Caninos",
+        "n_teeth": 4,
+        "pc1_mean_pct": 48.6,
+        "dominant_feature_counts": {
+          "angle": 3,
+          "cy": 1
+        }
+      },
+      "premolares": {
+        "label": "Premolares",
+        "n_teeth": 8,
+        "pc1_mean_pct": 46.9,
+        "dominant_feature_counts": {
+          "angle": 5,
+          "cy": 3
+        }
+      },
+      "molares_12": {
+        "label": "Molares 1.o y 2.o",
+        "n_teeth": 8,
+        "pc1_mean_pct": 42.4,
+        "dominant_feature_counts": {
+          "angle": 7,
+          "cx": 1
+        }
+      },
+      "terceros_molares": {
+        "label": "Terceros molares",
+        "n_teeth": 4,
+        "pc1_mean_pct": 37.3,
+        "dominant_feature_counts": {
+          "cy": 3,
+          "cx": 1
+        }
+      }
+    }
   }
 }
