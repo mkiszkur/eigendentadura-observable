@@ -119,7 +119,7 @@ se solapa significativamente.
 - **Global (paciente entero)**: sin asociación robusta tras BH (excepto
   `neoformation`, efecto pequeño — exp24).
 - **Local (FDI × patología)**: **sí** — 131/250 tests significativos
-  (exp22, ver [cap. 8 §8.7](./08-analisis-por-pieza#8-7-asociacion-local-fdi-patologia-exp22)).
+  (exp22, ver [cap. 8 §8.3](./08-analisis-por-pieza#8-7-asociacion-local-fdi-patologia-exp22)).
 
 > 📓 Notebooks 033–039 · exp10, exp13, exp15, exp22, exp23, exp28
 
