@@ -411,7 +411,7 @@ extremos sutiles (cóndilos L1/L2/L6, mentón L5). La cota de v2
    lo que falla es la precisión de la lectura.
 5. **Posible error de dataset detectado**: un panto reportado con
    FOV recortado que en GT tiene L3/L4/L5 — anotado para revisión
-   manual en `docs/dataset/errores_datos.md`.
+   manual en `docs/general/dataset/errores_datos.md`.
 
 ## Artefactos
 

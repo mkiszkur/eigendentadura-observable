@@ -47,7 +47,7 @@ python utils/parity_check.py          # rápido
 python utils/parity_check.py --full   # incluye ETL crudo
 ```
 
-> 📓 `docs/pipeline.md` · `pipeline/stage_*.py`
+> 📓 `docs/general/pipeline.md` · `pipeline/stage_*.py`
 
 ## 4.2 Convenciones de columnas
 

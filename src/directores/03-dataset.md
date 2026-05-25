@@ -254,7 +254,7 @@ display(html`<h3 style="margin-top:1.5rem;">Resueltos en el pipeline (C1–C9)</
 correcciones C8 y C9 se aplican **en memoria al leer**
 (`lib/json_corrections.py`). Cualquier consumidor de GT debe importar
 estos helpers antes de usar los shapes. Excepciones (correcciones
-manuales) se documentan en `docs/dataset/errores_datos.md`.
+manuales) se documentan en `docs/general/dataset/errores_datos.md`.
 
 > 📓 Notebooks 000, 003, 091 · `lib/json_corrections.py`
 

@@ -202,7 +202,7 @@ display(html`<table style="width:100%; max-width:720px; border-collapse:collapse
 
 Trazabilidad completa: capítulo ↔ notebook ↔ experimento ↔ stage del pipeline en
 [Cap. 12 — Anexo experimentos](./12-experimentos) y en el repo bajo
-`docs/tesis/_revision_2026-05-18.md`.
+`docs/revisiones/director/_2026-05-18.md`.
 
 ---
 

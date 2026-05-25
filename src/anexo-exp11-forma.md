@@ -458,7 +458,7 @@ la información posicional (`*_lm`), que es exactamente la señal
 que distingue P1 de P2 o M2 de M3.
 
 El cierre formal del Uso C queda como **trabajo pendiente** en
-[`temas_pendientes.md`](https://github.com/mkurno/tesis/blob/main/docs/planificacion/temas_pendientes.md).
+[`temas_pendientes.md`](https://github.com/mkurno/tesis/blob/main/docs/general/planificacion/temas_pendientes.md).
 
 ## Conclusión
 
