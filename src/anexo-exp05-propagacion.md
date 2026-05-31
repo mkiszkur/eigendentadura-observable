@@ -489,7 +489,7 @@ auditoría.
 - Uso D: [`02_uso_D_imputacion_fdi.md`](https://github.com/mkurno/tesis/blob/main/docs/experimentos/05_propagacion_error/02_uso_D_imputacion_fdi.md)
 - Uso E: [`03_uso_E_sub_eigendentaduras.md`](https://github.com/mkurno/tesis/blob/main/docs/experimentos/05_propagacion_error/03_uso_E_sub_eigendentaduras.md)
 - Notebooks A/B/C: `notebook_A_eigendentadura.ipynb`, `notebook_B_fdi.ipynb`, `notebook_C_montecarlo.ipynb`
-- Outputs canónicos: `data/exp05/{landmarks_*.csv, notebook_*.csv, matching_*.csv}`
-- Predicciones del corpus completo: `data/exp05/landmarks_corpus.csv` (5114 pantos)
+- Outputs canónicos: `data/experimentos/exp05/{landmarks_*.csv, notebook_*.csv, matching_*.csv}`
+- Predicciones del corpus completo: `data/experimentos/exp05/landmarks_corpus.csv` (5114 pantos)
 
 [← exp04](./anexo-exp04-nn)  ·  [↑ Anexo](./anexo-experimentos)  ·  [exp11 →](./anexo-exp11-forma)

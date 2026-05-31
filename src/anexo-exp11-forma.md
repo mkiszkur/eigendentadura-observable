@@ -231,9 +231,9 @@ sobre val, idéntica al baseline.
 ```
 
 > El modelo persistido vive en
-> [`data/exp11/model_catboost_v2.cbm`](https://github.com/mkurno/tesis/blob/main/data/exp11/model_catboost_v2.cbm)
+> [`data/experimentos/exp11/model_catboost_v2.cbm`](https://github.com/mkurno/tesis/blob/main/data/experimentos/exp11/model_catboost_v2.cbm)
 > (no commiteado, 67 MB) y sus probas calibradas en
-> [`preds_catboost_v2.npz`](https://github.com/mkurno/tesis/blob/main/data/exp11/preds_catboost_v2.npz).
+> [`preds_catboost_v2.npz`](https://github.com/mkurno/tesis/blob/main/data/experimentos/exp11/preds_catboost_v2.npz).
 > Se entrena en ~67 s sobre CPU con el harness
 > `python -m utils.exp11_forma_dientes.evaluate_mejoras catboost_v2`.
 
@@ -482,8 +482,8 @@ El cierre formal del Uso C queda como **trabajo pendiente** en
 - Cierre iteración (Tier 1–3): [`03_uso_B_mejoras.md`](https://github.com/mkurno/tesis/blob/main/docs/experimentos/11_forma_dientes/03_uso_B_mejoras.md)
 - Harness reproducible: [`utils/exp11_forma_dientes/evaluate_mejoras.py`](https://github.com/mkurno/tesis/blob/main/utils/exp11_forma_dientes/evaluate_mejoras.py)
 - Features v2: [`utils/exp11_forma_dientes/build_dataset_v2.py`](https://github.com/mkurno/tesis/blob/main/utils/exp11_forma_dientes/build_dataset_v2.py)
-- Modelo adoptado (no commiteado, 67 MB): `data/exp11/model_catboost_v2.cbm`
-- Probas calibradas: `data/exp11/preds_catboost_v2.npz` (`pv_cal`, `ph_cal`)
-- Métricas completas: [`data/exp11/mejoras_results.json`](https://github.com/mkurno/tesis/blob/main/data/exp11/mejoras_results.json)
+- Modelo adoptado (no commiteado, 67 MB): `data/experimentos/exp11/model_catboost_v2.cbm`
+- Probas calibradas: `data/experimentos/exp11/preds_catboost_v2.npz` (`pv_cal`, `ph_cal`)
+- Métricas completas: [`data/experimentos/exp11/mejoras_results.json`](https://github.com/mkurno/tesis/blob/main/data/experimentos/exp11/mejoras_results.json)
 
 [← exp05](./anexo-exp05-propagacion)  ·  [↑ Anexo](./anexo-experimentos)

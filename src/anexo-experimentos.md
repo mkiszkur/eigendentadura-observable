@@ -202,6 +202,6 @@ original.
 Cada experimento tiene su carpeta en `docs/experimentos/NN_<slug>/`
 con plan inicial (`00_plan.md`), cierres parciales y cierre final
 (`99_cierre.md`). El código vive en `utils/expNN_<slug>/` y los outputs
-en `data/expNN/` o, cuando corresponde, en `data/exp05/` (re-uso entre
+en `data/expNN/` o, cuando corresponde, en `data/experimentos/exp05/` (re-uso entre
 experimentos). Esta página resume cada cierre con sus números
 exactos y links cruzados.
