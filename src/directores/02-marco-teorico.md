@@ -428,10 +428,12 @@ ordenados por FDI.
 
 La figura siguiente es la **dentadura media** que sale de promediar los
 2.704 pantos del universo geométrico tras normalizar al marco condíleo
-(cap. 6). Cada diente se dibuja en su posición media; el rectángulo
-representa $\pm 1\sigma$ de variación poblacional en posición; la
-orientación es la del ángulo medio del minBBox. Los dos puntos azules
-son los cóndilos (origen del marco). Fuente: `tooth_stats_lm.json`.
+(cap. 6). Cada arcada se dibuja como un **spline Catmull–Rom** que pasa
+por los centroides medios de cada pieza FDI; los puntos son los
+centroides individuales, coloreados por cuadrante; los círculos negros
+en los extremos son los **cóndilos L1/L6 y L2/L7**, que ocupan
+(±1, 0) por definición de la normalización. Fuente:
+`tooth_stats_lm.json`.
 
 ```js
 const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
@@ -441,95 +443,119 @@ const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
 
 ```js
 {
-  // Layout: cóndilos en (-1,0) y (+1,0). El eje y crece hacia abajo en
-  // coordenadas de imagen, pero tooth_stats_lm ya está en coords
-  // anatómicas (superior arriba, inferior abajo) → invertimos y para
-  // que la maxila quede arriba en el SVG.
-  const W = 640, H = 360, pad = 30;
-  const allX = toothStatsLM.flatMap(t => [t.cx_mean - 2*t.cx_std, t.cx_mean + 2*t.cx_std, -1.05, 1.05]);
-  const allY = toothStatsLM.flatMap(t => [t.cy_mean - 2*t.cy_std, t.cy_mean + 2*t.cy_std, 0]);
-  const xDom = [d3.min(allX), d3.max(allX)];
-  const yDom = [d3.min(allY), d3.max(allY)];
-  const sx = d3.scaleLinear().domain(xDom).range([pad, W-pad]);
-  // En LM frame, y positivo suele ser hacia abajo (maxilar inferior). Para
-  // que la mandíbula superior quede arriba visualmente, invertimos rango.
-  const sy = d3.scaleLinear().domain(yDom).range([pad, H-pad]);
+  // Mismo estilo que la página de morfometría (arch-form):
+  // spline Catmull–Rom + centroides por cuadrante + ejes y leyenda
+  // fuera del área de plot. Adicionalmente marcamos los cóndilos en
+  // (±1, 0) por ser la referencia geométrica que define la normalización.
+  // El eje y de tooth_stats_lm ya está en coords anatómicas (maxilar
+  // arriba, mandíbula abajo) → no se invierte.
 
-  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
-    .attr("style", "max-width:100%;height:auto;background:#fafafa;border:1px solid #eee;border-radius:6px;");
+  const COLOR_UPPER = "#4e79a7";
+  const COLOR_LOWER = "#e15759";
+  const Q_COLORS = {1: "#4e79a7", 2: "#59a14f", 3: "#edc949", 4: "#e15759"};
+  const COLOR_CONDYLE = "#3b3b3b";
 
-  // Línea media (línea horizontal y=0 entre cóndilos)
-  svg.append("line")
-    .attr("x1", sx(-1.05)).attr("x2", sx(1.05))
-    .attr("y1", sy(0)).attr("y2", sy(0))
-    .attr("stroke", "#ddd").attr("stroke-dasharray", "3,3");
-  // Línea vertical x=0
-  svg.append("line")
-    .attr("x1", sx(0)).attr("x2", sx(0))
-    .attr("y1", pad).attr("y2", H-pad)
-    .attr("stroke", "#eee").attr("stroke-dasharray", "2,3");
+  const W = 760, H = 460;
+  const margin = {top: 24, right: 28, bottom: 44, left: 52};
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
 
-  // Cóndilos
-  svg.append("circle").attr("cx", sx(-1)).attr("cy", sy(0)).attr("r", 6).attr("fill", "#4c78a8");
-  svg.append("circle").attr("cx", sx(1)).attr("cy", sy(0)).attr("r", 6).attr("fill", "#4c78a8");
-  svg.append("text").attr("x", sx(-1)).attr("y", sy(0)-12).attr("text-anchor","middle")
-     .attr("font-size", 10).attr("fill", "#4c78a8").text("L1/L6");
-  svg.append("text").attr("x", sx(1)).attr("y", sy(0)-12).attr("text-anchor","middle")
-     .attr("font-size", 10).attr("fill", "#4c78a8").text("L2/L7");
+  // Dominio: incluir cóndilos (±1, 0) y todos los centroides; sin forzar
+  // aspect ratio (X tiene rango ≈ 2, Y mucho menor) → usamos escalas
+  // independientes para aprovechar el canvas, igual que archForm cuando
+  // dx y dy son comparables.
+  const xs = [-1.05, 1.05, ...toothStatsLM.map(t => t.cx_mean)];
+  const ys = [0, ...toothStatsLM.map(t => t.cy_mean)];
+  const xPad = 0.04, yPad = 0.05;
+  const xDom = [d3.min(xs) - xPad, d3.max(xs) + xPad];
+  const yDom = [d3.min(ys) - yPad, d3.max(ys) + yPad];
+  const x = d3.scaleLinear().domain(xDom).range([0, innerW]);
+  const y = d3.scaleLinear().domain(yDom).range([0, innerH]);
 
-  // Colores por cuadrante
-  const qColor = q => ({1: "#4c78a8", 2: "#54a24b", 3: "#f58518", 4: "#e45756"})[q] ?? "#888";
-  const qOf = fdi => Math.floor(fdi/10);
+  const byFdi = new Map(toothStatsLM.map(t => [t.fdi, t]));
+  const ARCH_UPPER = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28];
+  const ARCH_LOWER = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
 
-  // Dientes: rectángulo orientado al ángulo medio, dimensión proporcional a std
-  const teethG = svg.append("g");
-  for (const t of toothStatsLM) {
-    const q = qOf(t.fdi);
-    const c = qColor(q);
-    const cx = sx(t.cx_mean), cy = sy(t.cy_mean);
-    // Tamaño del rectángulo: ±1σ por cada eje (a escala del plot).
-    // Si σ es 0 o muy chico, usamos un mínimo visible.
-    const wPx = Math.max(8, 2 * Math.abs(sx(t.cx_mean + t.cx_std) - cx));
-    const hPx = Math.max(12, 2 * Math.abs(sy(t.cy_mean + t.cy_std) - cy));
-    // angle_mean está en grados; el "ángulo del diente" en LM frame
-    // es la inclinación del eje largo del minBBox respecto al eje x.
-    const rot = (t.angle_mean - 90); // empíricamente 90° = recto vertical
-    const g = teethG.append("g")
-      .attr("transform", `translate(${cx},${cy}) rotate(${rot})`);
-    g.append("rect")
-      .attr("x", -wPx/2).attr("y", -hPx/2)
-      .attr("width", wPx).attr("height", hPx)
-      .attr("rx", 2)
-      .attr("fill", c).attr("fill-opacity", 0.18)
-      .attr("stroke", c).attr("stroke-width", 1);
-    g.append("text")
-      .attr("x", 0).attr("y", 3)
-      .attr("text-anchor", "middle")
-      .attr("font-size", 8)
-      .attr("fill", c)
-      .attr("font-weight", 600)
-      .text(t.fdi);
+  function archPath(arch) {
+    const pts = arch.map(f => byFdi.get(f)).filter(Boolean)
+      .map(t => [x(t.cx_mean), y(t.cy_mean)]);
+    return d3.line().curve(d3.curveCatmullRom.alpha(0.5))(pts);
   }
 
-  // Leyenda de cuadrantes
-  const legend = svg.append("g").attr("transform", `translate(${W-160},${pad})`);
-  ["Q1 sup. der.", "Q2 sup. izq.", "Q3 inf. izq.", "Q4 inf. der."].forEach((lbl, i) => {
-    legend.append("rect").attr("x", 0).attr("y", i*16).attr("width", 10).attr("height", 10)
-      .attr("fill", qColor(i+1)).attr("fill-opacity", 0.4)
-      .attr("stroke", qColor(i+1));
-    legend.append("text").attr("x", 14).attr("y", i*16+9)
-      .attr("font-size", 10).attr("fill", "#444").text(lbl);
-  });
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "max-width:100%;height:auto;background:#fff;border:1px solid #eee;border-radius:6px;font-family:var(--sans-serif,system-ui,sans-serif);");
+
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // Plano sagital (x = 0) y eje intercondíleo (y = 0)
+  g.append("line").attr("x1", x(0)).attr("x2", x(0))
+    .attr("y1", 0).attr("y2", innerH)
+    .attr("stroke", "#eee").attr("stroke-dasharray", "2,3");
+  g.append("line").attr("x1", 0).attr("x2", innerW)
+    .attr("y1", y(0)).attr("y2", y(0))
+    .attr("stroke", "#ddd").attr("stroke-dasharray", "3,3");
+
+  // Splines de arcada
+  g.append("path").attr("d", archPath(ARCH_UPPER))
+    .attr("fill", "none").attr("stroke", COLOR_UPPER)
+    .attr("stroke-width", 2.5).attr("opacity", 0.9);
+  g.append("path").attr("d", archPath(ARCH_LOWER))
+    .attr("fill", "none").attr("stroke", COLOR_LOWER)
+    .attr("stroke-width", 2.5).attr("opacity", 0.9);
+
+  // Centroides por diente, color por cuadrante
+  for (const t of toothStatsLM) {
+    const q = Math.floor(t.fdi / 10);
+    g.append("circle")
+      .attr("cx", x(t.cx_mean)).attr("cy", y(t.cy_mean))
+      .attr("r", 4)
+      .attr("fill", Q_COLORS[q] ?? "#888")
+      .attr("stroke", "#fff").attr("stroke-width", 1.2)
+      .attr("opacity", 0.95);
+  }
+
+  // Cóndilos (L1/L6 y L2/L7 en (±1, 0))
+  for (const [lbl, xVal, anchor] of [["L1/L6", -1, "start"], ["L2/L7", 1, "end"]]) {
+    g.append("circle").attr("cx", x(xVal)).attr("cy", y(0))
+      .attr("r", 7).attr("fill", COLOR_CONDYLE);
+    g.append("text").attr("x", x(xVal)).attr("y", y(0) - 12)
+      .attr("text-anchor", "middle").attr("font-size", 11)
+      .attr("font-weight", 600).attr("fill", COLOR_CONDYLE).text(lbl);
+  }
+
+  // Ejes (estilo archForm)
+  g.append("g").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x).ticks(7));
+  g.append("g").call(d3.axisLeft(y).ticks(6));
+  g.append("text").attr("x", innerW / 2).attr("y", innerH + 34)
+    .attr("fill", "#666").attr("text-anchor", "middle").attr("font-size", 11)
+    .text("X (landmark-normalized)");
+  g.append("text").attr("transform", "rotate(-90)")
+    .attr("x", -innerH / 2).attr("y", -38)
+    .attr("fill", "#666").attr("text-anchor", "middle").attr("font-size", 11)
+    .text("Y (landmark-normalized)");
 
   display(svg.node());
 }
 ```
 
+<div style="font-size:0.82rem; color:#555; margin-top:0.3rem; display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+  <span style="display:inline-flex; align-items:center; gap:6px;"><span style="display:inline-block; width:22px; height:0; border-top:2.5px solid #4e79a7;"></span>Arcada maxilar (spline)</span>
+  <span style="display:inline-flex; align-items:center; gap:6px;"><span style="display:inline-block; width:22px; height:0; border-top:2.5px solid #e15759;"></span>Arcada mandibular (spline)</span>
+  <span style="display:inline-flex; align-items:center; gap:6px;"><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#3b3b3b;"></span>Cóndilos L1/L6 ‧ L2/L7</span>
+  <span style="display:inline-flex; align-items:center; gap:6px;">Centroide por diente, color = cuadrante:
+    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4e79a7;"></span>Q1
+    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#59a14f;"></span>Q2
+    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#edc949;"></span>Q3
+    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#e15759;"></span>Q4
+  </span>
+</div>
+
 <div style="font-size:0.82rem; color:#555; margin-top:0.3rem;">
-  Cada rectángulo: posición media del diente (centro), incertidumbre
-  poblacional ±1σ (ancho/alto), orientación media del minBBox
-  (rotación). Datos: <code>tooth_stats_lm.json</code> (obtenidos del
-  corpus de fitting de cap. 6).
+  Spline Catmull–Rom (α = 0,5) interpolando los centroides medios por
+  pieza FDI en el marco condíleo. Los cóndilos L1/L6 y L2/L7 se fijan
+  en (±1, 0) por definición de la normalización (cap. 6). Datos:
+  <code>tooth_stats_lm.json</code> (corpus de fitting de cap. 6).
 </div>
 
 ```js
