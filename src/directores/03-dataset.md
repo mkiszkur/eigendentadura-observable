@@ -48,6 +48,91 @@ Cada archivo JSON es la salida de LabelMe. Contiene:
 
 > 📓 Notebook 001 / `pipeline/stage_01_etl_raw.py`
 
+### 3.1.1 Volumen por panto
+
+Dos distribuciones describen la **densidad de anotación** de cada
+pantomografía: el total de *shapes* (cualquier polígono, centroide,
+landmark o auxiliar) y el subconjunto de **polígonos dentarios**
+(`is_tooth_shape == True`). Ambas se calculan sobre los 5.113 pantos
+con al menos una anotación (el panto restante del catálogo, n=5.114,
+tiene `shapes` vacío y se documenta en §3.2.2 C5).
+
+<div id="fig-cap03-anotaciones-por-imagen">
+
+```js
+{
+  const s = ds.shapes_per_panto;
+  const st = s.stats;
+  const xMax = Math.min(st.max, st.p95 * 1.25);
+  display(Plot.plot({
+    width: 720, height: 300,
+    marginTop: 28, marginBottom: 46, marginLeft: 58, marginRight: 24,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Anotaciones (shapes) por panto", domain: [0, xMax], nice: true},
+    y: {label: "Cantidad de pantos", grid: true},
+    marks: [
+      Plot.rectY(s.hist, {x1: d => d.v - 0.5, x2: d => d.v + 0.5, y: "count",
+        fill: "#7a8ea8", fillOpacity: 0.45, stroke: "#7a8ea8", strokeWidth: 0.6}),
+      Plot.ruleX([st.q1, st.q3], {stroke: "#3b3b3b", strokeDasharray: "3,3", strokeWidth: 1.2}),
+      Plot.ruleX([st.p05, st.p95], {stroke: "#7a8ea8", strokeDasharray: "1,3", strokeWidth: 1}),
+      Plot.ruleX([st.median], {stroke: "#c0392b", strokeWidth: 2.4}),
+      Plot.text([{x: st.median, t: `mediana ${st.median} · Q1 ${st.q1} · Q3 ${st.q3} · n=${st.n}`}],
+        {x: "x", text: "t", frameAnchor: "top", dy: 6,
+         fontSize: 11, fill: "#3b3b3b", textAnchor: "middle"}),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  Distribución del total de anotaciones por panto sobre los 5.113
+  pantos con shapes. Línea roja = mediana; punteado gris = Q1/Q3;
+  punteado celeste = p05/p95.
+</div>
+
+<div id="fig-cap03-dientes-por-imagen">
+
+```js
+{
+  const s = ds.teeth_per_panto;
+  const st = s.stats;
+  // Las 32 piezas permanentes son la cota natural; mostramos hasta 34 por seguridad.
+  const xMax = Math.max(34, st.max);
+  display(Plot.plot({
+    width: 720, height: 300,
+    marginTop: 28, marginBottom: 46, marginLeft: 58, marginRight: 24,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Polígonos dentarios por panto (objetivo: 32 piezas)", domain: [0, xMax], nice: true},
+    y: {label: "Cantidad de pantos", grid: true},
+    marks: [
+      Plot.rectY(s.hist, {x1: d => d.v - 0.5, x2: d => d.v + 0.5, y: "count",
+        fill: "#54a24b", fillOpacity: 0.45, stroke: "#54a24b", strokeWidth: 0.6}),
+      Plot.ruleX([32], {stroke: "#888", strokeDasharray: "4,4", strokeWidth: 1}),
+      Plot.ruleX([st.q1, st.q3], {stroke: "#3b3b3b", strokeDasharray: "3,3", strokeWidth: 1.2}),
+      Plot.ruleX([st.p05, st.p95], {stroke: "#54a24b", strokeDasharray: "1,3", strokeWidth: 1}),
+      Plot.ruleX([st.median], {stroke: "#c0392b", strokeWidth: 2.4}),
+      Plot.text([{x: st.median, t: `mediana ${st.median} · Q1 ${st.q1} · Q3 ${st.q3} · n=${st.n}`}],
+        {x: "x", text: "t", frameAnchor: "top", dy: 6,
+         fontSize: 11, fill: "#3b3b3b", textAnchor: "middle"}),
+      Plot.text([{x: 32, t: "32 piezas (cota)"}],
+        {x: "x", text: "t", frameAnchor: "bottom", dy: -6,
+         fontSize: 10, fill: "#666", textAnchor: "end"}),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  Distribución del número de polígonos dentarios anotados por panto.
+  La línea gris a 32 marca el objetivo anatómico (dentición permanente
+  completa). La cola izquierda corresponde a denticiones incompletas
+  o mixtas.
+</div>
+
 ## 3.2 Las 7 versiones del esquema JSON
 
 El dataset combina 7 versiones de LabelMe con diferencias **no solo de
