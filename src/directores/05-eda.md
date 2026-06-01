@@ -26,6 +26,8 @@ const prev = await FileAttachment("../data/prevalence_by_tooth.json").json();
 
 ## 5.1 Composición de shapes (n = 475.985)
 
+<div id="fig-cap05-composicion-shapes"></div>
+
 ```js
 const shapeMix = [
   {tipo: "tooth",    n: 449285, pct: 94.4, color: "#4c78a8"},
@@ -61,6 +63,8 @@ const yCap = Generators.input(yCapInput);
 display(yCapInput);
 ```
 
+<div id="fig-cap05-dientes-por-panto"></div>
+
 ```js
 display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680), maxY: yCap})));
 ```
@@ -81,6 +85,8 @@ display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680)
 ---
 
 ## 5.3 Distribución anatómica (n = 146.596 dientes)
+
+<div id="fig-cap05-distribucion-anatomica"></div>
 
 ```js
 const anat = [
@@ -112,6 +118,8 @@ sano de la calidad de las anotaciones.
 ---
 
 ## 5.4 Missingness estructural
+
+<div id="fig-cap05-missingness"></div>
 
 ```js
 const miss = [
@@ -165,6 +173,8 @@ Sobre los **146.596 dientes con FDI**, todas las patologías tienen
 prevalencia inferior al 5%. Esto plantea el desafío de **clases muy
 desbalanceadas** para cualquier técnica supervisada (queda fuera de scope).
 
+<div id="fig-cap05-prevalencia-patologias"></div>
+
 ```js
 const patos = [
   {flag: "restoration",          pct: 4.57},
@@ -197,6 +207,8 @@ display(Plot.plot({
 > estructural**.
 
 ### Multimorbilidad
+
+<div id="fig-cap05-multimorbilidad"></div>
 
 ```js
 const morbi = [
@@ -260,6 +272,8 @@ landmarks es el más informativo.
 ---
 
 ## 5.8 Caracterización clínica del archivo
+
+<div id="fig-cap05-caracterizacion-archivo"></div>
 
 ```js
 const flagsArchivo = [

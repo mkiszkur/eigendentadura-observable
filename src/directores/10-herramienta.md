@@ -68,6 +68,8 @@ display(directoresNav("10"));
 
 ## 10.4 Estado actual
 
+<div id="fig-cap10-estado-actual"></div>
+
 ```js
 const estado = [
   {area: "EDA + dataset",                pct: 100, color: "#54a24b"},

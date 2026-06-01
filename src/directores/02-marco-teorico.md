@@ -124,6 +124,8 @@ intercondilar pasa al origen; la distancia intercondilar se vuelve la
 unidad de escala. Cualquier panto queda así expresada en *unidades de
 distancia intercondilar*, eliminando rotación, traslación y escala.
 
+<div id="fig-cap02-marco-condileo"></div>
+
 ```js
 {
   const w = 560, h = 220;
@@ -331,6 +333,8 @@ pieza que se ven en cap. 5):
 const kdeH = view(Inputs.range([0.05, 1.5], {value: 0.4, step: 0.05, label: "Ancho de banda h"}));
 ```
 
+<div id="fig-cap02-kde-demo"></div>
+
 ```js
 {
   function lcg(seed) { return () => (seed = (seed*1103515245 + 12345) & 0x7fffffff, seed/0x7fffffff); }
@@ -432,6 +436,8 @@ son los cóndilos (origen del marco). Fuente: `tooth_stats_lm.json`.
 ```js
 const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
 ```
+
+<div id="fig-cap02-eigendentadura-media"></div>
 
 ```js
 {

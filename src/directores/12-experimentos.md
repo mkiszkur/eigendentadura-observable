@@ -73,6 +73,8 @@ display(html`<table style="width:100%; border-collapse:collapse; font-size:0.85r
 
 ## Distribución de veredictos
 
+<div id="fig-cap12-veredictos"></div>
+
 ```js
 const vd = [
   {tag: "✅ ★ Central",   n: 4, color: "#7b52ab"},

@@ -25,6 +25,8 @@ display(directoresNav("09"));
 
 ## 9.1 Clustering sobre Z-scores (n = 853, 96 dims)
 
+<div id="fig-cap09-clustering-zscores"></div>
+
 ```js
 const cluster = [
   {alg: "K-Means",      params: "k = 2–10",                best_silhouette: 0.08},

@@ -44,6 +44,8 @@ del eje intercondíleo, $d$ = distancia intercondílea. Las coordenadas
 resultantes son **adimensionales** y directamente comparables entre
 pacientes.
 
+<div id="fig-cap06-marco-condileo-mock"></div>
+
 ```js
 // Mock visual del marco condíleo
 const w = 520, h = 280;
@@ -111,6 +113,8 @@ futuro** (ver [cap. 11](./11-conclusiones)).
 
 ## 6.3 Cobertura
 
+<div id="fig-cap06-cobertura-normalizacion"></div>
+
 ```js
 const cob = [
   {grupo: "Total",                              n: 5114, pct: 100.0, color: "#4c78a8"},
@@ -143,6 +147,8 @@ Sobre la matriz de features 96-dimensional de la eigendentadura
 (n = 853 con dentición permanente completa), se midió la **varianza
 atribuible a covariables no geométricas** (ancho/alto de imagen y
 versión de LabelMe) como $R^2$ multivariado *trace-based*:
+
+<div id="fig-cap06-comparacion-normalizaciones"></div>
 
 ```js
 const r2 = [
