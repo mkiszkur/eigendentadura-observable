@@ -54,6 +54,8 @@ El dataset combina 7 versiones de LabelMe con diferencias **no solo de
 mecanismo** (relación shape ↔ grupo) sino también de **schema clínico**:
 ciertos flags y los landmarks anatómicos no existían en versiones tempranas.
 
+<div id="fig-cap03-versiones-json">
+
 ```js
 const versiones = [
   {ver: "4.5.13",   n: 2296, pct: 44.9, landmarks: false, restoration: false, atheroma: false, mecanismo: "Solo coordenadas"},
@@ -79,6 +81,8 @@ display(Plot.plot({
   ],
 }));
 ```
+
+</div>
 
 ```js
 display(html`<table class="data-table" style="max-width:760px;">
@@ -160,6 +164,8 @@ implementa esta lógica.
 | **L3 / L4** | Mentón (par) | Reservados (futuro: transformación afín) |
 | **L5** | Mid-mentón | Calculado, no anotado |
 
+<div id="fig-cap03-cobertura-landmarks">
+
 ```js
 const cobertura = [
   {grupo: "Universo total",                       n: 5114, pct: 100.0, color: "#4c78a8"},
@@ -179,15 +185,21 @@ display(Plot.plot({
 }));
 ```
 
+</div>
+
 ---
 
 ## 3.5 Embudo de cohortes
 
 El gráfico siguiente reusa la figura del observable público:
 
+<div id="fig-cap03-universo-geometrico">
+
 ```js
 display(funnelChart(ds.funnel, {width: Math.min(width, 720)}));
 ```
+
+</div>
 
 Decisión: la diferencia entre los 2.749 con landmarks y los 2.704 del
 universo geométrico son **45 pantos con landmarks pero sin FDI permanente
@@ -276,6 +288,8 @@ del pipeline** (`lib.panto.Panto.calidad_categoria` /
 de dentición, del porcentaje de FDI anotado, de `landmarks_complete`
 y del conteo de flags de patología.
 
+<div id="fig-cap03-calidad-categorias">
+
 ```js
 const cal = [
   {cat: "A", desc: "Ideal — FDI 100% sin patología",       n: 86,   pct: 1.7,  color: "#54a24b", score: "80–100"},
@@ -296,6 +310,8 @@ display(Plot.plot({
   ],
 }));
 ```
+
+</div>
 
 ```js
 display(html`<table style="width:100%; max-width:780px; border-collapse:collapse; font-size:0.85rem; margin-top:0.4rem;">
