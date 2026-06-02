@@ -202,6 +202,49 @@ display(html`<table class="data-table" style="max-width:760px;">
 > completo. La cobertura por FDI, en cambio, es **uniforme** entre
 > versiones ($\chi^2 = 128{,}5$, dof = 124, $p = 0{,}37$).
 
+### 3.2.1 Cobertura de landmarks por versión
+
+El sesgo estructural se ve con mayor claridad al desagregar la
+cobertura de los siete landmarks anatómicos por versión cronológica:
+la 4.5.13 (44,9 % del corpus) no incluye ningún landmark, mientras
+que todas las versiones ≥ 4.6.0 los incorporan con cobertura ≥ 97 %
+uniforme entre L1 y L7.
+
+<div id="fig-cap03-sesgo-version-landmarks">
+
+```js
+{
+  const vl = ds.version_landmark;
+  display(Plot.plot({
+    width: 720, height: 260,
+    marginTop: 28, marginBottom: 44, marginLeft: 64, marginRight: 60,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Landmark anatómico", domain: vl.landmarks, padding: 0.04},
+    y: {label: "Versión JSON (cronológico)", domain: vl.versions, padding: 0.04},
+    color: {type: "linear", domain: [0, 100], range: ["#fffce0", "#1b6b3c"],
+            label: "Pantos con landmark (%)"},
+    marks: [
+      Plot.cell(vl.cells, {x: "landmark", y: "version", fill: "pct",
+        stroke: "white", strokeWidth: 1, tip: true,
+        channels: {"%": {value: d => `${d.pct.toFixed(0)}%`}}}),
+      Plot.text(vl.cells, {x: "landmark", y: "version",
+        text: d => d.pct.toFixed(0).replace(".", ","),
+        fill: d => d.pct > 55 ? "white" : "#2b2b2b",
+        fontSize: 11, fontWeight: 500}),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  Heatmap versión × landmark. Cada celda = porcentaje de pantos de esa
+  versión con el landmark anotado (escala 0 % beige → 100 % verde
+  oscuro). Test χ² entre v4.5.13 y el resto: χ² = 4.843 (rechaza
+  homogeneidad a α = 0,05).
+</div>
+
 <details>
 <summary>▸ Detalle metodológico — Test χ² landmarks por versión</summary>
 
