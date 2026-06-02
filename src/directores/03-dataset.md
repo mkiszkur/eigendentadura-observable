@@ -24,6 +24,7 @@ import {openPantoModal} from "../components/panto-modal.js";
 import {kpi} from "../components/kpi.js";
 import * as d3 from "d3";
 const ds = await FileAttachment("../data/dataset_stats.json").json();
+const cap03 = await FileAttachment("../data/cap03_figures.json").json();
 const pantosRaw = await FileAttachment("../data/pantos_browser.json").json();
 const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
 ```
@@ -257,6 +258,91 @@ Cierre en `docs/experimentos/20_sesgo_version_labelme/01_cierre.md`.
 
 </details>
 
+### 3.2.2 Sesgo de versión — flags clínicos
+
+Tres flags a nivel archivo aparecieron recién con el esquema 5.3.1
+(restauración dental, ateroma, neoformación). Su prevalencia es 0 %
+en las versiones anteriores por ausencia de campo, no por ausencia de
+hallazgo.
+
+<div id="fig-cap03-sesgo-version-b-flags">
+
+```js
+{
+  const cells = cap03.sesgo_b_flags;
+  const versions = [...new Set(cells.map(c => c.version))];
+  const flags = [...new Set(cells.map(c => c.flag))];
+  const palette = {"Restauración dental": "#1f6f8b", "Ateroma": "#c0392b", "Neoformación": "#2e8b57"};
+  display(Plot.plot({
+    width: 760, height: 320,
+    marginLeft: 56, marginBottom: 64, marginTop: 28, marginRight: 18,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    fx: {label: "Versión JSON (cronológico)", domain: versions},
+    x: {label: null, axis: null, domain: flags},
+    y: {label: "Pantos con flag (%)", grid: true,
+        domain: [0, Math.max(...cells.map(c => c.pct)) * 1.18]},
+    color: {domain: flags, range: flags.map(f => palette[f]),
+            legend: true, label: "Flag"},
+    marks: [
+      Plot.barY(cells, {fx: "version", x: "flag", y: "pct", fill: "flag", tip: true,
+        channels: {"%": {value: d => `${d.pct.toFixed(2).replace('.', ',')} %`},
+                   "n": {value: d => `${d.n_true}/${d.n_total}`}}}),
+      Plot.text(cells.filter(c => c.pct > 0), {fx: "version", x: "flag", y: "pct",
+        text: d => `${d.pct.toFixed(0)}`, dy: -4, fontSize: 9, fill: "#444"}),
+      Plot.ruleY([0]),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  Barras agrupadas por versión (panel) y flag (color). Las versiones
+  ≤ 5.1.1 no soportaban estos campos: la ausencia de barra refleja
+  "sin campo", no "sin hallazgo".
+</div>
+
+### 3.2.3 Sesgo de versión — distribución FDI
+
+La distribución de dientes anotados por panto varía sensiblemente entre
+versiones: las primeras versiones tienden a menor cobertura FDI mientras
+que las posteriores agrupan medianas próximas a la dentición completa
+(32 piezas).
+
+<div id="fig-cap03-sesgo-version-c-fdi">
+
+```js
+{
+  const groups = cap03.sesgo_c_fdi;
+  const rows = [];
+  for (const g of groups) {
+    for (const v of g.values) rows.push({version: g.version, total_teeth: v});
+  }
+  display(Plot.plot({
+    width: 720, height: 300,
+    marginLeft: 56, marginBottom: 50, marginTop: 18, marginRight: 18,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Versión JSON (cronológico)", domain: groups.map(g => g.version)},
+    y: {label: "Dientes anotados por panto (total_teeth)", grid: true},
+    marks: [
+      Plot.boxY(rows, {x: "version", y: "total_teeth",
+        fill: "#7a8ea8", stroke: "#2d3e50",
+        strokeWidth: 1.1}),
+      Plot.ruleY([0]),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  Boxplot de la cantidad de dientes anotados por panto, desagregado por
+  versión cronológica del esquema JSON. Caja = Q1–Q3, línea = mediana,
+  bigotes = 1,5 · IQR, puntos = outliers.
+</div>
+
 ---
 
 ## 3.3 Sistema multi-shape
@@ -284,6 +370,53 @@ display(html`<div class="simple-card-grid">
 coordenadas del centroide**, no por `group_id`. Esto vale para todas las
 versiones, incluso las que tienen `group_id`. La librería `lib/panto/`
 implementa esta lógica.
+
+### 3.3.1 Composición de shapes por tipo de entidad
+
+La mayor parte del volumen anotado son shapes "diente" (polígono +
+centroide + minbbox por pieza). El resto se reparte entre landmarks
+anatómicos, hallazgos metálicos (restauraciones, implantes,
+aparatología) y ateromas.
+
+<div id="fig-cap03-treemap-shapes">
+
+```js
+{
+  const rows = cap03.treemap_shapes
+    .filter(r => r.entity_type && r.entity_sub_type)
+    .map(r => ({...r, label: `${r.entity_type} / ${r.entity_sub_type}`}))
+    .sort((a, b) => d3.descending(a.count, b.count));
+  const types = [...new Set(rows.map(r => r.entity_type))];
+  const palette = {tooth: "#7a8ea8", landmark: "#7b68a6", metal: "#c25450", atheroma: "#d49a4d"};
+  display(Plot.plot({
+    width: 760, height: 420,
+    marginLeft: 150, marginRight: 90, marginTop: 16, marginBottom: 44,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Cantidad de shapes (escala log)", type: "log", grid: true,
+        domain: [1, 300000]},
+    y: {label: null, domain: rows.map(r => r.label)},
+    color: {domain: types, range: types.map(t => palette[t] ?? "#999"),
+            legend: true, label: "Entity type"},
+    marks: [
+      Plot.barX(rows, {x1: 1, x2: "count", y: "label", fill: "entity_type",
+        tip: true,
+        channels: {"shapes": {value: d => d.count.toLocaleString("es-AR")}}}),
+      Plot.text(rows, {x: "count", y: "label",
+        text: d => d.count.toLocaleString("es-AR"),
+        dx: 6, textAnchor: "start", fontSize: 10, fill: "#444"}),
+      Plot.ruleX([1]),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  Composición del universo de shapes (n = 475.985) desagregado por
+  `entity_type` (color) y `entity_sub_type` (fila).
+  Escala logarítmica en X para acomodar el rango (de 2 a ~146.000).
+</div>
 
 ---
 
@@ -691,6 +824,92 @@ display(paginatedTable({
 
 > ⚠️ TODO: incorporar referencia formal al protocolo de consentimiento
 > y/o aprobación ética del laboratorio fuente.
+
+---
+
+## 3.10 Anexo — Prevalencia de flags clínicos
+
+Resumen panorámico de los flags clínicos a dos niveles (archivo y
+diente). Los tres flags marcados *(v≥5.3.1)* se reportan condicionados al
+subconjunto de pantos cuyo esquema soporta el campo (ver §3.2.2).
+
+### 3.10.1 Flags a nivel archivo
+
+<div id="fig-cap03-flags-archivo">
+
+```js
+{
+  const flags = cap03.file_flags;
+  const order = flags.slice().sort((a, b) => a.family.localeCompare(b.family) || b.pct - a.pct);
+  const familias = [...new Set(order.map(f => f.family))];
+  display(Plot.plot({
+    width: 720, height: Math.max(220, 24 * order.length + 40),
+    marginLeft: 220, marginRight: 60, marginTop: 18, marginBottom: 44,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Pantos con flag = True (%)", grid: true,
+        domain: [0, Math.max(...order.map(f => f.pct)) * 1.18]},
+    y: {label: null, domain: order.map(f => f.conditional ? `${f.flag} (v≥5.3.1)` : f.flag)},
+    color: {domain: familias, range: familias.map(f => order.find(x => x.family === f).color),
+            legend: true, label: "Familia"},
+    marks: [
+      Plot.barX(order, {x: "pct", y: d => d.conditional ? `${d.flag} (v≥5.3.1)` : d.flag,
+        fill: "family", tip: true,
+        channels: {"pct": {value: d => `${d.pct.toFixed(2).replace('.', ',')} %`},
+                   "n":   {value: d => `${d.n_true.toLocaleString("es-AR")} / ${d.n_denom.toLocaleString("es-AR")}`}}}),
+      Plot.text(order, {x: "pct", y: d => d.conditional ? `${d.flag} (v≥5.3.1)` : d.flag,
+        text: d => `${d.pct.toFixed(1).replace('.', ',')} %`,
+        dx: 4, textAnchor: "start", fontSize: 10, fill: "#444"}),
+      Plot.ruleX([0]),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  14 flags a nivel archivo (color = familia clínica). Denominador =
+  5.114 pantos, salvo los tres condicionados a esquema ≥ 5.3.1
+  (denominador = 2.819).
+</div>
+
+### 3.10.2 Flags a nivel diente
+
+<div id="fig-cap03-flags-diente">
+
+```js
+{
+  const flags = cap03.tooth_flags;
+  const order = flags.slice().sort((a, b) => a.family.localeCompare(b.family) || b.pct - a.pct);
+  const familias = [...new Set(order.map(f => f.family))];
+  display(Plot.plot({
+    width: 720, height: Math.max(280, 22 * order.length + 40),
+    marginLeft: 220, marginRight: 60, marginTop: 18, marginBottom: 44,
+    style: {fontFamily: "var(--sans-serif, system-ui, sans-serif)"},
+    x: {label: "Shapes con flag = True (% sobre los que lo declaran)", grid: true,
+        domain: [0, Math.max(...order.map(f => f.pct)) * 1.18]},
+    y: {label: null, domain: order.map(f => f.flag)},
+    color: {domain: familias, range: familias.map(f => order.find(x => x.family === f).color),
+            legend: true, label: "Familia"},
+    marks: [
+      Plot.barX(order, {x: "pct", y: "flag", fill: "family", tip: true,
+        channels: {"pct": {value: d => `${d.pct.toFixed(2).replace('.', ',')} %`},
+                   "n":   {value: d => `${d.n_true.toLocaleString("es-AR")} / ${d.n_seen.toLocaleString("es-AR")}`}}}),
+      Plot.text(order, {x: "pct", y: "flag",
+        text: d => `${d.pct.toFixed(1).replace('.', ',')} %`,
+        dx: 4, textAnchor: "start", fontSize: 10, fill: "#444"}),
+      Plot.ruleX([0]),
+    ],
+  }));
+}
+```
+
+</div>
+
+<div style="font-size:0.82rem; color:#555; margin-top:0.2rem;">
+  20 flags a nivel diente (color = familia clínica). Denominador = #
+  shapes que declararon el flag (variable por versión, ver §3.2.2).
+</div>
 
 <div style="margin-top:2.5rem; padding-top:0.8rem; border-top:1px solid #eee; display:flex; justify-content:space-between; font-size:0.85rem;">
   <a href="./02-marco-teorico" style="color:#888;">← Cap. 2 — Marco teórico</a>
