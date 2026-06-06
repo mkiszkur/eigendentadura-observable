@@ -10,9 +10,9 @@
     "method": "Facco et al. 2017 (Two-NN, frac=0.9)"
   },
   "pca": {
-    "r2_reconstruction": 0.7570506211891839,
-    "rho_distances": 0.9719116252565534,
-    "var_cumulative_k10": 0.7570385615706324
+    "r2_reconstruction": 0.7570465623954389,
+    "rho_distances": 0.9719185255079285,
+    "var_cumulative_k10": 0.7570319481478269
   },
   "kernel_pca_rbf": {
     "best_gamma": 0.005208333333333333,
