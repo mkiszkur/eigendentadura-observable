@@ -124,7 +124,7 @@ const cob = [
   {grupo: "Total",                              n: 5114, pct: 100.0, color: "#4c78a8"},
   {grupo: "lm_norm_complete",                   n: 2749, pct:  53.8, color: "#7b52ab"},
   {grupo: "fdi_32_complete",                    n:  853, pct:  16.7, color: "#54a24b"},
-  {grupo: "32 FDI + landmarks",                 n:  831, pct:  16.3, color: "#3b1d6e"},
+  {grupo: "32 FDI + landmarks",                 n:  831, pct:  16.2, color: "#3b1d6e"},
   {grupo: "Universo geométrico (FDI ∧ landmarks)", n: 2704, pct: 52.9, color: "#08306b"},
 ];
 display(Plot.plot({
@@ -176,6 +176,8 @@ display(Plot.plot({
 `*_lm` **absorbe la variabilidad extrínseca** (equipo, recorte) que el
 esquema raw confunde con anatomía.
 
+> Fuente: exp16. Cierre completo en `docs/experimentos/16_comparacion_normalizaciones/01_cierre.md`. Ver también cap. 6 §6.3.5 de la tesis: exp32 (sensibilidad al modo de rotación angular, $R^2 = 0{,}13 \to 0{,}054$ entre V_img y V_lm, reducción $2{,}3\times$) y exp35 (rotación al frame del propio diente, $d^2_{\text{Procrustes}} \approx 0{,}04$: ajuste fino por FDI, no reorganiza el espacio global).
+
 ### Diagnóstico de "eigenvector de tamaño de imagen"
 
 ```js
@@ -206,7 +208,7 @@ están en $d^2/\|A\|^2 \in [0{,}77,\ 1{,}21]$: los espacios son
 **estructuralmente distintos**. Cambiar la normalización **no es una
 rotación** de los componentes, sino una reorganización completa.
 
-> 📓 Cierre completo: `docs/experimentos/16_comparacion_normalizaciones/01_cierre.md`
+> 📓 Cierre completo: `docs/experimentos/16_comparacion_normalizaciones/01_cierre.md` · figura: `06_f_comparacion_normalizaciones.svg`
 
 ---
 
@@ -214,9 +216,9 @@ rotación** de los componentes, sino una reorganización completa.
 
 ```js
 const pcaPieza = [
-  {variante: "3F-img",  features: "cx_norm, cy_norm, angle_normalized", pc1: 40.0, pc1pc2: 73.4, color: "#bbb"},
+  {variante: "3F-img",  features: "cx_norm, cy_norm, angle_normalized", pc1: 40.2, pc1pc2: 73.5, color: "#bbb"},
   {variante: "3F-lm",   features: "cx_lm, cy_lm, angle_normalized_lm",   pc1: 43.1, pc1pc2: 74.8, color: "#54a24b"},
-  {variante: "8F-lm",   features: "+ 5 geométricos (área, compactness, …)", pc1: 39.7, pc1pc2: 61.4, color: "#e45756"},
+  {variante: "8F-lm",   features: "+ 5 geométricos (área, compactness, …)", pc1: 40.0, pc1pc2: 57.6, color: "#e45756"},
 ];
 display(html`<table style="width:100%; max-width:780px; border-collapse:collapse; font-size:0.9rem;">
   <thead style="background:#f5f5f5;"><tr>
@@ -234,19 +236,19 @@ display(html`<table style="width:100%; max-width:780px; border-collapse:collapse
 </table>`);
 ```
 
-**3F-lm concentra ligeramente más varianza en PC1** (43,1 % vs 40,0 %; PC1+PC2 74,8 % vs 73,4 %). Los **features geométricos adicionales (8F-lm) diluyen la señal posicional**: con 8 features PC1 pasa a estar dominada por `minbbox_area` (28/32 piezas), capturando tamaño pero no estructura posicional. Conclusión: **(cx_lm, cy_lm, angle_normalized_lm) es el set óptimo**.
+**3F-lm concentra ligeramente más varianza en PC1** (43,1 % vs 40,2 %; PC1+PC2 74,8 % vs 73,5 %). Los **features geométricos adicionales (8F-lm) diluyen la señal posicional**: con 8 features PC1+PC2 cae a 57,6 % y pasa a estar dominada por `minbbox_area` (28/32 piezas), capturando tamaño pero no estructura posicional. Conclusión: **(cx_lm, cy_lm, angle_normalized_lm) es el set óptimo**.
 
 ### Clustering por pieza (K-Means k=2..6)
 
 | Variante | Silhouette | Calinski-H | k mediana | Outliers (|z|>3) |
 |---|---|---|---|---|
-| 3F-img | 0,260 ± 0,013 | 866 ± 146 | 2 | 2,1 % |
-| **3F-lm** | **0,262 ± 0,016** | **902 ± 150** | **2** | **2,0 %** |
-| 8F-lm | 0,214 ± 0,031 | 669 ± 102 | 2 | 6,3 % |
+| 3F-img | 0,259 ± 0,012 | 892 ± 147 | 2 | 2,1 % |
+| **3F-lm** | **0,260 ± 0,016** | **888 ± 150** | **2** | **2,0 %** |
+| 8F-lm | 0,212 ± 0,031 | 662 ± 99 | 2 | 6,3 % |
 
 Tabla 6.3: Clustering K-Means por pieza ($k = 2..6$) bajo tres variantes de features: silhouette, Calinski–Harabasz, $k$ mediana y porcentaje de outliers ($|z| > 3$).
 
-Silhouette **+0,8 %** vs imagen; Calinski **+4 %**. **La normalización por landmarks no mejora la separabilidad de subgrupos por pieza** —un resultado negativo coherente con la conclusión del capítulo 9 (P3: ausencia de subgrupos discretos). 8F-lm además remueve 3× más outliers (6,3 % vs 2,0 %), evidenciando distribuciones con colas pesadas: confirma que sumar área/forma agrega ruido, no señal.
+Silhouette **+0,4 %** vs imagen; Calinski–Harabasz **−0,5 %**: ambos *lifts* caen dentro del ruido estadístico entre piezas, es decir **la normalización por landmarks no mejora la separabilidad de subgrupos por pieza** —un resultado negativo coherente con la conclusión del capítulo 9 (P3: ausencia de subgrupos discretos). 8F-lm además remueve 3× más outliers (6,3 % vs 2,0 %), evidenciando distribuciones con colas pesadas: confirma que sumar área/forma agrega ruido, no señal.
 
 > 📓 Notebook 037
 
@@ -255,8 +257,8 @@ Silhouette **+0,8 %** vs imagen; Calinski **+4 %**. **La normalización por land
 ## 6.6 Sobre la "dispersión intra-pieza"
 
 La normalización por landmarks **aumenta** la std de cx/cy comparada con
-la normalización por imagen (cx: $-256\%$, cy: $-62\%$). **No es un
-defecto**:
+la normalización por imagen (cx: $-256\%$, cy: $-62\%$). **No constituye
+un defecto del frame `*_lm`**:
 
 - Normalización por imagen comprime todo al $[0,1]$, lo que reduce std
   artificialmente.
