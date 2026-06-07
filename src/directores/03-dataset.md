@@ -424,14 +424,14 @@ aparatología) y ateromas.
 
 7 landmarks por panto (cuando están anotados):
 
-*Tabla 3.1 — Los siete landmarks anatómicos y su uso en el pipeline.*
-
 | Landmark | Estructura | Uso en pipeline |
 |---|---|---|
 | **L1 / L6** | Cóndilo izquierdo (par) | Origen + escala + rotación del marco condíleo |
 | **L2 / L7** | Cóndilo derecho (par) | idem |
 | **L3 / L4** | Mentón (par) | Reservados (futuro: transformación afín) |
 | **L5** | Mid-mentón | Calculado, no anotado |
+
+Tabla 3.1: Los siete landmarks anatómicos: par condíleo izquierdo (L1/L6), par condíleo derecho (L2/L7), par mentón (L3/L4) y mid-mentón calculado (L5), con su uso en el pipeline.
 
 <div id="fig-cap03-cobertura-landmarks">
 
@@ -626,8 +626,6 @@ en B por cantidad de flags ($-\min(n_\text{patol}/3, 10)$).
 <details>
 <summary>▸ Fórmula completa del score por categoría</summary>
 
-*Tabla 3.2 — Fórmula del score por categoría del checklist de adopción.*
-
 | Categoría | Score base | Bonus | Tope |
 |---|---|---|---|
 | **E** | 5 (temp.) o 10 (mixta) | +5 si landmarks | 15 |
@@ -635,6 +633,8 @@ en B por cantidad de flags ($-\min(n_\text{patol}/3, 10)$).
 | **C** | $50 + 2(p_\text{FDI}-85)$ | +10 LM, +5 si $n_\text{patol}=0$ | 99 |
 | **A** | 80 | +15 si `perm_complete` ∧ 32 dientes; +10 si solo `perm_complete`; +5 si LM | 100 |
 | **B** | 70 | +10 `perm_complete`, +5 si $\ge 28$ dientes, +5 LM, $-\min(n_\text{patol}/3, 10)$ | $\ge 50$ |
+
+Tabla 3.2: Fórmula del score por categoría del checklist de adopción: score base, bonus y tope por categoría A, B, C, D, E.
 
 Implementación: `lib/panto/_panto.py::_calcular_calidad()`.
 

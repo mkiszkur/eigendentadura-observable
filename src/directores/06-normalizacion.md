@@ -24,13 +24,13 @@ display(directoresNav("06"));
 
 ## 6.1 Tres esquemas comparados
 
-*Tabla 6.1 — Tres esquemas de normalización geométrica comparados.*
-
 | Esquema | Definición | Sufijo | Pros | Contras |
 |---|---|---|---|---|
 | **raw** | Píxeles crudos | (sin sufijo) | Sin pérdida | Confunde anatomía con resolución de equipo |
 | **bbox-norm** | $x/W,\ y/H$ | `*_norm` | Simple, $\in [0,1]$ | Comprime artificialmente la varianza |
 | **landmark** | Similitud por L1+L6 ↔ L2+L7 | `*_lm` | Marco intrínseco al paciente | Requiere los 4 landmarks condíleos (cobertura 54%) |
+
+Tabla 6.1: Tres esquemas de normalización geométrica comparados: raw, bbox-norm y landmark con sus pros y contras.
 
 ## 6.2 Transformación de similitud (4 GdL)
 
@@ -81,14 +81,14 @@ display(svg.node());
 
 ### ¿Por qué dos puntos son suficientes?
 
-*Tabla 6.2 — Grados de libertad de la similitud 2D y su fuente en el marco condíleo.*
-
 | Necesidad | GdL | Fuente |
 |---|---|---|
 | Traslación | 2 | Mid-cóndilo (origen) |
 | Rotación | 1 | Ángulo del eje intercondíleo |
 | Escala | 1 | Distancia intercondílea |
 | **Total** | **4** | **2 puntos = exactamente determinado** |
+
+Tabla 6.2: Grados de libertad de la similitud 2D y su fuente en el marco condíleo: traslación, rotación y escala (4 GdL con 2 puntos).
 
 ### ¿Por qué cóndilos y no otros landmarks?
 
@@ -238,13 +238,13 @@ display(html`<table style="width:100%; max-width:780px; border-collapse:collapse
 
 ### Clustering por pieza (K-Means k=2..6)
 
-*Tabla 6.3 — Métricas de clustering K-Means por pieza ($k = 2..6$) bajo tres variantes de features.*
-
 | Variante | Silhouette | Calinski-H | k mediana | Outliers (|z|>3) |
 |---|---|---|---|---|
 | 3F-img | 0,260 ± 0,013 | 866 ± 146 | 2 | 2,1 % |
 | **3F-lm** | **0,262 ± 0,016** | **902 ± 150** | **2** | **2,0 %** |
 | 8F-lm | 0,214 ± 0,031 | 669 ± 102 | 2 | 6,3 % |
+
+Tabla 6.3: Clustering K-Means por pieza ($k = 2..6$) bajo tres variantes de features: silhouette, Calinski–Harabasz, $k$ mediana y porcentaje de outliers ($|z| > 3$).
 
 Silhouette **+0,8 %** vs imagen; Calinski **+4 %**. **La normalización por landmarks no mejora la separabilidad de subgrupos por pieza** —un resultado negativo coherente con la conclusión del capítulo 9 (P3: ausencia de subgrupos discretos). 8F-lm además remueve 3× más outliers (6,3 % vs 2,0 %), evidenciando distribuciones con colas pesadas: confirma que sumar área/forma agrega ruido, no señal.
 

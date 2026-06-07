@@ -35,12 +35,12 @@ observable público bajo *Geometría Dental*.
 
 ## 8.3 PCA por pieza
 
-*Tabla 8.1 — PCA por pieza bajo tres variantes de features.*
-
 | Variante | PC1 promedio | PC1+PC2 prom |
 |---|---|---|
 | 3F-img (cx_norm, cy_norm, angle) | 40,0 % | 73,4 % |
 | **3F-lm (cx_lm, cy_lm, angle)** | **57,0 %** | **90,1 %** |
+
+Tabla 8.1: PCA por pieza bajo dos variantes de features: PC1 promedio y PC1+PC2 promedio para 3F-img vs 3F-lm.
 
 Detalle cuantitativo en [cap. 6](./06-normalizacion#6-5-pca-por-pieza).
 16/32 piezas cambian su feature dominante en PC1 al usar landmarks

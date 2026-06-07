@@ -50,13 +50,13 @@ display(directoresNav("sintesis"));
 
 **Evidencia:**
 
-*Tabla 0.1 — Comparación cuantitativa de los frames `*_norm` y `*_lm` en tests morfométricos (exp16).*
-
 | Test | `*_norm` | `*_lm` | Factor de mejora |
 |------|----------|--------|------------------|
 | Varianza residual post-Procrustes | 16.12 px² | **1.54 px²** | **10.5×** |
 | Silhouette k-means (k=4) | 0.094 | **0.146** | 1.55× |
 | Distancia intercondilar CV | 0.118 | **0.043** | 2.74× |
+
+Tabla 0.1: Comparación cuantitativa de frames `*_norm` y `*_lm` en tests morfométricos (exp16): varianza residual post-Procrustes, silhouette k-means $k = 4$ y CV de la distancia intercondilar.
 
 **Corpus:** 2.704 pantos (universo geométrico).
 

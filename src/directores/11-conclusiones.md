@@ -73,8 +73,6 @@ display(html`<div style="display:grid; gap:0.7rem;">
 
 ## 11.4 Trabajo futuro
 
-*Tabla 11.1 — Líneas de trabajo futuro y capítulo de origen.*
-
 | Línea | Origen |
 |---|---|
 | Refinamiento normalización por **afín** (3 puntos) | cap. 6 |
@@ -84,6 +82,8 @@ display(html`<div style="display:grid; gap:0.7rem;">
 | Stage 36 en Observable: vista de apinamiento (exp28) | cap. 10 |
 | Validación clínica cualitativa estructurada | cap. 10 |
 | Cruce con metadata clínica si se obtiene | — |
+
+Tabla 11.1: Líneas de trabajo futuro y capítulo de origen: refinamientos de normalización y PCA, detector NN v3, imputación geométrica, vista de apinamiento, validación clínica y cruce con metadata.
 
 <div style="margin-top:2.5rem; padding-top:0.8rem; border-top:1px solid #eee; display:flex; justify-content:space-between; font-size:0.85rem;">
   <a href="./10-herramienta" style="color:#888;">← Cap. 10</a>

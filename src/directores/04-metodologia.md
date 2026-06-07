@@ -215,8 +215,6 @@ display(html`<table style="width:100%; border-collapse:collapse; font-size:0.9re
 
 ## 4.6 Stack tecnológico
 
-*Tabla 4.1 — Stack tecnológico por capa.*
-
 | Capa | Tecnología | Función |
 |---|---|---|
 | Datos | LabelMe JSON | Anotaciones de origen |
@@ -226,6 +224,8 @@ display(html`<table style="width:100%; border-collapse:collapse; font-size:0.9re
 | Detector NN | PyTorch (HRNet-lite) | exp04, landmarks |
 | Visualización | Matplotlib, Seaborn (estática); Observable Framework v1.13.4 + D3 + Plot (web) | App pública + esta vista |
 | Reproducibilidad | parity check, splits congelados, `requirements.txt` *pinned* | — |
+
+Tabla 4.1: Stack tecnológico por capa: tecnologías usadas en datos, ETL, análisis, geometría, detector NN, visualización y reproducibilidad.
 
 Inventario completo de versiones (Python y JavaScript) en el
 **Apéndice J** del Cap. 13.

@@ -57,8 +57,6 @@ display(directoresNav("10"));
 
 `observable/src/components/` (~30 archivos JS). Familias:
 
-*Tabla 10.1 — Familias de componentes de la herramienta y los datasets que consumen.*
-
 | Familia | Ejemplos | Datos |
 |---|---|---|
 | **Geometría** | `panto-schematic`, `panto-normalized`, `arch-form` | `pantos_browser.json`, `pantos_geometry/` |
@@ -67,6 +65,8 @@ display(directoresNav("10"));
 | **Individuo** | `individual-rose-plot`, `mini-odontograma`, `funnel-chart` | `individual_scores.json` |
 | **Subpoblaciones** | `subpop-arch-form`, `subpop-diff-heatmap`, `subpop-violin-plot` | `*_genero.json`, `*_origen.json` |
 | **Utilidades** | `paginated-table`, `range-slider`, `teeth-selector`, `collapsible`, `zoomable-chart`, `summary-cards` | — |
+
+Tabla 10.1: Familias de componentes de la herramienta y datasets que consumen: geometría, estadística poblacional, patología, individuo, subpoblaciones y utilidades.
 
 ## 10.4 Estado actual
 

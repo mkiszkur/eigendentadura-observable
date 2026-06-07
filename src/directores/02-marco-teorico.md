@@ -597,14 +597,14 @@ const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
 
 ## Cohortes y splits
 
-*Tabla 2.1 — Cohortes analíticas y su uso en los capítulos.*
-
 | Cohorte | n pantos | Uso |
 |---|---|---|
 | Universo total | 5.114 | EDA general (cap. 5) |
 | Universo prevalencias (FDI permanente) | ~4.388 | Prevalencia patologías (cap. 5, 8) |
 | Universo geométrico (FDI ∧ landmarks) | 2.704 | PCA por pieza, KDE, normalización (cap. 6, 8) |
 | Dentición completa (32 FDI ∧ landmarks) | 831 | Eigendentadura, Procrustes (cap. 7, 9) |
+
+Tabla 2.1: Cohortes analíticas y su uso por capítulo: cuatro cohortes principales (universo total, prevalencias, geométrico, dentición completa) con su $n$ y rol en los análisis.
 
 **Splits canónicos para experimentos** (estratificados por nº de dientes):
 

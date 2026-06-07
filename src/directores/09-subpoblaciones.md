@@ -59,14 +59,14 @@ subgrupos discretos.
 
 ## 9.2 Validación cruzada del resultado negativo
 
-*Tabla 9.1 — Evidencia convergente sobre la ausencia de subgrupos discretos en el espacio geométrico.*
-
 | Evidencia | Resultado |
 |---|---|
 | Clustering sobre Z-scores (96D) | silhouette < 0.15 |
 | Clustering sobre coordenadas Procrustes | silhouette < 0.15 |
 | Estratificación por patrón de presencias FDI (k = 4) (exp05 Uso E.B) | No reorganiza $p(\mathbf{x}\|FDI)$ |
 | Clustering sobre curva del maxilar (exp30) | (prelim — sin clusters) |
+
+Tabla 9.1: Evidencia convergente sobre la ausencia de subgrupos discretos en el espacio geométrico: cuatro vías metodológicas distintas (Z-scores 96D, Procrustes, estratificación FDI, curva del maxilar).
 
 **Convergencia robusta**: no es un negativo de un único método. Es
 "resultado negativo" en el sentido **fuerte** y replicable.
@@ -85,13 +85,13 @@ clínicamente informativas.
 
 ### Por sexo inferido (OCR + gender-guesser)
 
-*Tabla 9.2 — Subpoblación por sexo inferido: cobertura y limitaciones.*
-
 | Aspecto | Resultado |
 |---|---|
 | Cobertura | ~40% (nombres identificables) |
 | Sesgo de selección | Probable |
 | MANOVA global | No significativo |
+
+Tabla 9.2: Subpoblación por sexo inferido: cobertura, sesgo y resultado del MANOVA global.
 
 **Diferencias débiles y no confiables** por tamaño efectivo bajo y sesgo
 de selección. No se citan en conclusiones principales.
