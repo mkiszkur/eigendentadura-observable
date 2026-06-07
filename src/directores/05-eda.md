@@ -47,7 +47,7 @@ display(Plot.plot({
 }));
 ```
 
-De los **449.285 shapes dentales**, solo **146.596 son dientes reales**
+De los **449.285 shapes dentales**, solo **146.669 son dientes reales**
 (polígonos principales con FDI). El resto son las shapes auxiliares
 (centroides + minBBox) del sistema multi-shape descrito en
 [3.3](./03-dataset#3-3-sistema-multi-shape).
@@ -76,15 +76,17 @@ display(zoomableChart(teethDistChart(ds.teeth_dist, {width: Math.min(width, 680)
   const median = d3.median(ds.pantos, d => d.n);
   display(html`<p style="font-size:0.9rem; color:#444; line-height:1.5;">
     <strong>${pct32 ? ((pct32.count/total*100).toFixed(1)) : "—"}%</strong> de los pantos tiene los 32 dientes permanentes anotados.
-    Mediana: <strong>${median}</strong> dientes/panto. La cola larga refleja la naturaleza
-    adulta de la población (alta tasa de ausencias).
+    Mediana: <strong>${median}</strong> dientes/panto. La distribución es <strong>bimodal</strong>: un primer modo
+    en dentadura joven o incompleta (14–20 dientes) y un segundo modo en dentadura adulta cercana a completa
+    (28–32). La bimodalidad refleja la composición del corpus clínico (ortodoncia + adultos con tratamientos
+    avanzados) más que un sesgo de anotación.
   </p>`);
 }
 ```
 
 ---
 
-## 5.3 Distribución anatómica (n = 146.596 dientes)
+## 5.3 Distribución anatómica (n = 146.669 dientes)
 
 <div id="fig-cap05-distribucion-anatomica"></div>
 
@@ -169,7 +171,7 @@ limitación se discute en el cap. 9 (subpoblaciones × versión).
 
 ## 5.5 Prevalencia de patologías
 
-Sobre los **146.596 dientes con FDI**, todas las patologías tienen
+Sobre los **146.669 dientes con FDI**, todas las patologías tienen
 prevalencia inferior al 5%. Esto plantea el desafío de **clases muy
 desbalanceadas** para cualquier técnica supervisada (queda fuera de scope).
 
@@ -280,7 +282,7 @@ landmarks es el más informativo.
 ```js
 const flagsArchivo = [
   {flag: "permanent_incomplete", pct: 68.3, color: "#e45756"},
-  {flag: "landmarks_complete",   pct: 53.8, color: "#7b52ab"},
+  {flag: "lm_norm_complete",     pct: 53.8, color: "#7b52ab"},
   {flag: "bone_loss",            pct: 42.9, color: "#e45756"},
   {flag: "tartar",               pct: 37.7, color: "#f58518"},
   {flag: "dental_restoration",   pct: 34.3, color: "#54a24b"},
@@ -303,6 +305,24 @@ Interpretación poblacional:
 3. Distribución anatómica balanceada entre arcadas y hemicaras.
 4. Variabilidad geométrica real (ángulos, posiciones) justifica el análisis morfométrico del cap. 6+.
 5. Cobertura parcial de landmarks (54%) **limita pero no impide** el análisis geométrico avanzado.
+
+---
+
+## 5.9 Preguntas de investigación P1–P5
+
+El análisis exploratorio precedente —junto con las iteraciones sucesivas de los Capítulos 6–10— hace explícitos cinco interrogantes que organizan el resto de la tesis. Estas preguntas **no son hipótesis postuladas a priori**: el carácter *data-driven* del trabajo (principio rector *Hipótesis non fingo*) las posiciona como producto del proceso exploratorio y no como su punto de partida.
+
+Dado el dataset de **5.114** radiografías panorámicas (Cap. 3) —con shapes geométricas, landmarks anatómicos y flags clínicos—, el problema general se formula como:
+
+> **Construir representaciones cuantitativas de la dentadura completa que (a) capturen la variación anatómica normal de la población; (b) permitan posicionar dentaduras individuales respecto de esa variación; y (c) habiliten la exploración interactiva por parte de profesionales clínicos sin formación técnica en ciencia de datos.**
+
+Las preguntas emergentes que articulan ese problema son:
+
+- **P1.** ¿Es posible construir un *espacio latente de la dentadura* —análogo al de las *eigenfaces*— que capture la variación posicional, angular y de tamaño de las 32 piezas dentales en pocas componentes interpretables? *(Cap. 7.)*
+- **P2.** ¿Qué transformación geométrica resulta más adecuada para normalizar las dentaduras antes del análisis: la basada en el tamaño de la imagen, la basada en landmarks anatómicos (transformación de similitud sobre cóndilos), o la morfometría geométrica clásica (Procrustes generalizado)? *(Cap. 6.)*
+- **P3.** ¿La población muestra **subgrupos discretos** de dentaduras (clusters) o la variación es esencialmente continua? *(Cap. 9.)*
+- **P4.** ¿Existe asociación estadística entre las **patologías clínicas** (caries, pérdida ósea, restauraciones) y la **geometría global** de la dentadura, o las patologías son fenómenos locales que no se reflejan en el espacio latente? *(Cap. 9.)*
+- **P5.** ¿Qué arquitectura de visualización satisface los **dos escenarios de uso** identificados a lo largo del trabajo exploratorio: (a) análisis poblacional descriptivo sobre distribuciones, y (b) diagnóstico individual contra el promedio poblacional? *(Cap. 10.)*
 
 > 📓 Notebooks 010, 011, 012
 
