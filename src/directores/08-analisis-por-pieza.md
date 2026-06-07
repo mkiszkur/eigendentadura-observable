@@ -55,7 +55,7 @@ z_{i,k} = \frac{x_{i,k} - \text{med}(x_k)}{1{,}4826 \cdot \text{MAD}(x_k)}
 $$
 
 Las estadísticas `tooth_stats_lm.json` se ajustan **solo sobre el corpus**
-de 2.348 pantos ([splits canónicos](./04-metodologia#4-3-splits-canonicos)),
+de 2.348 pantos ([splits canónicos](./04-metodologia#4-5-splits-canonicos)),
 nunca sobre val/holdout.
 
 ## 8.5 Outliers
