@@ -131,7 +131,7 @@ referencia al PCA global del Rol 1.
   + Davies–Bouldin. **Resultado negativo central P3**: ausencia de
   subgrupos discretos (Cap. 9, silhouette $< 0{,}15$).
 
-### 4.4.3 Detección y proxies clínicos
+### 4.4.3 Detección, imputación y proxies clínicos
 
 Única componente supervisada del trabajo: **detector neuronal de
 landmarks** (HRNet-lite + *heatmaps* + `softargmax` + TTA *flip*).
@@ -154,6 +154,21 @@ display(html`<ul style="margin:0; padding-left:1.2rem;">
 
 > Artefacto canónico: `data/models/exp04/checkpoint_best_v2.pt`. Cierre
 > completo en [`docs/experimentos/04_landmarks_nn/99_cierre.md`](../../docs/experimentos/04_landmarks_nn/99_cierre.md).
+
+**Refiner stage-2 de landmarks.** Un segundo modelo (`data/models/exp06/checkpoint_best_v1.pt`,
+política `BplusD_10`) afina los cuatro puntos condíleos $L_1$, $L_2$,
+$L_6$, $L_7$ sobre la salida del detector cuando el desplazamiento
+$\Delta s_1 \to s_2 \leq 10$ px. Reduce el error mediano de los
+cóndilos y se incorpora al *fallback* de `lib/landmarks_nn`.
+
+**Imputadores de la numeración FDI** (`pipeline/stage_04_impute_fdi.py`).
+Cuando un polígono dental no trae FDI explícita (Cap. 3 §3.1.3), tres
+modelos en cascada completan la numeración —y **nunca sobrescriben
+la anotación GT cuando existe**—:
+
+- **M1 — Posicional**: gaussiano diagonal por FDI sobre $(cx, cy, \theta)$ en frame `*_lm`. Actúa como *prior* bayesiano.
+- **M2 — Por forma**: CatBoost v2 sobre 43 descriptores morfológicos del polígono (firma radial, Hu, EFD, minbbox, curvatura, cúspides). Top-1 holdout 79,95 %. Complementario a M1 cuando la posición es ambigua. Artefacto: `data/models/exp11/model_catboost_v2.cbm`.
+- **M3 — Asignador canónico**: combina M1 y M2 con asignación Hungarian + unicidad por panto.
 
 **Proxies clínicos derivados del frame intercondíleo**:
 
