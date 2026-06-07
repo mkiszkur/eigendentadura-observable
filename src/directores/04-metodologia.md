@@ -215,6 +215,8 @@ display(html`<table style="width:100%; border-collapse:collapse; font-size:0.9re
 
 ## 4.6 Stack tecnológico
 
+*Tabla 4.1 — Stack tecnológico por capa.*
+
 | Capa | Tecnología | Función |
 |---|---|---|
 | Datos | LabelMe JSON | Anotaciones de origen |

@@ -255,6 +255,8 @@ de la arcada).
 
 ## 5.7 Métricas geométricas (dientes reales)
 
+*Tabla 5.1 — Métricas geométricas de los dientes reales: medianas e IQR.*
+
 | Métrica | Mediana | IQR | Comentario |
 |---|---|---|---|
 | `polygon_area` (px²) | ≈ 18.000 | [10.500 – 28.000] | Área del polígono de segmentación |

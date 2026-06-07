@@ -73,6 +73,8 @@ display(html`<div style="display:grid; gap:0.7rem;">
 
 ## 11.4 Trabajo futuro
 
+*Tabla 11.1 — Líneas de trabajo futuro y capítulo de origen.*
+
 | Línea | Origen |
 |---|---|
 | Refinamiento normalización por **afín** (3 puntos) | cap. 6 |

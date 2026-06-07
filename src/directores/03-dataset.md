@@ -424,6 +424,8 @@ aparatología) y ateromas.
 
 7 landmarks por panto (cuando están anotados):
 
+*Tabla 3.1 — Los siete landmarks anatómicos y su uso en el pipeline.*
+
 | Landmark | Estructura | Uso en pipeline |
 |---|---|---|
 | **L1 / L6** | Cóndilo izquierdo (par) | Origen + escala + rotación del marco condíleo |
@@ -623,6 +625,8 @@ en B por cantidad de flags ($-\min(n_\text{patol}/3, 10)$).
 
 <details>
 <summary>▸ Fórmula completa del score por categoría</summary>
+
+*Tabla 3.2 — Fórmula del score por categoría del checklist de adopción.*
 
 | Categoría | Score base | Bonus | Tope |
 |---|---|---|---|

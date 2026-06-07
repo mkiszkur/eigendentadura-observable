@@ -50,6 +50,8 @@ display(directoresNav("sintesis"));
 
 **Evidencia:**
 
+*Tabla 0.1 — Comparación cuantitativa de los frames `*_norm` y `*_lm` en tests morfométricos (exp16).*
+
 | Test | `*_norm` | `*_lm` | Factor de mejora |
 |------|----------|--------|------------------|
 | Varianza residual post-Procrustes | 16.12 px² | **1.54 px²** | **10.5×** |

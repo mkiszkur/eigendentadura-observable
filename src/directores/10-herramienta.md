@@ -57,6 +57,8 @@ display(directoresNav("10"));
 
 `observable/src/components/` (~30 archivos JS). Familias:
 
+*Tabla 10.1 — Familias de componentes de la herramienta y los datasets que consumen.*
+
 | Familia | Ejemplos | Datos |
 |---|---|---|
 | **Geometría** | `panto-schematic`, `panto-normalized`, `arch-form` | `pantos_browser.json`, `pantos_geometry/` |

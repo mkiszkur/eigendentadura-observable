@@ -24,6 +24,8 @@ display(directoresNav("06"));
 
 ## 6.1 Tres esquemas comparados
 
+*Tabla 6.1 — Tres esquemas de normalización geométrica comparados.*
+
 | Esquema | Definición | Sufijo | Pros | Contras |
 |---|---|---|---|---|
 | **raw** | Píxeles crudos | (sin sufijo) | Sin pérdida | Confunde anatomía con resolución de equipo |
@@ -78,6 +80,8 @@ display(svg.node());
 ```
 
 ### ¿Por qué dos puntos son suficientes?
+
+*Tabla 6.2 — Grados de libertad de la similitud 2D y su fuente en el marco condíleo.*
 
 | Necesidad | GdL | Fuente |
 |---|---|---|
@@ -233,6 +237,8 @@ display(html`<table style="width:100%; max-width:780px; border-collapse:collapse
 **3F-lm concentra ligeramente más varianza en PC1** (43,1 % vs 40,0 %; PC1+PC2 74,8 % vs 73,4 %). Los **features geométricos adicionales (8F-lm) diluyen la señal posicional**: con 8 features PC1 pasa a estar dominada por `minbbox_area` (28/32 piezas), capturando tamaño pero no estructura posicional. Conclusión: **(cx_lm, cy_lm, angle_normalized_lm) es el set óptimo**.
 
 ### Clustering por pieza (K-Means k=2..6)
+
+*Tabla 6.3 — Métricas de clustering K-Means por pieza ($k = 2..6$) bajo tres variantes de features.*
 
 | Variante | Silhouette | Calinski-H | k mediana | Outliers (|z|>3) |
 |---|---|---|---|---|

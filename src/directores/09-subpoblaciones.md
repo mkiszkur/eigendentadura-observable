@@ -59,6 +59,8 @@ subgrupos discretos.
 
 ## 9.2 Validación cruzada del resultado negativo
 
+*Tabla 9.1 — Evidencia convergente sobre la ausencia de subgrupos discretos en el espacio geométrico.*
+
 | Evidencia | Resultado |
 |---|---|
 | Clustering sobre Z-scores (96D) | silhouette < 0.15 |
@@ -82,6 +84,8 @@ clínicamente informativas.
 ## 9.4 Subpoblaciones predefinidas
 
 ### Por sexo inferido (OCR + gender-guesser)
+
+*Tabla 9.2 — Subpoblación por sexo inferido: cobertura y limitaciones.*
 
 | Aspecto | Resultado |
 |---|---|

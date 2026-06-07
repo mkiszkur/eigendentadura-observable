@@ -597,6 +597,8 @@ const toothStatsLM = await FileAttachment("../data/tooth_stats_lm.json").json();
 
 ## Cohortes y splits
 
+*Tabla 2.1 — Cohortes analíticas y su uso en los capítulos.*
+
 | Cohorte | n pantos | Uso |
 |---|---|---|
 | Universo total | 5.114 | EDA general (cap. 5) |
